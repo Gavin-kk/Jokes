@@ -9,11 +9,13 @@ module.exports = {
   parser: 'vue-eslint-parser',
   parserOptions: {
     ecmaVersion: 12,
-    parser: '@typescript-eslint/parser',
     sourceType: 'module',
+    parser: '@typescript-eslint/parser',
   },
   plugins: ['vue', '@typescript-eslint', 'html'],
   rules: {
+    'no-shadow': 0,
+    'import/no-unresolved': 0,
     'object-curly-newline': 0,
     '@typescript-eslint/no-var-requires': 0,
     'class-methods-use-this': 0,
@@ -28,6 +30,9 @@ module.exports = {
     '@typescript-eslint/explicit-module-boundary-types': 0,
     'no-param-reassign': 0,
     'operator-linebreak': 0,
+    'no-return-assign': 0,
+    'import/named': 0,
+    'no-undef': 0,
   },
   settings: {
     'import/resolver': {
@@ -35,10 +40,13 @@ module.exports = {
         map: [
           ['@src', './src'],
           ['@components', './src/components'],
-          ['@assets', './src/assets'],
+          ['@common', './src/common'],
           ['@services', './src/services'],
           ['@utils', './src/utils'],
           ['@pages', './src/pages'],
+          ['@config', './src/config'],
+          ['@store', './src/store'],
+          ['@static', './src/static'],
         ],
       },
       node: {

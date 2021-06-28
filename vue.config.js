@@ -10,8 +10,18 @@ module.exports = {
       .set('@pages', resolve('src/pages'))
       .set('@components', resolve('src/components'))
       .set('@services', resolve('src/services'))
-      .set('@assets', resolve('src/assets'))
       .set('@utils', resolve('src/utils'))
-      .set('@common', resolve('src/common'));
+      .set('@common', resolve('src/common'))
+      .set('@config', resolve('src/config'))
+      .set('@store', resolve('src/store'))
+      .set('@static', resolve('src/static'));
+  },
+  transpileDependencies: ['@dcloudio/uni-ui'],
+  css: {
+    loaderOptions: {
+      scss: {
+        additionalData: '@import "~@common/style/global.scss";@import "./src/uni.scss";',
+      },
+    },
   },
 };

@@ -1,0 +1,1 @@
+{"version":3,"file":"menu-active.config.js","sourceRoot":"","sources":["menu-active.config.ts"],"names":[],"mappings":"AAKA,MAAM,CAAC,MAAM,gBAAgB,GAAwB;IACnD;QACE,QAAQ,EAAE,kBAAkB;QAC5B,KAAK,EAAE,MAAM;KACd;IACD;QACE,QAAQ,EAAE,oBAAoB;QAC9B,KAAK,EAAE,QAAQ;KAChB;CACF,CAAC"}

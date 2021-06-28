@@ -5,10 +5,12 @@
       "@src/*": ["./*"],
       "@services/*": ["./services/*"],
       "@pages/*": ["./pages/*"],
-      "@assets/*": ["./assets/*"],
       "@components/*": ["./components/*"],
       "@utils/*": ["./utils/*"],
-      "@common": ["./common/!*"]
+      "@common/*": ["./common/*"],
+      "@config/*": ["./config/*"],
+      "@store/*": ["./store/*"],
+      "@static/*": ["./static/*"]
     }
   }
 }

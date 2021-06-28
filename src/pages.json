@@ -1,16 +1,91 @@
 {
 	"pages": [ //pages数组中第一项表示应用启动页，参考：https://uniapp.dcloud.io/collocation/pages
 		{
-			"path": "pages/index/index",
+			"path": "pages/home/home",
 			"style": {
-				"navigationBarTitleText": "uni-app"
+				"app-plus": {
+					"scrollIndicator": "none",
+					"titleNView": {
+						"backgroundColor": "#FFFFFF",
+						"searchInput": {
+							"align": "center",
+							"backgroundColor": "#f9f6f9",
+							"borderRadius": "4px",
+							"placeholder": "搜索新鲜事",
+							"placeholderColor": "#ccc",
+							"disabled": true
+						},
+						"buttons": [
+							{
+								"color": "#d7a95b",
+								"colorPressed": "#BBBBBB",
+								"float": "left",
+								"fontSize": "22px",
+								"fontSrc": "./static/icon/icon.ttf",
+								"text": "\ue609"
+							},
+							{
+								"color": "#000000",
+								"colorPressed": "#BBBBBB",
+								"float": "right",
+								"fontSize": "22px",
+								"fontSrc": "./static/icon/icon.ttf",
+								"text": "\ue653"
+							}
+						]
+					}
+				}
 			}
+		},
+		{
+			"path": "pages/moment/moment"
+		},
+		{
+			"path": "pages/news/news"
+		},
+		{
+			"path": "pages/mine/mine"
 		}
 	],
 	"globalStyle": {
 		"navigationBarTextStyle": "black",
-		"navigationBarTitleText": "uni-app",
+		"navigationBarTitleText": "嘻嘻哈哈",
 		"navigationBarBackgroundColor": "#F8F8F8",
-		"backgroundColor": "#F8F8F8"
+		"backgroundColor": "#ccc",
+		"navigationStyle": "custom"
+	},
+	"tabBar": {
+		"color": "#000000",
+		"selectedColor": "#FADD2B",
+		"backgroundColor": "#FFFFFF",
+		"position": "bottom",
+		"borderStyle": "black",
+		"list": [
+			{
+				"pagePath": "pages/home/home",
+				"text": "首页",
+				"iconPath": "static/tabbar-icon/home.png",
+				"selectedIconPath": "static/tabbar-icon/selected-home.png"
+			},
+			{
+				"pagePath": "pages/moment/moment",
+				"text": "动态",
+				"iconPath": "static/tabbar-icon/moment.png",
+				"selectedIconPath": "static/tabbar-icon/selected-moment.png"
+			},
+			{
+				"pagePath": "pages/news/news",
+				"text": "消息",
+				"iconPath": "static/tabbar-icon/news.png",
+				"selectedIconPath": "static/tabbar-icon/selected-news.png"
+			},
+			{
+				"pagePath": "pages/mine/mine",
+				"text": "我的",
+				"iconPath": "static/tabbar-icon/mine.png",
+				"selectedIconPath": "static/tabbar-icon/selected-mine.png"
+			}
+		]
 	}
 }
+

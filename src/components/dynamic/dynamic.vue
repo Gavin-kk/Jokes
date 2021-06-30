@@ -1,41 +1,45 @@
 <template>
-  <view class="dynamic">
+  <view class="dynamic animate__animated animate__fadeInUp">
     <view class="title-box">
       <view class="title-left">
         <view class="img-box">
-          <image src="~@static/demo/userpic/1.jpg" mode="widthFix" class="img" lazy-load></image>
+          <image :src="momentData.avatar" mode="widthFix" class="img" lazy-load></image>
         </view>
-        <view class="username">name</view>
+        <view class="username">{{ momentData.username }}</view>
       </view>
-
       <view class="title-right">
-        <view class="attention-btn">+关注</view>
+        <view class="attention-btn" v-show="momentData.whetherToFollow === 0" @tap="followUsers">关注</view>
         <view class="close-icon iconfont icon-guanbi" />
       </view>
     </view>
-    <view class="text-box">如何用手账改变你的一生?</view>
+    <view class="text-box">{{ momentData.title }}</view>
     <view class="img-box">
-      <image class="content-img" src="~@static/demo/datapic/1.jpg" mode="aspectFill" />
+      <image class="content-img" :src="momentData.coverImage" mode="aspectFill" lazy-load />
+      <view class="play-btn iconfont icon-bofang" v-if="momentData.fileType === 'video'" />
+      <view class="video-count" v-if="momentData.fileType === 'video'">
+        <view class="play-count">{{ handleNumber(momentData.playCount) }}次播放</view>
+        <view>{{ momentData.totalTime }}</view>
+      </view>
     </view>
     <view class="btn-box">
       <view class="btn-left">
-        <view class="btn-child-box">
-          <text class="smiley-icon iconfont icon-icon_xiaolian-mian"></text>
-          1234
+        <view class="btn-child-box" @tap="likeEvent">
+          <text :class="[{ like: !!momentData.isLike }, 'smiley-icon', 'iconfont', 'icon-icon_xiaolian-mian']"></text>
+          {{ handleNumber(momentData.likeCount) }}
         </view>
-        <view class="btn-child-box">
-          <text class="smiley-icon iconfont icon-kulian"></text>
-          1234
+        <view class="btn-child-box" @tap="dislikeEvent">
+          <text :class="[{ dislike: !!momentData.dislike }, 'smiley-icon', 'iconfont', 'icon-kulian']"></text>
+          {{ handleNumber(momentData.dontLikeCount) }}
         </view>
       </view>
       <view class="btn-right">
         <view class="btn-child-box">
           <text class="smiley-icon iconfont icon-pinglun1"></text>
-          1234
+          {{ handleNumber(momentData.privateMessageCount) }}
         </view>
         <view class="btn-child-box">
           <text class="smiley-icon iconfont icon-zhuanfa"></text>
-          1234
+          {{ handleNumber(momentData.shareCount) }}
         </view>
       </view>
     </view>
@@ -43,44 +47,109 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Emit, Prop, Watch } from 'vue-property-decorator';
+import { Vue, Component, Prop } from 'vue-property-decorator';
 
 @Component({})
-export default class Dynamic extends Vue {}
+export default class Dynamic extends Vue {
+  @Prop({ type: Object, required: true })
+  private momentData!: IMoment;
+
+  // 关注用户事件
+  followUsers(): void {
+    // 发送关注请求
+    this.momentData.whetherToFollow = 1;
+    // 显示关注成功提示框
+    uni.showToast({
+      title: '关注成功',
+      icon: 'success',
+    });
+  }
+  // 喜欢帖子事件
+  likeEvent(): void {
+    const m = this.momentData;
+    // 发送喜欢请求
+    if (m.dislike) {
+      m.dislike = 0;
+      m.dontLikeCount--;
+    }
+    if (!m.isLike) {
+      m.isLike = 1;
+      m.likeCount++;
+    } else if (m.isLike) {
+      m.isLike = 0;
+      m.likeCount--;
+    }
+  }
+
+  // 点击不喜欢帖子事件
+  dislikeEvent(): void {
+    const m = this.momentData;
+
+    if (m.isLike) {
+      m.isLike = 0;
+      m.likeCount--;
+    }
+    if (m.dislike) {
+      m.dislike = 0;
+      m.dontLikeCount--;
+    } else if (!m.dislike) {
+      m.dislike = 1;
+      m.dontLikeCount++;
+    }
+  }
+
+  handleNumber(num: number): string {
+    const centerNum: (n: number) => number = (n: number) => +(num / n).toFixed(2);
+
+    switch (true) {
+      case num > 1000 && num < 10000:
+        return `${centerNum(1000)}千`;
+      case num > 10000 && num < 1000000:
+        return `${centerNum(10000)}万`;
+      case num > 1000000 && num < 10000000:
+        return `${centerNum(1000000)}百万`;
+      case num > 10000000 && num < 100000000:
+        return `${centerNum(10000000)}千万`;
+      case num > 100000000 && num < 1000000000:
+        return `${centerNum(100000000)}亿`;
+      default:
+        return `${num}`;
+    }
+  }
+}
 </script>
 
 <style lang="scss" scoped>
+@import 'src/common/style/global';
+
 .dynamic {
   width: 750rpx;
   padding: 20rpx 20rpx 0 20rpx;
   box-sizing: border-box;
   color: #cdcdcd;
-  border-bottom: 1rpx solid #ccc;
-  short-video .title-box {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+  border-bottom: 1rpx solid #efefef;
+  height: 650rpx;
+
+  .title-box {
+    @include bothSides;
 
     .title-left {
       flex: 1;
-      display: flex;
+      @include verticallyCentered;
       justify-content: flex-start;
-      align-items: center;
       height: 100%;
 
       .img-box {
-        display: flex;
-        justify-content: center;
-        align-items: center;
+        @include centered;
         width: 80rpx;
         height: 80rpx;
         border-radius: 50%;
-        background: #4cd964;
         overflow: hidden;
 
         .img {
           width: 100%;
           height: 100%;
+          will-change: transform;
         }
       }
 
@@ -92,15 +161,13 @@ export default class Dynamic extends Vue {}
 
     .title-right {
       flex: 1;
-      display: flex;
+      @include verticallyCentered;
       justify-content: flex-end;
-      align-items: center;
+
       height: 100%;
 
       .attention-btn {
-        display: flex;
-        justify-content: center;
-        align-items: center;
+        @include centered;
         color: #000000;
         width: 80rpx;
         height: 40rpx;
@@ -119,48 +186,69 @@ export default class Dynamic extends Vue {}
   }
 
   .text-box {
+    @include ellipsis(650rpx);
     padding: 20rpx 0;
     color: #000000;
     font-size: 35rpx;
   }
 
   .img-box {
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    position: relative;
     width: 100%;
+    height: 350rpx;
     border-radius: 5px;
     overflow: hidden;
 
     .content-img {
       width: 100%;
-      height: 350rpx;
+      height: 100%;
+      will-change: transform;
+    }
+
+    .play-btn {
+      @include positioningCentered;
+      color: rgba(255, 255, 255, 0.7);
+      font-size: 100rpx;
+    }
+
+    .video-count {
+      @include centered;
+      //@include bothSides;
+      position: absolute;
+      right: 10rpx;
+      bottom: 10rpx;
+      background: rgba(0, 0, 0, 0.5);
+      border-radius: 5px;
+      box-sizing: border-box;
+      padding: 10rpx;
+      color: #dde4d2;
+
+      > view {
+        font-size: 15rpx;
+      }
+
+      .play-count {
+        margin-right: 10rpx;
+      }
     }
   }
 
   .btn-box {
-    display: inline-flex;
-    align-items: center;
+    @include verticallyCentered;
     width: 100%;
     height: 100rpx;
 
     .btn-left {
+      @include verticallyCentered;
       flex: 1;
       display: flex;
-      justify-content: flex-start;
-      align-items: center;
       height: 100%;
     }
 
-    //.btn-left > .btn-child-box:first-of-type > .smiley-icon {
-    //  padding-left: 0;
-    //}
-
     .btn-right {
+      @include verticallyCentered;
       flex: 1;
-      display: flex;
       justify-content: flex-end;
-      align-items: center;
       height: 100%;
     }
     .btn-right > .btn-child-box:nth-child(2) {
@@ -170,10 +258,16 @@ export default class Dynamic extends Vue {}
 }
 
 .btn-child-box {
-  display: flex;
-  align-items: center;
+  @include verticallyCentered;
   height: 100%;
   font-size: 25rpx;
+  // 如果是喜欢的话变成黄色
+  .like {
+    color: #fbe351;
+  }
+  .dislike {
+    color: #439cea;
+  }
 
   > text {
     display: inline;

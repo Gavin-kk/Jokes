@@ -5,6 +5,7 @@
 			"style": {
 				"app-plus": {
 					"scrollIndicator": "none",
+					"navigationStyle": "custom",
 					"titleNView": {
 						"backgroundColor": "#FFFFFF",
 						"searchInput": {
@@ -51,8 +52,7 @@
 		"navigationBarTextStyle": "black",
 		"navigationBarTitleText": "嘻嘻哈哈",
 		"navigationBarBackgroundColor": "#F8F8F8",
-		"backgroundColor": "#ccc",
-		"navigationStyle": "custom"
+		"backgroundColor": "#ccc"
 	},
 	"tabBar": {
 		"color": "#000000",

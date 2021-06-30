@@ -1,2 +1,38 @@
 //文字颜色
 $color: #98989b;
+// flex 水平垂直居中
+@mixin centered {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+// 水平两边居中 垂直居中
+@mixin bothSides {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+// flex 水平居中
+@mixin horizontallyCentered {
+  display: flex;
+  justify-content: center;
+}
+// flex 垂直居中
+@mixin verticallyCentered {
+  display: flex;
+  align-items: center;
+}
+// 定位居中
+@mixin positioningCentered {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+//强制一行显示超出用...表示 必须设置宽度
+@mixin ellipsis($width) {
+  width: $width;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}

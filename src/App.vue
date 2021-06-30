@@ -5,7 +5,6 @@ import { ActionTypes } from '@store/module/system';
 export default Vue.extend({
   mpType: 'app',
   onLaunch() {
-    this.$store.dispatch(`systemModule/${ActionTypes.GET_SYSTEM_INFO}`);
     console.log('加载');
   },
   onShow() {
@@ -34,9 +33,9 @@ export default Vue.extend({
 @import './common/style/animate.min.css';
 /* #endif */
 
-/*.uni-page-body,
-html,
-body {
-  height: 100%;
-}*/
+//.uni-page-body,
+//html,
+//body {
+//  height: 100%;
+//}
 </style>

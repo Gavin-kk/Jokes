@@ -29,19 +29,25 @@
         <upload-img @imageListChange="imageListChange"></upload-img>
       </view>
     </view>
+    <view>
+      <popup :show="show" @confirm="confirm"></popup>
+    </view>
   </view>
 </template>
 
 <script lang="ts">
-import { Vue, Component, Emit, Prop, Watch } from 'vue-property-decorator';
+import { Vue, Component } from 'vue-property-decorator';
 import UniNavBar from '@dcloudio/uni-ui/lib/uni-nav-bar/uni-nav-bar.vue';
 import uniIcons from '@dcloudio/uni-ui/lib/uni-icons/uni-icons.vue';
 import uniFilePicker from '@dcloudio/uni-ui/lib/uni-file-picker/uni-file-picker.vue';
 import UploadImg from '@components/upload-img/upload-img.vue';
+import UniPopup from '@dcloudio/uni-ui/lib/uni-popup/uni-popup.vue';
+import Popup from '@components/popup/popup.vue';
+// import UniPopup from '@components/uni-popup/uni-popup.vue';
 
 type Select = { id: number; name: string };
 
-@Component({ components: { UploadImg, UniNavBar, uniIcons, uniFilePicker } })
+@Component({ components: { Popup, UploadImg, UniNavBar, uniIcons, uniFilePicker, UniPopup } })
 export default class Release extends Vue {
   private currentSelectedIndex: number = 0;
   private selectList: Select[] = [
@@ -52,11 +58,9 @@ export default class Release extends Vue {
   private inputValue: string = '';
   // 要上传的文件 blob 地址
   private imageBlobUrl: string[] = [];
+  // 是否显示警告提示框
+  private show: boolean = true;
 
-  @Watch('imageBlobUrl')
-  asdf(newList: any) {
-    console.log(JSON.stringify(newList));
-  }
   // 显示下拉框
   showSelectList(): void {
     const itemList: string[] = this.selectList.map((item) => item.name);
@@ -69,6 +73,12 @@ export default class Release extends Vue {
 
   imageListChange(imageList: string[]): void {
     this.imageBlobUrl = imageList;
+  }
+
+  // 用户点击提示框确认
+  confirm() {
+    uni.showToast({ title: '确认' });
+    this.show = false;
   }
 
   // 返回
@@ -94,7 +104,6 @@ export default class Release extends Vue {
 
   .select-box {
     position: relative;
-    background: #ffffff;
     z-index: 100;
   }
 }

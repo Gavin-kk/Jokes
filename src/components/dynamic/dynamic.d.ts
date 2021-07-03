@@ -1,4 +1,5 @@
 interface IMoment {
+  id?: number;
   // 用户名
   username: string;
   // title 内容

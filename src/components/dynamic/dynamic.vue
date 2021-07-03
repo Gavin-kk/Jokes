@@ -12,12 +12,12 @@
         <view class="close-icon iconfont icon-guanbi" />
       </view>
     </view>
-    <view class="text-box">{{ momentData.title }}</view>
-    <view class="img-box">
+    <view class="text-box" @tap="openDetail(momentData.id)">{{ momentData.title }}</view>
+    <view class="img-box" @tap="openDetail(momentData.id)">
       <image class="content-img" :src="momentData.coverImage" mode="aspectFill" lazy-load />
       <view class="play-btn iconfont icon-bofang" v-if="momentData.fileType === 'video'" />
       <view class="video-count" v-if="momentData.fileType === 'video'">
-        <view class="play-count">{{ handleNumber(momentData.playCount) }}次播放</view>
+        <view class="play-count">{{ momentData.playCount | handleNumber }}次播放</view>
         <view>{{ momentData.totalTime }}</view>
       </view>
     </view>
@@ -25,21 +25,22 @@
       <view class="btn-left">
         <view class="btn-child-box" @tap="likeEvent">
           <text :class="[{ like: !!momentData.isLike }, 'smiley-icon', 'iconfont', 'icon-icon_xiaolian-mian']"></text>
-          {{ handleNumber(momentData.likeCount) }}
+          {{ momentData.likeCount | handleNumber }}
         </view>
+
         <view class="btn-child-box" @tap="dislikeEvent">
           <text :class="[{ dislike: !!momentData.dislike }, 'smiley-icon', 'iconfont', 'icon-kulian']"></text>
-          {{ handleNumber(momentData.dontLikeCount) }}
+          {{ momentData.dontLikeCount | handleNumber }}
         </view>
       </view>
       <view class="btn-right">
         <view class="btn-child-box">
           <text class="smiley-icon iconfont icon-pinglun1"></text>
-          {{ handleNumber(momentData.privateMessageCount) }}
+          {{ momentData.privateMessageCount | handleNumber }}
         </view>
         <view class="btn-child-box">
           <text class="smiley-icon iconfont icon-zhuanfa"></text>
-          {{ handleNumber(momentData.shareCount) }}
+          {{ momentData.shareCount | handleNumber }}
         </view>
       </view>
     </view>
@@ -48,8 +49,11 @@
 
 <script lang="ts">
 import { Vue, Component, Prop } from 'vue-property-decorator';
+import { handleNumber } from '@utils/handle-number';
 
-@Component({})
+@Component({
+  filters: { handleNumber },
+})
 export default class Dynamic extends Vue {
   @Prop({ type: Object, required: true })
   private momentData!: IMoment;
@@ -84,7 +88,6 @@ export default class Dynamic extends Vue {
   // 点击不喜欢帖子事件
   dislikeEvent(): void {
     const m = this.momentData;
-
     if (m.isLike) {
       m.isLike = 0;
       m.likeCount--;
@@ -98,23 +101,11 @@ export default class Dynamic extends Vue {
     }
   }
 
-  handleNumber(num: number): string {
-    const centerNum: (n: number) => number = (n: number) => +(num / n).toFixed(2);
-
-    switch (true) {
-      case num > 1000 && num < 10000:
-        return `${centerNum(1000)}千`;
-      case num > 10000 && num < 1000000:
-        return `${centerNum(10000)}万`;
-      case num > 1000000 && num < 10000000:
-        return `${centerNum(1000000)}百万`;
-      case num > 10000000 && num < 100000000:
-        return `${centerNum(10000000)}千万`;
-      case num > 100000000 && num < 1000000000:
-        return `${centerNum(100000000)}亿`;
-      default:
-        return `${num}`;
-    }
+  openDetail(id: number) {
+    //  跳转到对应页面 并请求数据
+    uni.showToast({
+      title: `跳转到详情页 ${id}`,
+    });
   }
 }
 </script>

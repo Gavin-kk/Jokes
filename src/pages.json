@@ -46,6 +46,47 @@
 		},
 		{
 			"path": "pages/mine/mine"
+		},
+		{
+			"path": "pages/search/search",
+			"style": {
+				"app-plus": {
+					"scrollIndicator": "none",
+					"navigationStyle": "custom",
+					"titleNView": {
+						"autoBackButton": false,
+						"backgroundColor": "#FFFFFF",
+						"searchInput": {
+							"align": "left",
+							"backgroundColor": "#f9f6f9",
+							"borderRadius": "4px",
+							"placeholder": "搜索新鲜事",
+							"placeholderColor": "#ccc"
+						},
+						"buttons": [
+							{
+								"color": "#000000",
+								"colorPressed": "#BBBBBB",
+								"float": "right",
+								"fontSize": "16px",
+								"text": "取消"
+							}
+						]
+					}
+				},
+				"h5": {
+					"autoBackButton": false
+				}
+			}
+		},
+		{
+			"path": "pages/release/release",
+			"style": {
+				"navigationStyle": "custom",
+				"app-plus": {
+					"titleNView": false
+				}
+			}
 		}
 	],
 	"globalStyle": {

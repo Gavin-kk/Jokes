@@ -33,6 +33,8 @@ module.exports = {
     'no-return-assign': 0,
     'import/named': 0,
     'no-undef': 0,
+    indent: 0,
+    eqeqeq: 0,
   },
   settings: {
     'import/resolver': {

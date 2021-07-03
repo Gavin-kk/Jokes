@@ -1,7 +1,12 @@
 <template>
   <view class="home">
     <home-top-bar :list="list" :activeIndex="currentSwiperIndex" @currentSwiperIndexChange="swiperIndexChange" />
-    <sliding-list :new-list="newList" :activeIndex="currentSwiperIndex" @currentSwiperIndexChange="swiperIndexChange" />
+    <sliding-list
+      v-if="newList.length"
+      :new-list="newList"
+      :activeIndex="currentSwiperIndex"
+      @currentSwiperIndexChange="swiperIndexChange"
+    />
   </view>
 </template>
 
@@ -26,6 +31,24 @@ export default class Home extends Vue {
   created(): void {
     this.$store.dispatch(`${ModuleConstant.systemModule}/${ActionTypes.GET_SYSTEM_INFO}`);
   }
+  // 搜索框点击监听事件
+  onNavigationBarSearchInputClicked(): void {
+    uni.navigateTo({
+      url: '../search/search',
+    });
+  }
+  // 原生顶栏按钮点击监听事件
+  onNavigationBarButtonTap(e: INavigationBarButtonTapEvent): void {
+    if (e.index === 0) {
+      uni.showToast({
+        title: '签到成功 经验+3',
+      });
+    } else if (e.index === 1) {
+      uni.navigateTo({
+        url: '../release/release',
+      });
+    }
+  }
 
   swiperIndexChange(index: number): void {
     this.currentSwiperIndex = index;
@@ -33,6 +56,7 @@ export default class Home extends Vue {
 
   private momentList: IMoment[] = [
     {
+      id: Math.random() * 1000 + 1,
       username: '张三',
       title: '如何用手账改变你的一生?',
       avatar: '/static/demo/userpic/1.jpg',
@@ -49,6 +73,7 @@ export default class Home extends Vue {
       dislike: 0,
     },
     {
+      id: Math.random() * 1000 + 1,
       username: '李四',
       title: '如何用手账改变你的一生?',
       avatar: '/static/demo/userpic/1.jpg',
@@ -65,6 +90,7 @@ export default class Home extends Vue {
       dislike: 1,
     },
     {
+      id: Math.random() * 1000 + 1,
       username: '赵刘',
       title: '如何用手账改变你的一生?',
       avatar: '/static/demo/userpic/1.jpg',
@@ -81,6 +107,7 @@ export default class Home extends Vue {
       dislike: 0,
     },
     {
+      id: Math.random() * 1000 + 1,
       username: '是否',
       title: '如何用手账改变你的一生?',
       avatar: '/static/demo/userpic/1.jpg',
@@ -140,20 +167,11 @@ export default class Home extends Vue {
       title: '喜欢',
     },
   ];
-  private newList: { list: IMoment[]; loadingText: string }[] = [
-    {
-      loadingText: '上拉加载更多',
-      list: this.momentList,
-    },
-    {
-      loadingText: '上拉加载更多',
-      list: this.momentList,
-    },
-    {
-      loadingText: '上拉加载更多',
-      list: this.momentList,
-    },
-  ];
+  private newList: { list: IMoment[]; loadingText: string; id: number }[] = this.list.map(() => ({
+    id: Math.random() * 1000 + 1,
+    list: this.momentList,
+    loadingText: '上拉加载更多',
+  }));
 }
 </script>
 

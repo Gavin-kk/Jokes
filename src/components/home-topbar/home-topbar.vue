@@ -1,6 +1,6 @@
 <template>
   <view>
-    <scroll-view scroll-x :scroll-y="false" class="scroll-box">
+    <scroll-view :scroll-x="true" :scroll-y="false" class="scroll-box">
       <block v-for="(item, index) in list" :key="item.id">
         <view @tap="itemClick(index)" :class="[{ active: index === activeIndex }, 'item']">
           {{ item.title }}

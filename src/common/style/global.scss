@@ -37,3 +37,11 @@ $color: #98989b;
   text-overflow:ellipsis;
   white-space:nowrap;
 }
+// 强制两行显示 超出...
+@mixin twoLines($row) {
+  overflow: hidden;
+  -webkit-line-clamp: $row;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+}

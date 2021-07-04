@@ -58,9 +58,6 @@ export default class Dynamic extends Vue {
   @Prop({ type: Object, required: true })
   private momentData!: IMoment;
 
-  data() {
-    return {};
-  }
   private likeCount: number | null = null;
   private dontLikeCount: number | null = null;
   private whetherFollow: number | null = null;
@@ -100,6 +97,7 @@ export default class Dynamic extends Vue {
       this.likeCount!--;
     }
   }
+
 
   // 点击不喜欢帖子事件
   dislikeEvent(): void {

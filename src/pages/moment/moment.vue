@@ -15,53 +15,106 @@
       </view>
     </uni-nav-bar>
     <!--   列表组件-->
-    <view class="moment">
-      <view class="left">
-        <view class="avatar-box">
-          <image class="avatar" src="/static/demo/userpic/8.jpg" mode="scaleToFill"></image>
-        </view>
-      </view>
-      <view class="right">
-        <view class="title">
-          <view class="title-left">
-            <view class="username">三元先生</view>
-            <view class="grade"><view class="iconfont icon-nan">26</view></view>
-          </view>
-          <view class="title-right">
-            <view class="attention">关注</view>
-            <view class="iconfont icon-guanbi"></view>
-          </view>
-        </view>
-        <view class="content">六道快手家常菜，11111111好吃又下饭，家人都喜欢</view>
-        <view class="image">
-          <image class="content-img" src="/static/demo/datapic/2.jpg" mode="aspectFill"></image>
-        </view>
-        <view class="bottom-bar">
-          <view class="bottom-left"> 深圳 龙岗 </view>
-          <view class="bottom-right">
-            <view class="iconfont icon-zhuanfa"><text class="count">36</text></view>
-            <view class="iconfont icon-pinglun1"><text class="count">36</text></view>
-            <view class="iconfont icon-ccdbaa"><text class="count">36</text></view>
-          </view>
-        </view>
-      </view>
-    </view>
+    <moment-list :data="textData"></moment-list>
+    <moment-list :data="data"></moment-list>
+    <moment-list :data="videoData"></moment-list>
+    <moment-list :data="shareData"></moment-list>
   </view>
 </template>
 
 <script lang="ts">
 import { Vue, Component } from 'vue-property-decorator';
 import UniNavBar from '@dcloudio/uni-ui/lib/uni-nav-bar/uni-nav-bar.vue';
+import { IMomentList } from '@src/components/moment-list/moment-list';
+import MomentList from '@components/moment-list/moment-list.vue';
 
-@Component({ components: { UniNavBar } })
+@Component({ components: { MomentList, UniNavBar } })
 export default class Moment extends Vue {
   private isStatusBar: boolean = true;
+  // 文字数据
+  private textData: IMomentList = {
+    username: '名字',
+    gender: 0,
+    avatar: '/static/demo/userpic/8.jpg',
+    age: 22,
+    content:
+      '六道快手家常菜，11111111好吃又下4444444444444442让服务器额发去我服媳妇请问发撒地方去玩啊水电费为服装消费我去二商店下啊发顺丰 我温柔风去啊速度发送服务费饭，是覅额温暖危机让佛文件佛额我I今日份为节日哦就你发',
+    momentPic: null,
+    video: null,
+    share: null,
+    address: '上海',
+    forwardCount: 30,
+    commentCount: 30,
+    likeCount: 20,
+    isLike: 0, // 0未点赞 1点赞
+    isFollow: 0, // 是否关注
+  };
+
+  // 图片数据
+  private data: IMomentList = {
+    username: '名字',
+    gender: 0,
+    avatar: '/static/demo/userpic/8.jpg',
+    age: 22,
+    content:
+      '六道快手家常菜，111111111让服务器而且我2222222222222222222222222222222222222222222222222222222222好吃又下饭，是覅额温暖危机让佛文件佛额我I今日份为节日哦就你发',
+    momentPic: '/static/demo/datapic/2.jpg',
+    video: null,
+    share: null,
+    address: '上海',
+    forwardCount: 30,
+    commentCount: 30,
+    likeCount: 20,
+    isLike: 0, // 0未点赞 1点赞
+    isFollow: 0, // 是否关注
+  };
+  // 视频数据
+  private videoData: IMomentList = {
+    username: '名字',
+    age: 32,
+    gender: 0,
+    avatar: '/static/demo/userpic/8.jpg',
+    content: '六道快手家常菜，11111111好吃又下饭，是覅额温暖危机让佛文件佛额我I今日份为节日哦就你发',
+    momentPic: '/static/demo/datapic/2.jpg',
+    video: {
+      playCount: '20w',
+      totalTime: '2:40',
+    },
+    share: null,
+    address: '上海',
+    forwardCount: 30,
+    commentCount: 30,
+    likeCount: 20,
+    isLike: 0, // 0未点赞 1点赞
+    isFollow: 0, // 是否关注
+  };
+  // 分享数据
+  private shareData: IMomentList = {
+    gender: 0,
+    age: 42,
+    username: '名字',
+    avatar: '/static/demo/userpic/8.jpg',
+    content: '六道快手家常菜，11111111好吃又下饭，是覅额温暖危机让佛文件佛额我I今日份为节日哦就你发',
+    video: null,
+    momentPic: null,
+    share: {
+      content: '我是标题',
+      momentPic: '/static/demo/datapic/2.jpg',
+    },
+    address: '上海',
+    forwardCount: 30,
+    commentCount: 30,
+    likeCount: 20,
+    isLike: 1, // 0未点赞 1点赞
+    isFollow: 0, // 是否关注
+  };
 
   created() {
     // #ifdef MP-WEIXIN
     this.isStatusBar = false;
     // #endif
   }
+
   private isActive: boolean = true;
 
   changeActive(active: boolean) {
@@ -115,130 +168,6 @@ export default class Moment extends Vue {
     width: 80%;
     height: 10rpx;
     background: #fbe351;
-  }
-}
-
-.moment {
-  display: flex;
-  width: 100%;
-  box-sizing: border-box;
-  padding: 20rpx;
-  padding-bottom: 0;
-  border-bottom: 1px solid #cccccc;
-
-  .left {
-    width: 80rpx;
-    .avatar-box {
-      width: 80rpx;
-      height: 80rpx;
-      border-radius: 50%;
-      overflow: hidden;
-      margin-top: 15rpx;
-
-      .avatar {
-        height: 80rpx;
-        width: 80rpx;
-      }
-    }
-  }
-  .right {
-    flex-grow: 1;
-    box-sizing: border-box;
-    height: 100%;
-    padding-left: 15rpx;
-
-    .title {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      height: 50rpx;
-      width: 100%;
-      padding: 10rpx 0;
-      font-size: 28rpx;
-
-      .title-left {
-        display: flex;
-        align-items: center;
-        .username {
-          @include centered;
-        }
-        .grade {
-          @include centered;
-          height: 30rpx;
-          background: #44b3ff;
-          border-radius: 30rpx;
-          padding: 0 10rpx;
-          margin-left: 10rpx;
-
-          .iconfont {
-            font-size: 24rpx;
-            color: #dbf0ff;
-          }
-        }
-      }
-      .title-right {
-        @include centered;
-
-        .attention {
-          @include centered;
-          width: 80rpx;
-          height: 40rpx;
-          background: #f4f4f4;
-          margin-right: 10rpx;
-          padding: 0 5rpx;
-          font-size: 20rpx;
-        }
-
-        .iconfont {
-          font-size: 20rpx;
-          color: #d5d5d5;
-        }
-      }
-    }
-
-    .content {
-      flex-shrink: 0;
-      padding: 15rpx 0;
-      color: #000000;
-      font-size: 35rpx;
-    }
-
-    .image {
-      width: 615rpx;
-      height: 400rpx;
-      border-radius: 10rpx;
-      overflow: hidden;
-
-      .content-img {
-        width: 100%;
-        height: 100%;
-      }
-    }
-
-    .bottom-bar {
-      height: 100rpx;
-      @include bothSides;
-      color: #cdcdcd;
-      font-size: 28rpx;
-
-      .bottom-left {
-      }
-
-      .bottom-right {
-        @include centered;
-        height: 100%;
-
-        .iconfont {
-          @include centered;
-          height: 100%;
-          font-size: 28rpx;
-
-          .count {
-            padding: 0 10rpx;
-          }
-        }
-      }
-    }
   }
 }
 </style>

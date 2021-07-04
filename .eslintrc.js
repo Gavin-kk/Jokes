@@ -35,6 +35,7 @@ module.exports = {
     'no-undef': 0,
     indent: 0,
     eqeqeq: 0,
+    '@typescript-eslint/no-non-null-assertion': 0,
   },
   settings: {
     'import/resolver': {

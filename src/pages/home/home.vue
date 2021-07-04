@@ -3,7 +3,7 @@
     <home-top-bar :list="list" :activeIndex="currentSwiperIndex" @currentSwiperIndexChange="swiperIndexChange" />
     <sliding-list
       v-if="newList.length"
-      :new-list="newList"
+      :list="newList"
       :activeIndex="currentSwiperIndex"
       @currentSwiperIndexChange="swiperIndexChange"
     />
@@ -56,7 +56,7 @@ export default class Home extends Vue {
 
   private momentList: IMoment[] = [
     {
-      id: Math.random() * 1000 + 1,
+      id: +(Math.random() * 1000 + 1).toFixed(),
       username: '张三',
       title: '如何用手账改变你的一生?',
       avatar: '/static/demo/userpic/1.jpg',
@@ -73,7 +73,7 @@ export default class Home extends Vue {
       dislike: 0,
     },
     {
-      id: Math.random() * 1000 + 1,
+      id: +(Math.random() * 1000 + 1).toFixed(),
       username: '李四',
       title: '如何用手账改变你的一生?',
       avatar: '/static/demo/userpic/1.jpg',
@@ -90,7 +90,7 @@ export default class Home extends Vue {
       dislike: 1,
     },
     {
-      id: Math.random() * 1000 + 1,
+      id: +(Math.random() * 1000 + 1).toFixed(),
       username: '赵刘',
       title: '如何用手账改变你的一生?',
       avatar: '/static/demo/userpic/1.jpg',
@@ -107,7 +107,7 @@ export default class Home extends Vue {
       dislike: 0,
     },
     {
-      id: Math.random() * 1000 + 1,
+      id: +(Math.random() * 1000 + 1).toFixed(),
       username: '是否',
       title: '如何用手账改变你的一生?',
       avatar: '/static/demo/userpic/1.jpg',

@@ -60,6 +60,8 @@ export default class Release extends Vue {
   private imageBlobUrl: string[] = [];
   // 是否显示警告提示框
   private show: boolean = true;
+  // 是否不可以返回
+  private isReturns: boolean = true;
 
   // 显示下拉框
   showSelectList(): void {
@@ -83,13 +85,44 @@ export default class Release extends Vue {
 
   // 返回
   comeBack(): void {
-    uni.switchTab({
-      url: '../home/home',
+    // uni.switchTab({
+    //   url: '../home/home',
+    // });
+    uni.navigateBack({
+      delta: 1,
     });
   }
+
   // 发布动态
   publishNews(): void {
     uni.showToast({ title: '发布成功' });
+  }
+
+  // 监听 uni.navigateBack 的返回事件 如果返回为true 则不跳转 false 为返回
+  onBackPress(): boolean {
+    if (!this.imageBlobUrl.length && !this.inputValue.length) {
+      return false;
+    }
+
+    if (this.isReturns) {
+      uni.showModal({
+        content: '是否保存为草稿',
+        confirmText: '保存',
+        cancelText: '不保存',
+        success: (res) => {
+          this.isReturns = false;
+          if (res.confirm) {
+            uni.showToast({ title: '保存' });
+          } else {
+            uni.showToast({ title: '不保存' });
+          }
+          uni.navigateBack({
+            delta: 1,
+          });
+        },
+      });
+    }
+    return this.isReturns;
   }
 }
 </script>

@@ -1,17 +1,17 @@
 <template>
   <view>
-    <view id="top-bar-height"></view>
-    <view class="my-uni-tab-bar" v-if="newList.length > 0">
+    <view class="top-bar-height"></view>
+    <view class="my-uni-tab-bar" v-if="listIsShow">
       <swiper class="my-swiper-box" :current="activeIndex" :style="{ height: windowHeight }" @change="swiperChange">
-        <swiper-item v-for="(items, index) in newList" :key="items.id" :style="{ height: windowHeight }">
-          <template v-if="items.list.length > 0">
+        <swiper-item v-for="(items, index) in newList" :key="items.id">
+          <view v-if="!!items.list.length" :style="{ height: windowHeight, width: '100%' }">
             <scroll-view scroll-y class="my-list" @scrolltolower="scrolltolowerEvent(index)">
-              <block v-for="item in items.list" :key="item.id">
+              <view v-for="item in items.list" :key="item.id">
                 <dynamic :moment-data="item" />
-              </block>
+              </view>
               <pull-up-loading :text="items.loadingText" />
             </scroll-view>
-          </template>
+          </view>
           <template v-else> <empty /> </template>
         </swiper-item>
       </swiper>
@@ -21,7 +21,7 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop } from 'vue-property-decorator';
+import { Vue, Component, Prop, Watch } from 'vue-property-decorator';
 import Dynamic from '@components/dynamic/dynamic.vue';
 import { namespace } from 'vuex-class';
 
@@ -29,20 +29,28 @@ import PullUpLoading from '@components/pull-up-loading/pull-up-loading.vue';
 import Empty from '@components/empty/empty.vue';
 import { LoadingStatus } from './loading-status';
 
+type list = { id: number; list: IMoment[]; loadingText: string };
+
 const SystemModule = namespace('systemModule');
 @Component({ components: { Empty, PullUpLoading, Dynamic } })
 export default class SlidingList extends Vue {
   @Prop(Number)
   private activeIndex!: number;
   @Prop(Array)
-  private newList!: { id: number; list: IMoment[]; loadingText: string }[];
+  private list!: list[];
+
+  private newList: list[] = [];
 
   @SystemModule.State('systemInfo')
   private readonly systemInfo!: SystemInfo;
   private topBarHeight: number = 0;
 
+  created() {
+    this.newList = this.list;
+  }
+
   mounted() {
-    const topBar = uni.createSelectorQuery().select('#top-bar-height');
+    const topBar = uni.createSelectorQuery().select('.top-bar-height');
     topBar
       .boundingClientRect((e?) => {
         if (e?.height) {
@@ -55,16 +63,15 @@ export default class SlidingList extends Vue {
   swiperChange({ detail }: { detail: { current: number } }): void {
     this.$emit('currentSwiperIndexChange', detail.current);
   }
+
   // 滚动到列表最下方触发的事件
   scrolltolowerEvent(index: number) {
-    if (this.newList[index].loadingText !== LoadingStatus.load) return;
+    if (this.newList[index].loadingText !== '上拉加载更多') return;
     this.newList[index].loadingText = LoadingStatus.loading;
-    // 小程序下拉加载失效 问题所在
-    console.log();
 
     setTimeout(() => {
       this.newList[index].list.push({
-        id: Math.random() * 1000 + 1,
+        id: +(Math.random() * 1000 + 1).toFixed(),
         username: '李四',
         title: '如何用手账改变你的一生?',
         avatar: '/static/demo/userpic/1.jpg',
@@ -72,7 +79,7 @@ export default class SlidingList extends Vue {
         totalTime: 12345646,
         privateMessageCount: 200,
         likeCount: 200,
-        dontLikeCount: 200000000,
+        dontLikeCount: 200,
         shareCount: 200,
         fileType: 'video',
         whetherToFollow: 0,
@@ -87,13 +94,17 @@ export default class SlidingList extends Vue {
   get windowHeight(): string {
     return `${this.systemInfo.windowHeight - this.topBarHeight - 1}px`;
   }
+
+  get listIsShow(): boolean {
+    return !!this.newList.length;
+  }
 }
 </script>
 
 <style lang="scss" scoped>
 @import 'src/common/style/global.scss';
 
-#top-bar-height {
+.top-bar-height {
   position: absolute;
   opacity: 0;
   height: 100rpx;

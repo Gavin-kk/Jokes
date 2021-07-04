@@ -22,8 +22,8 @@ import UniPopup from '@dcloudio/uni-ui/lib/uni-popup/uni-popup.vue';
 
 @Component({ components: { UniPopup } })
 export default class Popup extends Vue {
-  @Prop(Boolean)
-  private show: boolean = false;
+  @Prop({ type: Boolean, default: false })
+  private show!: boolean;
 
   mounted() {
     if (this.show) {

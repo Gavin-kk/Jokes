@@ -7,7 +7,7 @@ import { Vue, Component, Prop, Watch } from 'vue-property-decorator';
 
 @Component({})
 export default class PullUpLoading extends Vue {
-  @Prop(String)
+  @Prop({ type: String, default: '上拉加载更多' })
   private text?: string;
 }
 </script>

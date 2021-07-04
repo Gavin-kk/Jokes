@@ -8,29 +8,29 @@
         <view class="username">{{ momentData.username }}</view>
       </view>
       <view class="title-right">
-        <view class="attention-btn" v-show="momentData.whetherToFollow === 0" @tap="followUsers">关注</view>
+        <view class="attention-btn" v-if="!whetherFollow" @tap="followUsers">关注</view>
         <view class="close-icon iconfont icon-guanbi" />
       </view>
     </view>
     <view class="text-box" @tap="openDetail(momentData.id)">{{ momentData.title }}</view>
     <view class="img-box" @tap="openDetail(momentData.id)">
       <image class="content-img" :src="momentData.coverImage" mode="aspectFill" lazy-load />
-      <view class="play-btn iconfont icon-bofang" v-if="momentData.fileType === 'video'" />
-      <view class="video-count" v-if="momentData.fileType === 'video'">
+      <view class="play-btn iconfont icon-bofang" v-if="fileType" />
+      <view class="video-count" v-if="fileType">
         <view class="play-count">{{ momentData.playCount | handleNumber }}次播放</view>
-        <view>{{ momentData.totalTime }}</view>
+        <view class="totalTime">{{ momentData.totalTime }}</view>
       </view>
     </view>
     <view class="btn-box">
       <view class="btn-left">
         <view class="btn-child-box" @tap="likeEvent">
-          <text :class="[{ like: !!momentData.isLike }, 'smiley-icon', 'iconfont', 'icon-icon_xiaolian-mian']"></text>
-          {{ momentData.likeCount | handleNumber }}
+          <text :class="[{ like: !!isLike }, 'smiley-icon', 'iconfont', 'icon-icon_xiaolian-mian']"></text>
+          {{ likeCount | handleNumber }}
         </view>
 
         <view class="btn-child-box" @tap="dislikeEvent">
-          <text :class="[{ dislike: !!momentData.dislike }, 'smiley-icon', 'iconfont', 'icon-kulian']"></text>
-          {{ momentData.dontLikeCount | handleNumber }}
+          <text :class="[{ dislike: !!dislike }, 'smiley-icon', 'iconfont', 'icon-kulian']"></text>
+          {{ dontLikeCount | handleNumber }}
         </view>
       </view>
       <view class="btn-right">
@@ -58,47 +58,70 @@ export default class Dynamic extends Vue {
   @Prop({ type: Object, required: true })
   private momentData!: IMoment;
 
+  data() {
+    return {};
+  }
+  private likeCount: number | null = null;
+  private dontLikeCount: number | null = null;
+  private whetherFollow: number | null = null;
+  private isLike: number | null = null;
+  private dislike: number | null = null;
+
+  created() {
+    this.likeCount = this.momentData.likeCount;
+    this.dontLikeCount = this.momentData.dontLikeCount;
+    this.whetherFollow = this.momentData.whetherToFollow;
+    this.isLike = this.momentData.isLike;
+    this.dislike = this.momentData.dislike;
+  }
   // 关注用户事件
   followUsers(): void {
     // 发送关注请求
-    this.momentData.whetherToFollow = 1;
+    this.whetherFollow = 1;
     // 显示关注成功提示框
     uni.showToast({
       title: '关注成功',
       icon: 'success',
     });
   }
+
   // 喜欢帖子事件
   likeEvent(): void {
-    const m = this.momentData;
     // 发送喜欢请求
-    if (m.dislike) {
-      m.dislike = 0;
-      m.dontLikeCount--;
+    if (this.dislike) {
+      this.dislike = 0;
+      this.dontLikeCount!--;
     }
-    if (!m.isLike) {
-      m.isLike = 1;
-      m.likeCount++;
-    } else if (m.isLike) {
-      m.isLike = 0;
-      m.likeCount--;
+    if (!this.isLike) {
+      this.isLike = 1;
+      this.likeCount!++;
+    } else if (this.isLike) {
+      this.isLike = 0;
+      this.likeCount!--;
     }
   }
 
   // 点击不喜欢帖子事件
   dislikeEvent(): void {
-    const m = this.momentData;
-    if (m.isLike) {
-      m.isLike = 0;
-      m.likeCount--;
+    if (this.isLike) {
+      this.isLike = 0;
+      this.likeCount!--;
     }
-    if (m.dislike) {
-      m.dislike = 0;
-      m.dontLikeCount--;
-    } else if (!m.dislike) {
-      m.dislike = 1;
-      m.dontLikeCount++;
+    if (this.dislike) {
+      this.dislike = 0;
+      this.dontLikeCount!--;
+    } else if (!this.dislike) {
+      this.dislike = 1;
+      this.dontLikeCount!++;
     }
+  }
+
+  get whetherToFollow(): boolean {
+    console.log(this.whetherFollow);
+    return this.whetherFollow === 0;
+  }
+  get fileType(): boolean {
+    return this.momentData?.fileType === 'video';
   }
 
   openDetail(id: number) {
@@ -138,8 +161,8 @@ export default class Dynamic extends Vue {
         overflow: hidden;
 
         .img {
-          width: 100%;
-          height: 100%;
+          height: 80rpx;
+          width: 80rpx;
           will-change: transform;
         }
       }
@@ -154,7 +177,6 @@ export default class Dynamic extends Vue {
       flex: 1;
       @include verticallyCentered;
       justify-content: flex-end;
-
       height: 100%;
 
       .attention-btn {
@@ -204,7 +226,6 @@ export default class Dynamic extends Vue {
 
     .video-count {
       @include centered;
-      //@include bothSides;
       position: absolute;
       right: 10rpx;
       bottom: 10rpx;
@@ -213,10 +234,7 @@ export default class Dynamic extends Vue {
       box-sizing: border-box;
       padding: 10rpx;
       color: #dde4d2;
-
-      > view {
-        font-size: 15rpx;
-      }
+      font-size: 15rpx;
 
       .play-count {
         margin-right: 10rpx;
@@ -260,7 +278,7 @@ export default class Dynamic extends Vue {
     color: #439cea;
   }
 
-  > text {
+  > .smiley-icon {
     display: inline;
     padding: 0 10rpx;
   }

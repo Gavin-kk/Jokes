@@ -52,7 +52,7 @@ export default class HomeTopBar extends Vue {
   bottom: 20rpx;
   transform: translateX(-50%);
   display: inline-block;
-  width: 70rpx;
+  width: 70%;
   height: 10rpx;
   border-radius: 5rpx;
   background: #fbe351;

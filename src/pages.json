@@ -39,7 +39,17 @@
 			}
 		},
 		{
-			"path": "pages/moment/moment"
+			"path": "pages/moment/moment",
+			"style": {
+				"app-plus": {
+					"titleNView":false,
+					"navigationStyle": "custom"
+				},
+				"h5": {
+					"navigationStyle": "custom",
+					"titleNView":false
+				}
+			}
 		},
 		{
 			"path": "pages/news/news"

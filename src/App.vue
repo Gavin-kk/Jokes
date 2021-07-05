@@ -1,6 +1,5 @@
 <script lang="ts">
 import Vue from 'vue';
-import { ActionTypes } from '@store/module/system';
 
 export default Vue.extend({
   mpType: 'app',

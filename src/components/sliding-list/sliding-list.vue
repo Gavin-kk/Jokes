@@ -21,7 +21,7 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop, Watch } from 'vue-property-decorator';
+import { Vue, Component, Prop } from 'vue-property-decorator';
 import Dynamic from '@components/dynamic/dynamic.vue';
 import { namespace } from 'vuex-class';
 

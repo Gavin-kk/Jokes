@@ -1,5 +1,5 @@
 <template>
-  <view class="moment">
+  <view class="moment animate__animated animate__fadeInUp" style="animation-duration: 700ms">
     <view class="left">
       <view class="avatar-box">
         <image class="avatar" :src="data.avatar" mode="scaleToFill"></image>
@@ -152,8 +152,14 @@ export default class MomentList extends Vue {
         display: flex;
         align-items: center;
         .username {
+          display: flex;
+          justify-content: flex-start;
+          align-items: center;
           color: #b1b1b1;
-          @include centered;
+          max-width: 200rpx;
+          overflow: hidden;
+          white-space: nowrap;
+          text-overflow: ellipsis;
         }
         .grade {
           @include centered;
@@ -228,7 +234,7 @@ export default class MomentList extends Vue {
           width: 100rpx;
           height: 100rpx;
           font-size: 100rpx;
-          color: #ffffffaa;
+          color: rgba(255, 255, 255, 0.5);
         }
       }
 

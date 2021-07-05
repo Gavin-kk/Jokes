@@ -1,5 +1,5 @@
 <template>
-  <view class="dynamic animate__animated animate__fadeInUp">
+  <view class="dynamic animate__animated animate__fadeInUp" style="animation-duration: 700ms">
     <view class="title-box">
       <view class="title-left">
         <view class="img-box">
@@ -97,7 +97,6 @@ export default class Dynamic extends Vue {
       this.likeCount!--;
     }
   }
-
 
   // 点击不喜欢帖子事件
   dislikeEvent(): void {

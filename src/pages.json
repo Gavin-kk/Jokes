@@ -4,6 +4,7 @@
 			"path": "pages/home/home",
 			"style": {
 				"app-plus": {
+					"bounce": "none", // 关闭反弹效果
 					"scrollIndicator": "none",
 					"navigationStyle": "custom",
 					"titleNView": {
@@ -42,10 +43,12 @@
 			"path": "pages/moment/moment",
 			"style": {
 				"app-plus": {
+					"bounce": "none", // 关闭反弹效果
 					"titleNView":false,
 					"navigationStyle": "custom"
 				},
 				"h5": {
+					"bounce": "none", // 关闭反弹效果
 					"navigationStyle": "custom",
 					"titleNView":false
 				}

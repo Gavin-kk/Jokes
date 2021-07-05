@@ -1,173 +1,203 @@
 <template>
   <view>
-    <uni-nav-bar :status-bar="isStatusBar">
-      <view class="nav-left" slot="left">
-        <view class="iconfont icon-qiandao"></view>
-      </view>
-      <block slot="default">
-        <view class="nav-center">
-          <view :class="['item', 'follow', { active: isActive }]" @tap="changeActive(true)">关注</view>
-          <view :class="['item', 'topic', { active: !isActive }]" @tap="changeActive(false)">话题</view>
-        </view>
-      </block>
-      <view class="nav-right" slot="right">
-        <view class="iconfont icon-bianji1"></view>
-      </view>
-    </uni-nav-bar>
+    <news-nav-bar
+      class="news-nav-bar-height"
+      :nav-list="navList"
+      :currentIndex="currentIndex"
+      @change="navSelectedChange"
+    ></news-nav-bar>
     <!--   列表组件-->
-    <moment-list :data="textData"></moment-list>
-    <moment-list :data="data"></moment-list>
-    <moment-list :data="videoData"></moment-list>
-    <moment-list :data="shareData"></moment-list>
+    <swiper :current="currentIndex" @change="swiperChange" :style="{ height: windowHeight }">
+      <swiper-item>
+        <scroll-view scroll-y :style="{ height: windowHeight }" @scrolltolower="bottomOut">
+          <block v-for="item in momentList" :key="item.id">
+            <moment-list :data="item"></moment-list>
+          </block>
+          <pull-up-loading :text="pullUpLoadingData[0].text" />
+        </scroll-view>
+      </swiper-item>
+      <swiper-item>
+        <scroll-view scroll-y :style="{ height: windowHeight }">
+          <!--          话题页面-->
+          <topic />
+        </scroll-view>
+      </swiper-item>
+    </swiper>
   </view>
 </template>
 
 <script lang="ts">
-import { Vue, Component } from 'vue-property-decorator';
-import UniNavBar from '@dcloudio/uni-ui/lib/uni-nav-bar/uni-nav-bar.vue';
+import { Component, Vue } from 'vue-property-decorator';
+
 import { IMomentList } from '@src/components/moment-list/moment-list';
 import MomentList from '@components/moment-list/moment-list.vue';
+import NewsNavBar from '@components/news/news-nav-bar.vue';
+import { LoadingStatus } from '@components/sliding-list/loading-status';
+import PullUpLoading from '@components/pull-up-loading/pull-up-loading.vue';
+import Topic from '@components/topic/topic.vue';
 
-@Component({ components: { MomentList, UniNavBar } })
+@Component({ components: { Topic, PullUpLoading, MomentList, NewsNavBar } })
 export default class Moment extends Vue {
-  private isStatusBar: boolean = true;
-  // 文字数据
-  private textData: IMomentList = {
-    username: '名字',
-    gender: 0,
-    avatar: '/static/demo/userpic/8.jpg',
-    age: 22,
-    content:
-      '六道快手家常菜，11111111好吃又下4444444444444442让服务器额发去我服媳妇请问发撒地方去玩啊水电费为服装消费我去二商店下啊发顺丰 我温柔风去啊速度发送服务费饭，是覅额温暖危机让佛文件佛额我I今日份为节日哦就你发',
-    momentPic: null,
-    video: null,
-    share: null,
-    address: '上海',
-    forwardCount: 30,
-    commentCount: 30,
-    likeCount: 20,
-    isLike: 0, // 0未点赞 1点赞
-    isFollow: 0, // 是否关注
-  };
+  // navlist 数据
+  private navList: string[] = ['关注', '话题'];
+  // 当前所在navlist的索引
+  private currentIndex: number = 1;
+  // 窗口总高度
+  private totalHeight: number | null = null;
+  // topbar 的高度
+  private topNavBarHeight: number = 0;
 
-  // 图片数据
-  private data: IMomentList = {
-    username: '名字',
-    gender: 0,
-    avatar: '/static/demo/userpic/8.jpg',
-    age: 22,
-    content:
-      '六道快手家常菜，111111111让服务器而且我2222222222222222222222222222222222222222222222222222222222好吃又下饭，是覅额温暖危机让佛文件佛额我I今日份为节日哦就你发',
-    momentPic: '/static/demo/datapic/2.jpg',
-    video: null,
-    share: null,
-    address: '上海',
-    forwardCount: 30,
-    commentCount: 30,
-    likeCount: 20,
-    isLike: 0, // 0未点赞 1点赞
-    isFollow: 0, // 是否关注
-  };
-  // 视频数据
-  private videoData: IMomentList = {
-    username: '名字',
-    age: 32,
-    gender: 0,
-    avatar: '/static/demo/userpic/8.jpg',
-    content: '六道快手家常菜，11111111好吃又下饭，是覅额温暖危机让佛文件佛额我I今日份为节日哦就你发',
-    momentPic: '/static/demo/datapic/2.jpg',
-    video: {
-      playCount: '20w',
-      totalTime: '2:40',
-    },
-    share: null,
-    address: '上海',
-    forwardCount: 30,
-    commentCount: 30,
-    likeCount: 20,
-    isLike: 0, // 0未点赞 1点赞
-    isFollow: 0, // 是否关注
-  };
-  // 分享数据
-  private shareData: IMomentList = {
-    gender: 0,
-    age: 42,
-    username: '名字',
-    avatar: '/static/demo/userpic/8.jpg',
-    content: '六道快手家常菜，11111111好吃又下饭，是覅额温暖危机让佛文件佛额我I今日份为节日哦就你发',
-    video: null,
-    momentPic: null,
-    share: {
-      content: '我是标题',
-      momentPic: '/static/demo/datapic/2.jpg',
-    },
-    address: '上海',
-    forwardCount: 30,
-    commentCount: 30,
-    likeCount: 20,
-    isLike: 1, // 0未点赞 1点赞
-    isFollow: 0, // 是否关注
-  };
+  // 上拉加载
+  private pullUpLoadingData: { text: LoadingStatus; name: string }[] = this.navList.map((item) => ({
+    text: LoadingStatus.load,
+    name: item,
+  }));
 
   created() {
-    // #ifdef MP-WEIXIN
-    this.isStatusBar = false;
-    // #endif
+    uni.getSystemInfo({
+      success: (info: SystemInfo) => {
+        this.totalHeight = info.windowHeight;
+      },
+    });
   }
 
-  private isActive: boolean = true;
-
-  changeActive(active: boolean) {
-    this.isActive = active;
+  mounted() {
+    const topBar = uni.createSelectorQuery().select('.news-nav-bar-height');
+    topBar
+      .boundingClientRect((e?) => {
+        if (e?.height) {
+          this.topNavBarHeight = e.height;
+        }
+      })
+      .exec();
   }
+
+  navSelectedChange({ index }: { item: string; index: number }) {
+    this.currentIndex = index;
+  }
+
+  swiperChange({ detail: { current } }: { detail: { current: number } }) {
+    this.currentIndex = current;
+  }
+
+  bottomOut() {
+    if (this.pullUpLoadingData[0].text !== LoadingStatus.load) return;
+    this.pullUpLoadingData[0].text = LoadingStatus.loading;
+
+    setTimeout(() => {
+      this.momentList.push({
+        id: +(Math.random() * 1000 + 1).toFixed(),
+        username: '4321dsafqwfeasdfqwtqwefsdagwqerewq ',
+        gender: 0,
+        avatar: '/static/demo/userpic/8.jpg',
+        age: 22,
+        content:
+          '六道快手家常菜，111111111让服务器而且我2222222222222222222222222222222222222222222222222222222222好吃又下饭，是覅额温暖危机让佛文件佛额我I今日份为节日哦就你发',
+        momentPic: '/static/demo/datapic/2.jpg',
+        video: null,
+        share: null,
+        address: '上海',
+        forwardCount: 30,
+        commentCount: 30,
+        likeCount: 20,
+        isLike: 0, // 0未点赞 1点赞
+        isFollow: 0, // 是否关注
+      });
+      this.pullUpLoadingData[0].text = LoadingStatus.load;
+    }, 1500);
+  }
+
+  get windowHeight(): string {
+    return `${this.totalHeight! - this.topNavBarHeight}px`;
+  }
+
+  private momentList: IMomentList[] = [
+    // 文字数据
+    {
+      id: +(Math.random() * 1000 + 1).toFixed(),
+      username: '名字',
+      gender: 1,
+      avatar: '/static/demo/userpic/8.jpg',
+      age: 22,
+      content:
+        '六道快手家常菜，11111111好吃又下4444444444444442让服务器额发去我服媳妇请问发撒地方去玩啊水电费为服装消费我去二商店下啊发顺丰 我温柔风去啊速度发送服务费饭，是覅额温暖危机让佛文件佛额我I今日份为节日哦就你发',
+      momentPic: null,
+      video: null,
+      share: null,
+      address: '上海',
+      forwardCount: 30,
+      commentCount: 30,
+      likeCount: 20,
+      isLike: 0, // 0未点赞 1点赞
+      isFollow: 0, // 是否关注
+    },
+    // 图片数据
+    {
+      id: +(Math.random() * 1000 + 1).toFixed(),
+      username: '4321dsafqwfeasdfqwtqwefsdagwqerewq ',
+      gender: 0,
+      avatar: '/static/demo/userpic/8.jpg',
+      age: 22,
+      content:
+        '六道快手家常菜，111111111让服务器而且我2222222222222222222222222222222222222222222222222222222222好吃又下饭，是覅额温暖危机让佛文件佛额我I今日份为节日哦就你发',
+      momentPic: '/static/demo/datapic/2.jpg',
+      video: null,
+      share: null,
+      address: '上海',
+      forwardCount: 30,
+      commentCount: 30,
+      likeCount: 20,
+      isLike: 0, // 0未点赞 1点赞
+      isFollow: 0, // 是否关注
+    },
+    // 视频数据
+    {
+      id: +(Math.random() * 1000 + 1).toFixed(),
+      username: '名字',
+      age: 32,
+      gender: 0,
+      avatar: '/static/demo/userpic/8.jpg',
+      content: '六道快手家常菜，11111111好吃又下饭，是覅额温暖危机让佛文件佛额我I今日份为节日哦就你发',
+      momentPic: '/static/demo/datapic/2.jpg',
+      video: {
+        playCount: '20w',
+        totalTime: '2:40',
+      },
+      share: null,
+      address: '上海',
+      forwardCount: 30,
+      commentCount: 30,
+      likeCount: 20,
+      isLike: 0, // 0未点赞 1点赞
+      isFollow: 0, // 是否关注
+    },
+    // 分享数据
+    {
+      id: +(Math.random() * 1000 + 1).toFixed(),
+      gender: 0,
+      age: 42,
+      username: '名字',
+      avatar: '/static/demo/userpic/8.jpg',
+      content: '六道快手家常菜，11111111好吃又下饭，是覅额温暖危机让佛文件佛额我I今日份为节日哦就你发',
+      video: null,
+      momentPic: null,
+      share: {
+        content: '我是标题',
+        momentPic: '/static/demo/datapic/2.jpg',
+      },
+      address: '上海',
+      forwardCount: 30,
+      commentCount: 30,
+      likeCount: 20,
+      isLike: 1, // 0未点赞 1点赞
+      isFollow: 0, // 是否关注
+    },
+  ];
 }
 </script>
 
 <style lang="scss">
-@import 'src/common/style/global';
-
-.iconfont {
-  font-size: 22px;
-}
-.icon-qiandao {
-  color: rgb(215, 169, 91);
-}
-
-.nav-right,
-.nav-left {
-  /*  #ifdef APP-PLUS*/
-  padding: 0 10rpx;
-  /*  #endif*/
-  width: 100%;
-  height: 100%;
-  display: flex;
-  align-items: center;
-}
-
-.nav-right {
-  justify-content: flex-end;
-}
-
-.nav-center {
-  @include centered;
-  width: 100%;
-  height: 100%;
-
-  .item {
-    @include centered;
-    position: relative;
-    width: 100rpx;
-    height: 100%;
-  }
-
-  .active:after {
-    content: '';
-    position: absolute;
-    bottom: 10rpx;
-    display: inline-block;
-    width: 80%;
-    height: 10rpx;
-    background: #fbe351;
-  }
+.news-nav-bar-height {
+  border-bottom: 1px solid #e9e8e8;
 }
 </style>

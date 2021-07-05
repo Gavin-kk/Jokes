@@ -1,16 +1,21 @@
 <template>
-  <view class="root-box">
-    <!--    搜索框-->
-    <m-search @submit="searchSubmission" />
-    <!--    轮播图组件-->
-    <banner :banner-image-list="bannerList" @clickBanner="clickBanner" />
-    <!--    热门分类-->
-    <popular-categories
-      class="border"
-      :classifyTagList="classifyTagList"
-      @classifyTagClick="classifyTagClick"
-      @clickMoreCategories="clickMoreCategories"
-    />
+  <view>
+    <view class="root-box">
+      <!--    搜索框-->
+      <m-search @confirm="searchConfirm" />
+      <!--    轮播图组件-->
+      <banner :banner-image-list="bannerList" @clickBanner="clickBanner" />
+      <!--    热门分类-->
+      <popular-categories
+        class="border"
+        :classifyTagList="classifyTagList"
+        @classifyTagClick="classifyTagClick"
+        @clickMoreCategories="clickMoreCategories"
+      />
+    </view>
+
+    <!--    最近更新-->
+    <recently-updated />
   </view>
 </template>
 
@@ -19,9 +24,10 @@ import { Vue, Component } from 'vue-property-decorator';
 import MSearch from '@components/search/m-search.vue';
 import Banner from '@components/banner/banner.vue';
 import PopularCategories from '@components/popular-categories/popularCategories.vue';
+import RecentlyUpdated from '@components/recently-updated/recently-updated.vue';
 
 @Component({
-  components: { PopularCategories, Banner, MSearch },
+  components: { RecentlyUpdated, PopularCategories, Banner, MSearch },
 })
 export default class Topic extends Vue {
   private classifyTagList: { id: number; text: string }[] = [
@@ -33,14 +39,16 @@ export default class Topic extends Vue {
     { id: +(Math.random() * 1000 + 1).toFixed(), text: '喜爱' },
   ];
 
-  // 当手机键盘按下搜索 或 确认时触发
-  searchSubmission(value: string) {}
-
   private bannerList: { id: number; pic: string }[] = [
     { id: +(Math.random() * 1000 + 1).toFixed(), pic: '/static/demo/datapic/1.jpg' },
     { id: +(Math.random() * 1000 + 1).toFixed(), pic: '/static/demo/datapic/2.jpg' },
     { id: +(Math.random() * 1000 + 1).toFixed(), pic: '/static/demo/datapic/3.jpg' },
   ];
+
+  // 当手机键盘按下搜索 或 确认时触发
+  searchConfirm(value: string) {
+    uni.showToast({ title: `你要搜索${value}` });
+  }
 
   // 点击轮播图事件
   clickBanner(id: number) {
@@ -65,6 +73,5 @@ export default class Topic extends Vue {
 
 .border {
   padding-bottom: 20rpx;
-  border-bottom: 1px solid #e9e8e8;
 }
 </style>

@@ -28,8 +28,12 @@ export default class PopularCategories extends Vue {
   private classifyTagListLimit: { id: number; text: string }[] | null = null;
 
   created() {
-    // 只要前六个
-    this.classifyTagListLimit = this.classifyTagList.filter((_, index) => index < 6);
+    if (this.classifyTagList.length > 6) {
+      // 只要前六个
+      this.classifyTagListLimit = this.classifyTagList.filter((_, index) => index < 6);
+    } else {
+      this.classifyTagListLimit = this.classifyTagList;
+    }
   }
 
   classifyTagClick(id: number, text: string) {
@@ -87,13 +91,14 @@ export default class PopularCategories extends Vue {
     height: 80rpx;
 
     .list-item {
+      flex: 1;
       @include centered;
       box-sizing: border-box;
       width: 100rpx;
       background: #f7f7f7;
       font-size: 29rpx;
       padding: 10rpx 10rpx;
-      margin: 0 auto;
+      margin: 0 10rpx;
       color: #9b9b9b;
       border-radius: 10rpx;
     }

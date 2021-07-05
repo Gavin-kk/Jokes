@@ -6,6 +6,7 @@
       v-model="searchValue"
       :placeholder="searchInputFocus"
       :placeholder-class="placeholderClass"
+      @confirm="confirm"
       @blur="searchBlur"
       @focus="searchFocus"
     />
@@ -14,7 +15,7 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Emit, Prop, Watch } from 'vue-property-decorator';
+import { Vue, Component } from 'vue-property-decorator';
 
 @Component({})
 export default class MSearch extends Vue {
@@ -36,6 +37,11 @@ export default class MSearch extends Vue {
   clearSearchInput() {
     this.searchValue = '';
     this.searchIsFocus = false;
+  }
+
+  // 提交搜索
+  confirm() {
+    this.$emit('confirm', this.searchValue);
   }
 
   get searchInputFocus(): string {

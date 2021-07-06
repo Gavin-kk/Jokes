@@ -1,20 +1,27 @@
 <template>
-  <view class="list-box">
-    <block v-for="(item, index) in dataList" :key="item.id">
-      <uni-swipe-action>
-        <!-- 使用插槽 （请自行给定插槽内容宽度）-->
-        <uni-swipe-action-item>
-          <view>
-            <news-list :data="item" />
-          </view>
-          <template v-slot:right>
-            <view class="delete-box" @click="clickDelete(index)">
-              <text>删除</text>
+  <view>
+    <drop-down-menu
+      :is-show-menu="isShowMenu"
+      @changeIsShow="changeIsShow"
+      @addFriend="addFriend"
+      @clearUnread="clearUnread"
+    />
+    <view class="list-box">
+      <block v-for="(item, index) in dataList" :key="item.id">
+        <uni-swipe-action>
+          <uni-swipe-action-item>
+            <view>
+              <news-list :data="item" />
             </view>
-          </template>
-        </uni-swipe-action-item>
-      </uni-swipe-action>
-    </block>
+            <template v-slot:right>
+              <view class="delete-box" @click="clickDelete(index)">
+                <text>删除</text>
+              </view>
+            </template>
+          </uni-swipe-action-item>
+        </uni-swipe-action>
+      </block>
+    </view>
   </view>
 </template>
 
@@ -23,8 +30,9 @@ import { Vue, Component } from 'vue-property-decorator';
 import NewsList from '@pages/news/components/news-list/news-list.vue';
 import UniSwipeAction from '@dcloudio/uni-ui/lib/uni-swipe-action/uni-swipe-action.vue';
 import uniSwipeActionItem from '@dcloudio/uni-ui/lib/uni-swipe-action-item/uni-swipe-action-item.vue';
+import DropDownMenu from '@pages/news/components/drop-down-menu/drop-down-menu.vue';
 
-@Component({ components: { NewsList, UniSwipeAction, uniSwipeActionItem } })
+@Component({ components: { DropDownMenu, NewsList, UniSwipeAction, uniSwipeActionItem } })
 export default class News extends Vue {
   private dataList: {
     id: number;
@@ -60,6 +68,28 @@ export default class News extends Vue {
     },
   ];
 
+  private isShowMenu: boolean = false;
+
+  // 改变加好友弹框的显示状态
+  changeIsShow() {
+    this.isShowMenu = false;
+  }
+
+  // 点击添加好友
+  addFriend() {
+    this.changeIsShow();
+    uni.showToast({ title: '添加好友' });
+  }
+
+  // 清除未读
+  clearUnread() {
+    this.dataList.forEach((item) => {
+      item.unreadCount = 0;
+    });
+    this.changeIsShow();
+    uni.showToast({ title: '清除未读' });
+  }
+
   // 点击拉取出来的删除按钮触发
   clickDelete(index: number) {
     this.dataList.splice(index, 1);
@@ -89,16 +119,50 @@ export default class News extends Vue {
     if (d.index === 0) {
       uni.showToast({ title: '进入好友列表' });
     } else {
-      uni.showToast({ title: '弹出添加好友' });
+      // 显示添加好友弹框
+      this.isShowMenu = true;
     }
   }
 }
 </script>
 
 <style lang="scss" scoped>
+.menu-mask {
+  position: fixed;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  opacity: 0;
+}
+.menu {
+  width: 300rpx;
+  background: #ffffff;
+  z-index: 100;
+  position: absolute;
+  right: 0;
+  top: 10rpx;
+  box-shadow: 0 0 8px 0 #ccc;
+
+  .iconfont {
+    display: flex;
+    align-items: center;
+    height: 80rpx;
+  }
+  .iconfont:before {
+    display: inline-block;
+    padding: 0 20rpx;
+  }
+
+  .hover {
+    background: #eeeeee;
+  }
+}
+
 .list-box {
   padding: 10rpx 20rpx;
 }
+
 .delete-box {
   display: flex;
   align-items: center;

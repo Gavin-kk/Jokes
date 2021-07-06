@@ -5,6 +5,8 @@
       :nav-list="navList"
       :currentIndex="currentIndex"
       @change="navSelectedChange"
+      @leftClick="signIn"
+      @rightClick="openPublished"
     ></news-nav-bar>
     <!--   列表组件-->
     <swiper :current="currentIndex" @change="swiperChange" :style="{ height: windowHeight }">
@@ -70,6 +72,20 @@ export default class Moment extends Vue {
         }
       })
       .exec();
+  }
+
+  // 打开发布页面
+  openPublished() {
+    uni.navigateTo({
+      url: '/pages/release/release',
+      fail(d) {
+        console.log(d);
+      },
+    });
+  }
+  // 签到事件
+  signIn() {
+    uni.showToast({ title: '签到成功,经验+3' });
   }
 
   navSelectedChange({ index }: { item: string; index: number }) {

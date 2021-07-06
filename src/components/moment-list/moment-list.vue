@@ -1,5 +1,5 @@
 <template>
-  <view class="moment animate__animated animate__fadeInUp" style="animation-duration: 700ms">
+  <view class="moment animate__animated animate__slideInUp" style="animation-duration: 300ms">
     <view class="left">
       <view class="avatar-box">
         <image class="avatar" :src="data.avatar" mode="scaleToFill"></image>
@@ -116,7 +116,7 @@ export default class MomentList extends Vue {
   box-sizing: border-box;
   padding: 20rpx;
   padding-bottom: 0;
-  border-bottom: 1px solid #cccccc;
+  border-bottom: 1px solid $borderColor;
 
   .left {
     width: 80rpx;

@@ -1,5 +1,5 @@
 <template>
-  <view class="dynamic animate__animated animate__fadeInUp" style="animation-duration: 700ms">
+  <view class="dynamic animate__animated animate__slideInUp" style="animation-duration: 300ms">
     <view class="title-box">
       <view class="title-left">
         <view class="img-box">

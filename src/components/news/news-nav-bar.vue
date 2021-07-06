@@ -1,6 +1,6 @@
 <template>
   <uni-nav-bar :status-bar="isStatusBar" :border="false">
-    <view class="nav-left" slot="left">
+    <view class="nav-left" slot="left" @tap="leftClick">
       <view class="iconfont icon-qiandao"></view>
     </view>
     <block slot="default">
@@ -15,7 +15,7 @@
         </view>
       </view>
     </block>
-    <view class="nav-right" slot="right">
+    <view class="nav-right" slot="right" @tap="rightClick">
       <view class="iconfont icon-bianji1"></view>
     </view>
   </uni-nav-bar>
@@ -39,6 +39,14 @@ export default class NewsNavBar extends Vue {
     // #ifdef MP-WEIXIN
     this.isStatusBar = false;
     // #endif
+  }
+
+  leftClick() {
+    this.$emit('leftClick');
+  }
+
+  rightClick() {
+    this.$emit('rightClick');
   }
 
   changeActive(item: string, index: number) {
@@ -94,6 +102,7 @@ export default class NewsNavBar extends Vue {
     display: inline-block;
     width: 80%;
     height: 10rpx;
+    border-radius: 20rpx;
     background: #fbe351;
   }
 }

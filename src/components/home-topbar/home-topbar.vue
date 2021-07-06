@@ -1,13 +1,11 @@
 <template>
-  <view>
-    <scroll-view :scroll-x="true" :scroll-y="false" class="scroll-box">
-      <block v-for="(item, index) in list" :key="item.id">
-        <view @tap="itemClick(index)" :class="[{ active: index === activeIndex }, 'item']">
-          {{ item.title }}
-        </view>
-      </block>
-    </scroll-view>
-  </view>
+  <scroll-view :scroll-x="true" :scroll-y="false" class="scroll-box">
+    <block v-for="(item, index) in list" :key="item.id">
+      <view @tap="itemClick(index)" :class="[{ active: index === activeIndex }, 'item']" :style="itemStyle">
+        {{ item.title }}
+      </view>
+    </block>
+  </scroll-view>
 </template>
 
 <script lang="ts">
@@ -17,6 +15,9 @@ import { Vue, Component, Prop } from 'vue-property-decorator';
 export default class HomeTopBar extends Vue {
   @Prop(Number)
   private activeIndex!: number;
+
+  @Prop({ type: String, default: '' })
+  private itemStyle!: string;
 
   @Prop(Array)
   private list!: { id: number; title: string }[];
@@ -33,7 +34,7 @@ export default class HomeTopBar extends Vue {
   height: 100rpx;
   line-height: 100rpx;
   white-space: nowrap;
-  border-bottom: 1px solid #cccccc;
+  border-bottom: 1px solid $borderColor;
 }
 
 .item {
@@ -52,9 +53,9 @@ export default class HomeTopBar extends Vue {
   bottom: 20rpx;
   transform: translateX(-50%);
   display: inline-block;
-  width: 70%;
+  width: 70rpx;
   height: 10rpx;
-  border-radius: 5rpx;
   background: #fbe351;
+  border-radius: 20rpx !important;
 }
 </style>

@@ -15,7 +15,12 @@
     </view>
 
     <!--    最近更新-->
-    <recently-updated />
+    <view class="box">
+      <view class="title">最近更新</view>
+      <block v-for="item in recentlyUpdatedData" :key="item.id">
+        <topic-list :data="item" />
+      </block>
+    </view>
   </view>
 </template>
 
@@ -24,12 +29,13 @@ import { Vue, Component } from 'vue-property-decorator';
 import MSearch from '@components/search/m-search.vue';
 import Banner from '@components/banner/banner.vue';
 import PopularCategories from '@components/popular-categories/popularCategories.vue';
-import RecentlyUpdated from '@components/recently-updated/recently-updated.vue';
+import topicList from '@components/topic-list/topic-list.vue';
 
 @Component({
-  components: { RecentlyUpdated, PopularCategories, Banner, MSearch },
+  components: { topicList, PopularCategories, Banner, MSearch },
 })
 export default class Topic extends Vue {
+  // 热门分类列表
   private classifyTagList: { id: number; text: string }[] = [
     { id: +(Math.random() * 1000 + 1).toFixed(), text: '最新' },
     { id: +(Math.random() * 1000 + 1).toFixed(), text: '游戏' },
@@ -38,11 +44,51 @@ export default class Topic extends Vue {
     { id: +(Math.random() * 1000 + 1).toFixed(), text: '故事' },
     { id: +(Math.random() * 1000 + 1).toFixed(), text: '喜爱' },
   ];
-
+  // 轮播图数据
   private bannerList: { id: number; pic: string }[] = [
     { id: +(Math.random() * 1000 + 1).toFixed(), pic: '/static/demo/datapic/1.jpg' },
     { id: +(Math.random() * 1000 + 1).toFixed(), pic: '/static/demo/datapic/2.jpg' },
     { id: +(Math.random() * 1000 + 1).toFixed(), pic: '/static/demo/datapic/3.jpg' },
+  ];
+  // 最近更新版块数据
+  private recentlyUpdatedData: {
+    id: number;
+    pic: string;
+    title: string;
+    content: string;
+    dynamicCount: number;
+    todayCount: number;
+  }[] = [
+    {
+      id: +(Math.random() * 1000 + 1).toFixed(),
+      pic: '/static/demo/topicpic/1.jpeg',
+      title: '话题记录本',
+      content:
+        '面试官:在电梯里巧遇马云你会做什么? 9' +
+        '0后人气我父亲为热惹我喂喂呃呃呃呃呃呃呃呃呃呃呃呃呃呃呃呃呃呃呃呃呃呃呃温温热文瑞文服的我女孩的回答当场被录用',
+      dynamicCount: 545,
+      todayCount: 200,
+    },
+    {
+      id: +(Math.random() * 1000 + 1).toFixed(),
+      pic: '/static/demo/topicpic/2.jpeg',
+      title: '话题记录本',
+      content:
+        '面试官:在电梯里巧遇马云你会做什么? 9' +
+        '0后人气我父亲为热惹我喂喂呃呃呃呃呃呃呃呃呃呃呃呃呃呃呃呃呃呃呃呃呃呃呃温温热文瑞文服的我女孩的回答当场被录用',
+      dynamicCount: 545,
+      todayCount: 200,
+    },
+    {
+      id: +(Math.random() * 1000 + 1).toFixed(),
+      pic: '/static/demo/topicpic/1.jpeg',
+      title: '话题记录本',
+      content:
+        '面试官:在电梯里巧遇马云你会做什么? 9' +
+        '0后人气我父亲为热惹我喂喂呃呃呃呃呃呃呃呃呃呃呃呃呃呃呃呃呃呃呃呃呃呃呃温温热文瑞文服的我女孩的回答当场被录用',
+      dynamicCount: 545,
+      todayCount: 200,
+    },
   ];
 
   // 当手机键盘按下搜索 或 确认时触发
@@ -60,6 +106,12 @@ export default class Topic extends Vue {
   }
   //   点击跳转更多热门分类
   clickMoreCategories() {
+    uni.navigateTo({
+      url: '/pages/topic-classify/topic-classify',
+      fail(err) {
+        console.log(err);
+      },
+    });
     uni.showToast({ title: '跳转到更多热门分类' });
   }
 }
@@ -73,5 +125,18 @@ export default class Topic extends Vue {
 
 .border {
   padding-bottom: 20rpx;
+}
+
+.box {
+  padding: 20rpx;
+  border-top: 1px solid #e9e8e8;
+
+  .title {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    height: 60rpx;
+    font-size: 30rpx;
+  }
 }
 </style>

@@ -43,6 +43,7 @@
 			"path": "pages/moment/moment",
 			"style": {
 				"app-plus": {
+					"scrollIndicator": "none",
 					"bounce": "none", // 关闭反弹效果
 					"titleNView":false,
 					"navigationStyle": "custom"
@@ -97,7 +98,35 @@
 			"style": {
 				"navigationStyle": "custom",
 				"app-plus": {
+					"scrollIndicator": "none",
 					"titleNView": false
+				}
+			}
+		},
+		{
+			"path": "pages/topic-classify/topic-classify",
+			"style": {
+				"navigationBarTitleText": "话题分类",
+				"navigationBarBackgroundColor": "#ffffff",
+				"app-plus": {
+					"scrollIndicator": "none",
+					"bounce": "none" // 关闭反弹效果
+				}
+			}
+		},{
+			"path": "pages/topic-detail/topic-detail",
+			"style": {
+				"app-plus": {
+					"scrollIndicator": "none",
+					"bounce": "none", // 关闭反弹效果
+					"titleNView": {
+						"type": "transparent", // 渐变
+						"buttons": [
+							{
+								"type": "menu" // 按钮样式
+							}
+						]
+					}
 				}
 			}
 		}

@@ -58,6 +58,7 @@
 		{
 			"path": "pages/news/news",
 			"style": {
+				"enablePullDownRefresh": true, // 开启下拉刷新
 				"app-plus": {
 					"bounce": "none", // 关闭反弹效果
 					"scrollIndicator": "none",

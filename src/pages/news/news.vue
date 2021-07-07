@@ -11,7 +11,8 @@
         <uni-swipe-action>
           <uni-swipe-action-item>
             <view>
-              <news-list :data="item" />
+              <!-- 聊天列表-->
+              <news-list :data="item" @openChat="openChat" />
             </view>
             <template v-slot:right>
               <view class="delete-box" @click="clickDelete(index)">
@@ -74,6 +75,12 @@ export default class News extends Vue {
   changeIsShow() {
     this.isShowMenu = false;
   }
+  // 点击聊天列表的某一项 进入聊天列表
+  openChat() {
+    uni.navigateTo({
+      url: '/pages/chat/chat',
+    });
+  }
 
   // 点击添加好友
   addFriend() {
@@ -127,38 +134,6 @@ export default class News extends Vue {
 </script>
 
 <style lang="scss" scoped>
-.menu-mask {
-  position: fixed;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  right: 0;
-  opacity: 0;
-}
-.menu {
-  width: 300rpx;
-  background: #ffffff;
-  z-index: 100;
-  position: absolute;
-  right: 0;
-  top: 10rpx;
-  box-shadow: 0 0 8px 0 #ccc;
-
-  .iconfont {
-    display: flex;
-    align-items: center;
-    height: 80rpx;
-  }
-  .iconfont:before {
-    display: inline-block;
-    padding: 0 20rpx;
-  }
-
-  .hover {
-    background: #eeeeee;
-  }
-}
-
 .list-box {
   padding: 10rpx 20rpx;
 }

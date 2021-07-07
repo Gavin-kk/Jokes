@@ -143,7 +143,8 @@
 					"bounce": "none" // 关闭反弹效果
 				}
 			}
-		},{
+		},
+		{
 			"path": "pages/topic-detail/topic-detail",
 			"style": {
 				"enablePullDownRefresh": true, // 开启下拉刷新
@@ -159,6 +160,17 @@
 							}
 						]
 					}
+				}
+			}
+		},
+		{
+			"path": "pages/chat/chat",
+			"style": {
+				"navigationStyle": "custom",
+//				"enablePullDownRefresh": true, // 开启下拉刷新
+				"app-plus": {
+					"scrollIndicator": "none",
+					"bounce": "none" // 关闭反弹效果
 				}
 			}
 		}

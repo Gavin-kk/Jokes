@@ -1,5 +1,5 @@
 <template>
-  <view class="news" @touchstart="touchstart" @touchend="touchend">
+  <view class="news" @tap="openChat">
     <view class="user-avatar">
       <image class="image" :src="data.avatar" mode="aspectFill" lazy-load></image>
     </view>
@@ -25,17 +25,9 @@ import UniBadge from '@dcloudio/uni-ui/lib/uni-badge/uni-badge.vue';
 export default class NewsList extends Vue {
   @Prop(Object)
   private data!: { id: number; username: string; content: string; time: string; unreadCount: number; avatar: string };
-  private start: number = 0;
-  private end: number = 0;
-  touchstart(e: { changedTouches: { clientX: number }[] }) {
-    this.start = e.changedTouches[0].clientX;
-  }
-
-  touchend(e: { changedTouches: { clientX: number }[] }) {
-    this.end = e.changedTouches[0].clientX;
-  }
-  get slide(): string {
-    return this.start < this.end ? '右滑' : '左滑';
+  // 打开聊天
+  openChat() {
+    this.$emit('openChat', this.data.id);
   }
 }
 </script>

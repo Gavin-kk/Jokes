@@ -31,4 +31,36 @@ export default class DropDownMenu extends Vue {
 }
 </script>
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+.menu-mask {
+  position: fixed;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  opacity: 0;
+}
+.menu {
+  width: 300rpx;
+  background: #ffffff;
+  z-index: 100;
+  position: absolute;
+  right: 0;
+  top: 10rpx;
+  box-shadow: 0 0 8px 0 #ccc;
+
+  .iconfont {
+    display: flex;
+    align-items: center;
+    height: 80rpx;
+  }
+  .iconfont:before {
+    display: inline-block;
+    padding: 0 20rpx;
+  }
+
+  .hover {
+    background: #eeeeee;
+  }
+}
+</style>

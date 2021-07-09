@@ -1,5 +1,5 @@
 <template>
-  <uni-nav-bar>
+  <uni-nav-bar class="nav-bar">
     <view slot="left" class="iconfont icon-fanhui" @tap="leftClick"></view>
     <view class="nav-center">
       <view class="text">{{ title }}</view>
@@ -27,6 +27,10 @@ export default class NavBar extends Vue {
 </script>
 
 <style lang="scss" scoped>
+.nav-bar {
+  position: relative;
+  z-index: 100;
+}
 .iconfont {
   font-size: 48rpx;
 }

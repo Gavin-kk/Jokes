@@ -40,7 +40,7 @@ export default class ChatInputBtn extends Vue {
   box-sizing: border-box;
   border-top: 1px solid $borderColor;
   background: #ffffff;
-  z-index: 1000;
+  z-index: 1;
 
   .input {
     flex-grow: 1;

@@ -8,10 +8,11 @@
     </moment-list>
     <!--评论模块-->
     <view class="comment-title">最新评论</view>
-    <block v-for="item in commentList" :key="item">
+    <block v-for="(item, index) in commentList" :key="index">
       <comment :data="item" @contentClick="contentClick" @userClick="userClick"></comment>
     </block>
     <chat-input-btn @confirm="submit"></chat-input-btn>
+    <share :is-show="isShowShare" @touchShareMask="touchShareMask"></share>
   </view>
 </template>
 
@@ -23,11 +24,14 @@ import { IMomentList } from '@components/moment-list/moment-list';
 import Comment, { ICommentData } from '@pages/content/components/comment/comment.vue';
 import moment from 'moment';
 import ChatInputBtn from '@components/chat-input-btn/chat-input-btn.vue';
+import Share from '@components/share/share.vue';
 
 @Component({
-  components: { ChatInputBtn, Comment, MomentList, NavBar },
+  components: { Share, ChatInputBtn, Comment, MomentList, NavBar },
 })
 export default class Content extends Vue {
+  // 是否显示分享框
+  private isShowShare: boolean = false;
   // 主题内容
   private data: IMomentList | null = null;
   // 是否显示输入框
@@ -95,8 +99,13 @@ export default class Content extends Vue {
     uni.navigateBack({ delta: 1 });
   }
 
+  // 打开分享
   openMore() {
-    uni.showToast({ title: '显示更多框' });
+    this.isShowShare = true;
+  }
+  //  关闭分享
+  touchShareMask() {
+    this.isShowShare = false;
   }
 }
 </script>

@@ -1,5 +1,5 @@
 <template>
-  <view class="moment animate__animated animate__slideInUp" style="animation-duration: 300ms">
+  <view :class="['moment', 'animate__animated', { animate__slideInUp: !isTheEnd }]" style="animation-duration: 300ms">
     <view class="left">
       <view class="avatar-box">
         <image class="avatar" :src="data.avatar" mode="scaleToFill"></image>
@@ -18,9 +18,10 @@
           <view class="iconfont icon-guanbi"></view>
         </view>
       </view>
+      <view class="time"><slot name="time"></slot></view>
       <text class="content" @tap="openMomentDetail">{{ data.content }}</text>
       <view :class="['image']" v-if="!data.share" v-show="data.momentPic" @tap="openMomentDetail">
-        <image class="content-img" :src="data.momentPic" mode="aspectFill"></image>
+        <image class="content-img" :src="data.momentPic" mode="aspectFill" @tap="preViewImage"></image>
         <!--          当内容是视频时显示-->
         <view class="video-play-mask" v-if="data.video">
           <view class="iconfont icon-bofang"></view>
@@ -62,6 +63,9 @@ export default class MomentList extends Vue {
   @Prop(Object)
   private data!: IMomentList;
 
+  @Prop({ type: Boolean, default: false })
+  private isTheEnd!: boolean;
+
   private isLike: number | null = null;
   private likeCount: number | null = null;
   private isFollow: number | null = null;
@@ -70,6 +74,13 @@ export default class MomentList extends Vue {
     this.isLike = this.data.isLike;
     this.likeCount = this.data.likeCount;
     this.isFollow = this.data.isFollow;
+  }
+
+  // 预览图片
+  preViewImage() {
+    uni.previewImage({
+      urls: [this.data.momentPic ? this.data.momentPic : ''],
+    });
   }
 
   attention() {
@@ -90,7 +101,9 @@ export default class MomentList extends Vue {
   }
 
   openMomentDetail() {
-    uni.showToast({ title: '打开动态详情' });
+    if (!this.isTheEnd) {
+      uni.showToast({ title: '打开动态详情' });
+    }
   }
 
   likeOrUnlike() {
@@ -194,6 +207,14 @@ export default class MomentList extends Vue {
           color: #d5d5d5;
         }
       }
+    }
+
+    .time {
+      display: flex;
+      justify-content: flex-start;
+      width: 100%;
+      font-size: 28rpx;
+      color: #bbbbbb;
     }
 
     .content {

@@ -36,9 +36,9 @@ $borderColor: #e9e8e8;
 //强制一行显示超出用...表示 必须设置宽度
 @mixin ellipsis($width) {
   width: $width;
-  overflow:hidden;
-  text-overflow:ellipsis;
-  white-space:nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 // 强制两行显示 超出...
 @mixin twoLines($row) {

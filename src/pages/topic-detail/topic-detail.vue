@@ -110,7 +110,7 @@ export default class TopicDetail extends Vue {
           content: '六道快手家常菜，11111111好吃又下饭，是覅额温暖危机让佛文件佛额我I今日份为节日哦就你发',
           momentPic: '/static/demo/datapic/2.jpg',
           video: {
-            playCount: '20w',
+            playCount: 200000,
             totalTime: '2:40',
           },
           share: null,
@@ -195,7 +195,7 @@ export default class TopicDetail extends Vue {
           content: '六道快手家常菜，11111111好吃又下饭，是覅额温暖危机让佛文件佛额我I今日份为节日哦就你发',
           momentPic: '/static/demo/datapic/2.jpg',
           video: {
-            playCount: '20w',
+            playCount: 200000,
             totalTime: '2:40',
           },
           share: null,

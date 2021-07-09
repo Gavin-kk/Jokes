@@ -17,7 +17,10 @@ import slidingList from '@components/sliding-list/sliding-list.vue';
 import { namespace } from 'vuex-class';
 import { ActionTypes } from '@store/module/system';
 import { ModuleConstant } from '@store/module.constant';
+import { IMomentList } from '@components/moment-list/moment-list';
+import moment from 'moment';
 
+moment.locale('zh-cn');
 const SystemModule = namespace('systemModule');
 
 @Component({
@@ -54,74 +57,97 @@ export default class Home extends Vue {
     this.currentSwiperIndex = index;
   }
 
-  private momentList: IMoment[] = [
+  private momentList: IMomentList[] = [
     {
       id: +(Math.random() * 1000 + 1).toFixed(),
       username: '张三',
-      title: '如何用手账改变你的一生?',
+      content: '如何用手账改变你的一生?',
+      gender: 0,
+      age: 18,
+      address: '上海',
       avatar: '/static/demo/userpic/1.jpg',
-      playCount: 1234,
-      totalTime: 13451,
-      privateMessageCount: 200,
+      video: {
+        playCount: 1234,
+        totalTime: '13451',
+      },
+      share: null,
+      commentCount: 200,
       likeCount: 200,
       dontLikeCount: 200512344,
-      shareCount: 200,
-      fileType: 'image',
-      whetherToFollow: 0,
-      coverImage: '/static/demo/datapic/1.jpg',
+      forwardCount: 200,
+      isFollow: 0,
+      momentPic: '/static/demo/datapic/1.jpg',
       isLike: 0,
       dislike: 0,
+      createAt: moment(new Date().getTime() - 1000 * 60 * 60 * 12)
+        .startOf('day')
+        .fromNow(),
     },
     {
       id: +(Math.random() * 1000 + 1).toFixed(),
-      username: '李四',
-      title: '如何用手账改变你的一生?',
+      username: 'asdf',
+      content: '如何用手账改变你的一生?',
+      gender: 0,
+      age: 18,
+      address: '上海',
       avatar: '/static/demo/userpic/1.jpg',
-      playCount: 1234,
-      totalTime: 12345646,
-      privateMessageCount: 200,
+      video: null,
+      share: null,
+      commentCount: 200,
       likeCount: 200,
-      dontLikeCount: 200000000,
-      shareCount: 200,
-      fileType: 'video',
-      whetherToFollow: 1,
-      coverImage: '/static/demo/datapic/2.jpg',
+      dontLikeCount: 200512344,
+      forwardCount: 200,
+      isFollow: 0,
+      momentPic: '/static/demo/datapic/1.jpg',
       isLike: 0,
-      dislike: 1,
+      dislike: 0,
+      createAt: moment(new Date().getTime() - 1000 * 60 * 60 * 12).format('L'),
     },
     {
       id: +(Math.random() * 1000 + 1).toFixed(),
-      username: '赵刘',
-      title: '如何用手账改变你的一生?',
+      username: '瓦岗山',
+      content: '如何用手账改变你的一生?',
+      gender: 0,
+      age: 18,
+      address: '上海',
       avatar: '/static/demo/userpic/1.jpg',
-      playCount: 1234,
-      totalTime: 0,
-      privateMessageCount: 200,
+      video: {
+        playCount: 1234,
+        totalTime: '13451',
+      },
+      share: null,
+      commentCount: 200,
       likeCount: 200,
-      dontLikeCount: 200000000,
-      shareCount: 200,
-      fileType: 'image',
-      whetherToFollow: 1,
-      coverImage: '/static/demo/datapic/3.jpg',
-      isLike: 1,
+      dontLikeCount: 200512344,
+      forwardCount: 200,
+      isFollow: 0,
+      momentPic: '/static/demo/datapic/1.jpg',
+      isLike: 0,
       dislike: 0,
+      createAt: moment(new Date().getTime() - 1000 * 60 * 60 * 12).format('L'),
     },
     {
       id: +(Math.random() * 1000 + 1).toFixed(),
-      username: '是否',
-      title: '如何用手账改变你的一生?',
+      username: '访问',
+      content: '如何用手账改变你的一生?',
+      gender: 0,
+      age: 18,
+      address: '上海',
       avatar: '/static/demo/userpic/1.jpg',
-      playCount: 1234,
-      totalTime: 0,
-      privateMessageCount: 200,
+      video: {
+        playCount: 1234,
+        totalTime: '13451',
+      },
+      share: null,
+      commentCount: 200,
       likeCount: 200,
-      dontLikeCount: 200000000,
-      shareCount: 200,
-      fileType: 'image',
-      whetherToFollow: 1,
-      coverImage: '/static/demo/datapic/3.jpg',
-      isLike: 1,
+      dontLikeCount: 200512344,
+      forwardCount: 200,
+      isFollow: 0,
+      momentPic: '/static/demo/datapic/1.jpg',
+      isLike: 0,
       dislike: 0,
+      createAt: moment(new Date().getTime() - 1000 * 60 * 60 * 12).format('L'),
     },
   ];
 
@@ -167,7 +193,7 @@ export default class Home extends Vue {
       title: '喜欢',
     },
   ];
-  private newList: { list: IMoment[]; loadingText: string; id: number }[] = this.list.map(() => ({
+  private newList: { list: IMomentList[]; loadingText: string; id: number }[] = this.list.map(() => ({
     id: Math.random() * 1000 + 1,
     list: this.momentList,
     loadingText: '上拉加载更多',

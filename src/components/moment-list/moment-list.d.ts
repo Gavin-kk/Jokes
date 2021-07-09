@@ -1,5 +1,5 @@
 export interface IVideo {
-  playCount: string;
+  playCount: number;
   totalTime: string;
 }
 export interface IShare {
@@ -18,9 +18,12 @@ declare interface IMomentList {
   video: IVideo | null;
   share: IShare | null;
   address: string;
-  forwardCount: number;
+  forwardCount: number; // 分享转发数量
   commentCount: number;
   likeCount: number;
   isLike: number; // 0未点赞 1点赞
   isFollow: number; // 是否关注
+  dontLikeCount?: number;
+  dislike?: number;
+  createAt?: string;
 }

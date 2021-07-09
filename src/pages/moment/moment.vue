@@ -43,7 +43,7 @@ export default class Moment extends Vue {
   // navlist 数据
   private navList: string[] = ['关注', '话题'];
   // 当前所在navlist的索引
-  private currentIndex: number = 1;
+  private currentIndex: number = 0;
   // 窗口总高度
   private totalHeight: number | null = null;
   // topbar 的高度
@@ -176,7 +176,7 @@ export default class Moment extends Vue {
       content: '六道快手家常菜，11111111好吃又下饭，是覅额温暖危机让佛文件佛额我I今日份为节日哦就你发',
       momentPic: '/static/demo/datapic/2.jpg',
       video: {
-        playCount: '20w',
+        playCount: 200000,
         totalTime: '2:40',
       },
       share: null,

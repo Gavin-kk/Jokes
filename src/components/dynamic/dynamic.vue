@@ -12,13 +12,13 @@
         <view class="close-icon iconfont icon-guanbi" />
       </view>
     </view>
-    <view class="text-box" @tap="openDetail(momentData.id)">{{ momentData.title }}</view>
-    <view class="img-box" @tap="openDetail(momentData.id)">
-      <image class="content-img" :src="momentData.coverImage" mode="aspectFill" lazy-load />
+    <view class="text-box" @tap="openDetail(momentData)">{{ momentData.content }}</view>
+    <view class="img-box" @tap="openDetail(momentData)">
+      <image class="content-img" :src="momentData.momentPic" mode="aspectFill" lazy-load />
       <view class="play-btn iconfont icon-bofang" v-if="fileType" />
       <view class="video-count" v-if="fileType">
-        <view class="play-count">{{ momentData.playCount | handleNumber }}次播放</view>
-        <view class="totalTime">{{ momentData.totalTime }}</view>
+        <view class="play-count">{{ momentData.video.playCount | handleNumber }}次播放</view>
+        <view class="totalTime">{{ momentData.video.totalTime }}</view>
       </view>
     </view>
     <view class="btn-box">
@@ -36,11 +36,11 @@
       <view class="btn-right">
         <view class="btn-child-box">
           <text class="smiley-icon iconfont icon-pinglun1"></text>
-          {{ momentData.privateMessageCount | handleNumber }}
+          {{ momentData.commentCount | handleNumber }}
         </view>
         <view class="btn-child-box">
           <text class="smiley-icon iconfont icon-zhuanfa"></text>
-          {{ momentData.shareCount | handleNumber }}
+          {{ momentData.forwardCount | handleNumber }}
         </view>
       </view>
     </view>
@@ -50,13 +50,14 @@
 <script lang="ts">
 import { Vue, Component, Prop } from 'vue-property-decorator';
 import { handleNumber } from '@utils/handle-number';
+import { IMomentList } from '../moment-list/moment-list';
 
 @Component({
   filters: { handleNumber },
 })
 export default class Dynamic extends Vue {
   @Prop({ type: Object, required: true })
-  private momentData!: IMoment;
+  private momentData!: IMomentList;
 
   private likeCount: number | null = null;
   private dontLikeCount: number | null = null;
@@ -66,11 +67,20 @@ export default class Dynamic extends Vue {
 
   created() {
     this.likeCount = this.momentData.likeCount;
-    this.dontLikeCount = this.momentData.dontLikeCount;
-    this.whetherFollow = this.momentData.whetherToFollow;
+    this.dontLikeCount = this.momentData.dontLikeCount || null;
+    this.whetherFollow = this.momentData.isFollow;
     this.isLike = this.momentData.isLike;
-    this.dislike = this.momentData.dislike;
+    this.dislike = this.momentData.dislike || null;
   }
+
+  openDetail(momentData: IMomentList) {
+    console.log(momentData);
+    //  跳转到对应页面 并请求数据
+    uni.navigateTo({
+      url: `/pages/content/content?data=${JSON.stringify(momentData)}`,
+    });
+  }
+
   // 关注用户事件
   followUsers(): void {
     // 发送关注请求
@@ -114,18 +124,10 @@ export default class Dynamic extends Vue {
   }
 
   get whetherToFollow(): boolean {
-    console.log(this.whetherFollow);
     return this.whetherFollow === 0;
   }
   get fileType(): boolean {
-    return this.momentData?.fileType === 'video';
-  }
-
-  openDetail(id: number) {
-    //  跳转到对应页面 并请求数据
-    uni.showToast({
-      title: `跳转到详情页 ${id}`,
-    });
+    return !!this.momentData?.video;
   }
 }
 </script>

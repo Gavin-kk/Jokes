@@ -4,14 +4,14 @@
     <view class="time" v-if="time">{{ time }}</view>
     <view :class="['chat-item', { 'row-reverse': data.isMe }]">
       <view class="image-box">
-        <image class="image" :src="data.avatar" mode="aspectFill" lazy-load></image>
+        <image v-if="imageShow" class="image" :src="data.avatar" mode="aspectFill" lazy-load></image>
       </view>
       <view class="content-box">
         <text class="content" v-if="type">
           {{ data.content }}
         </text>
         <view class="content-image-box" v-else>
-          <image class="content-image" :src="data.content" mode="widthFix" lazy-load></image>
+          <image v-if="imageShow" class="content-image" :src="data.content" mode="widthFix" lazy-load></image>
         </view>
         <view :class="['angle', { me: data.isMe }]"></view>
       </view>
@@ -39,8 +39,14 @@ export default class ChatList extends Vue {
     content: string; // 如果是文字内容那么内容就是文字 如果是图片内容 内容就url
     time: number; // 时间戳
   };
+
   @Prop(Number)
   private preTime!: number;
+
+  // 修复小程序端 初始化时图片未加载时 报错
+  get imageShow() {
+    return !!this.data.content && !!this.data.avatar;
+  }
 
   get time(): string {
     // eslint-disable-next-line no-underscore-dangle
@@ -66,19 +72,19 @@ export default class ChatList extends Vue {
         return '';
       }
       case timeDifference > year:
-        formatText = 'LLLL';
-        break;
       case timeDifference > month:
       case timeDifference > day * 5:
-        formatText = 'L';
+        formatText = 'LLL';
         break;
-      case timeDifference < day * 5 && timeDifference > day:
+      case timeDifference < day * 5 && timeDifference > day * 2:
         formatText = 'dddd';
         break;
+      case timeDifference < day * 2 && timeDifference > day:
+        return moment(_time).subtract('days').calendar();
       case timeDifference < day && timeDifference > hour * 12:
         formatText = 'LTS';
         break;
-      case timeDifference < day && timeDifference < hour * 12:
+      case timeDifference < day && timeDifference < hour * 12 && timeDifference > hour:
         return moment(_time).startOf('hour').fromNow();
       case timeDifference < hour:
         return moment(_time).startOf('minute').fromNow();

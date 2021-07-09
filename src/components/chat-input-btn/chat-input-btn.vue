@@ -31,12 +31,16 @@ export default class ChatInputBtn extends Vue {
 
 <style lang="scss" scoped>
 .input-box {
+  position: fixed;
+  bottom: 0;
   display: flex;
   width: 100%;
   height: 80rpx;
   padding: 10rpx;
   box-sizing: border-box;
   border-top: 1px solid $borderColor;
+  background: #ffffff;
+  z-index: 1000;
 
   .input {
     flex-grow: 1;

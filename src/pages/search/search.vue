@@ -3,7 +3,7 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Emit, Prop, Watch } from 'vue-property-decorator';
+import { Vue, Component } from 'vue-property-decorator';
 import UniSearchBar from '@dcloudio/uni-ui/lib/uni-search-bar/uni-search-bar.vue';
 
 @Component({ components: { UniSearchBar } })

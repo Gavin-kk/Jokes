@@ -27,9 +27,11 @@ import { namespace } from 'vuex-class';
 
 import PullUpLoading from '@components/pull-up-loading/pull-up-loading.vue';
 import Empty from '@components/empty/empty.vue';
+import moment from 'moment';
+import { IMomentList } from '@components/moment-list/moment-list';
 import { LoadingStatus } from './loading-status';
 
-type list = { id: number; list: IMoment[]; loadingText: string };
+type list = { id: number; list: IMomentList[]; loadingText: string };
 
 const SystemModule = namespace('systemModule');
 @Component({ components: { Empty, PullUpLoading, Dynamic } })
@@ -72,20 +74,26 @@ export default class SlidingList extends Vue {
     setTimeout(() => {
       this.newList[index].list.push({
         id: +(Math.random() * 1000 + 1).toFixed(),
-        username: '李四',
-        title: '如何用手账改变你的一生?',
+        username: '访问',
+        content: '如何用手账改变你的一生?',
+        gender: 0,
+        age: 18,
+        address: '上海',
         avatar: '/static/demo/userpic/1.jpg',
-        playCount: 1234,
-        totalTime: 12345646,
-        privateMessageCount: 200,
+        video: {
+          playCount: 1234,
+          totalTime: '13451',
+        },
+        share: null,
+        commentCount: 200,
         likeCount: 200,
-        dontLikeCount: 200,
-        shareCount: 200,
-        fileType: 'video',
-        whetherToFollow: 0,
-        coverImage: '/static/demo/datapic/2.jpg',
+        dontLikeCount: 200512344,
+        forwardCount: 200,
+        isFollow: 0,
+        momentPic: '/static/demo/datapic/1.jpg',
         isLike: 0,
-        dislike: 1,
+        dislike: 0,
+        createAt: moment(`${new Date().getTime() - 1000 * 60 * 60 * 12}`).format('llll'),
       });
       this.newList[index].loadingText = LoadingStatus.load;
     }, 1500);

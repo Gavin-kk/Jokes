@@ -23,7 +23,7 @@
 <script lang="ts">
 import { Vue, Component } from 'vue-property-decorator';
 import UniNavBar from '@dcloudio/uni-ui/lib/uni-nav-bar/uni-nav-bar.vue';
-import ItemList, { IItemList } from '@pages/mine/components/item-list/item-list.vue';
+import ItemList, { IItemList } from '@components/list/item-list.vue';
 import LoginMethods from '@pages/mine/components/login-methods/login-methods.vue';
 import User, { IUserinfo } from '@pages/mine/components/user/user.vue';
 import MSearch from '@components/search/m-search.vue';
@@ -66,6 +66,9 @@ export default class Mine extends Vue {
   private isLogin: boolean = true;
   // 打开设置
   openSettings() {
+    uni.navigateTo({
+      url: '/pages/settings/settings',
+    });
     uni.showToast({ title: '打开个人设置' });
   }
 

@@ -148,7 +148,7 @@ export default class Chat extends Vue {
   getChatListHeight() {
     return new Promise((resolve) => {
       const query = uni.createSelectorQuery();
-      query.selectAll('.chat-item-list-chat').boundingClientRect();
+      query.selectAll('.chat-list-chat').boundingClientRect();
       query.exec((res?: [{ height: number }[]]) => {
         if (res) {
           // eslint-disable-next-line no-restricted-syntax

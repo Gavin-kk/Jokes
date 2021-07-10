@@ -3,7 +3,7 @@
     <block v-for="item in list" :key="item.text">
       <view class="box" hover-class="box-click" @tap="clickListEvent(item)">
         <view class="left">
-          <view :class="['iconfont', item.iconfontClass]" :style="{ color: item.color }">
+          <view :class="['iconfont', iconExists(item.iconfontClass)]" :style="{ color: item.color }">
             <text class="text">{{ item.text }}</text>
           </view>
         </view>
@@ -17,9 +17,10 @@
 import { Vue, Component, Prop } from 'vue-property-decorator';
 
 export interface IItemList {
-  iconfontClass: string;
+  iconfontClass?: string;
   text: string;
-  color: string;
+  color?: string;
+  url?: string; // 本地的路由页面
 }
 
 @Component({})
@@ -29,6 +30,10 @@ export default class ItemList extends Vue {
 
   clickListEvent(item: IItemList) {
     this.$emit('clickListEvent', item);
+  }
+
+  get iconExists(): (itemCLass: string) => string {
+    return (itemCLass: string) => itemCLass || '';
   }
 }
 </script>

@@ -86,7 +86,7 @@ export default class Comment extends Vue {
     .comment-text {
       line-height: 50rpx;
       font-size: 30rpx;
-      word-wrap: anywhere;
+      word-break: break-all;
     }
 
     .time {

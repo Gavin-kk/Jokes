@@ -1,5 +1,5 @@
 <template>
-  <uni-nav-bar class="nav-bar">
+  <uni-nav-bar class="nav-bar" status-bar>
     <view slot="left" class="iconfont icon-fanhui" @tap="leftClick"></view>
     <view class="nav-center">
       <view class="text">{{ title }}</view>

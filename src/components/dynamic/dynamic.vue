@@ -74,7 +74,6 @@ export default class Dynamic extends Vue {
   }
 
   openDetail(momentData: IMomentList) {
-    console.log(momentData);
     //  跳转到对应页面 并请求数据
     uni.navigateTo({
       url: `/pages/content/content?data=${JSON.stringify(momentData)}`,

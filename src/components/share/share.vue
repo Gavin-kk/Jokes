@@ -1,33 +1,36 @@
 <template>
-  <view
-    @tap.self="touchShareMask"
-    v-show="show"
-    :class="['share-box', 'animate__animated', animationBoxClassName]"
-    style="animation-duration: 200ms"
-  >
-    <view :class="['share', 'animate__animated', animationClassName]" style="animation-duration: 200ms">
+  <view>
+    <view
+      @tap.stop="touchShareMask"
+      v-if="show"
+      :class="['share-mask', 'animate__animated', animationBoxClassName]"
+      :style="{ 'animation-duration': `${animationTime}ms` }"
+    >
+    </view>
+    <view
+      :class="['share', 'animate__animated', animationClassName]"
+      :style="{ 'animation-duration': `${animationTime}ms` }"
+    >
       <view class="title">分享到</view>
       <view class="center">
-        <view class="item-box">
-          <view class="iconfont icon-weixin"></view>
-          <view class="text">微信好友</view>
-        </view>
-        <view class="item-box">
-          <view class="pyq">
-            <image class="pyq-image" src="/static/icon-pyq.png" mode="aspectFit"></image>
+        <block v-for="item in sharingProvider" :key="item.iconClass">
+          <view @tap="share(item)" class="item-box" hover-class="item-hover">
+            <template v-if="isPYQ(item.name)">
+              <view class="pyq">
+                <image class="pyq-image" :src="item.iconClass" mode="aspectFit"></image>
+              </view>
+              <view class="text">{{ item.name }}</view>
+            </template>
+            <template v-else>
+              <view class="item-box">
+                <view :class="['iconfont', item.iconClass]"></view>
+                <view class="text">{{ item.name }}</view>
+              </view>
+            </template>
           </view>
-          <view class="text">朋友圈</view>
-        </view>
-        <view class="item-box">
-          <view class="iconfont icon-xinlangweibo"></view>
-          <view class="text">新浪微博</view>
-        </view>
-        <view class="item-box">
-          <view class="iconfont icon-QQ"></view>
-          <view class="text">QQ好友</view>
-        </view>
+        </block>
       </view>
-      <view class="cancel">取消</view>
+      <view class="cancel" @tap="touchShareMask" hover-class="cancel-click">取消</view>
     </view>
   </view>
 </template>
@@ -35,40 +38,255 @@
 <script lang="ts">
 // 分享组件
 import { Vue, Component, Prop, Watch } from 'vue-property-decorator';
+// eslint-disable-next-line import/no-self-import
+import { ShareOptions } from './share';
+
+export interface IShare {
+  name: string;
+  id: 'sinaweibo' | 'qq' | 'weixin';
+  type?: string;
+  iconClass: string;
+  sort: number;
+}
 
 @Component({})
 export default class Share extends Vue {
   @Prop({ type: Boolean, default: false })
   private isShow!: boolean;
-
+  private animationTime: number = 200;
   private show: boolean = false;
+  // 分享提供商的数据
+  private sharingProvider: IShare[] = [];
 
-  @Watch('isShow')
-  watchIsShow(newIsShow: boolean) {
-    if (!newIsShow) {
-      setTimeout(() => {
-        this.show = newIsShow;
-      }, 200);
-    } else {
-      this.show = newIsShow;
+  // 分享类型
+  private shareType: 0 | 2 | 1 | 3 | 4 | 5 = 0;
+  // 分享内容
+  private shareText: string = '1234';
+  // 分享的图片
+  private image: string = '/static/demo/userpic/.jpg';
+
+  mounted() {
+    this.getShareProvider();
+  }
+
+  // 获取分享提供商
+  getShareProvider() {
+    uni.getProvider({
+      service: 'share',
+      success: (data) => {
+        const dataList: IShare[] = [];
+        data.provider.forEach((item: string) => {
+          switch (item) {
+            case 'weixin':
+              dataList.push({
+                name: '微信好友',
+                id: 'weixin',
+                iconClass: 'icon-weixin',
+                sort: 0,
+              });
+              dataList.push({
+                name: '朋友圈',
+                id: 'weixin',
+                iconClass: '/static/icon-pyq.png',
+                type: 'WXSenceTimeline',
+                sort: 1,
+              });
+              break;
+            case 'sinaweibo':
+              dataList.push({
+                name: '新浪微博',
+                id: 'sinaweibo',
+                iconClass: 'icon-xinlangweibo',
+                sort: 2,
+              });
+              break;
+            case 'qq':
+              dataList.push({
+                name: 'qq好友',
+                id: 'qq',
+                iconClass: 'icon-QQ',
+                sort: 3,
+              });
+              break;
+            default:
+          }
+        });
+        this.sharingProvider = dataList.sort((a, b) => a.sort - b.sort);
+      },
+    });
+  }
+
+  // 分享
+  async share(e: IShare) {
+    console.log(`分享通道:${e.id}； 分享类型:${this.shareType}`);
+
+    if (!this.shareText && (this.shareType === 1 || this.shareType === 0)) {
+      uni.showModal({
+        content: '分享内容不能为空',
+        showCancel: false,
+      });
+      return;
     }
+
+    if (!this.image && (this.shareType === 2 || this.shareType === 0)) {
+      uni.showModal({
+        content: '分享图片不能为空',
+        showCancel: false,
+      });
+      return;
+    }
+
+    const shareOptions: ShareOptions = {
+      provider: e.id,
+      scene: e.type && e.type === 'WXSenceTimeline' ? 'WXSenceTimeline' : 'WXSceneSession', // WXSceneSession”分享到聊天界面，“WXSenceTimeline”分享到朋友圈，“WXSceneFavorite”分享到微信收藏
+      type: this.shareType,
+      success: (e: any) => {
+        console.log('success', e);
+        uni.showModal({
+          content: '已分享',
+          showCancel: false,
+        });
+      },
+      fail: (e: any) => {
+        console.log('fail', e);
+        uni.showModal({
+          content: e.errMsg,
+          showCancel: false,
+        });
+      },
+      complete() {
+        console.log('分享操作结束!');
+      },
+    };
+
+    switch (this.shareType) {
+      case 0:
+        shareOptions.summary = this.shareText;
+        shareOptions.imageUrl = this.image;
+        shareOptions.title = '欢迎体验uniapp';
+        shareOptions.href = 'https://uniapp.dcloud.io';
+        break;
+      case 1:
+        shareOptions.summary = this.shareText;
+        break;
+      case 2:
+        shareOptions.imageUrl = this.image;
+        break;
+      case 5:
+        shareOptions.imageUrl = this.image
+          ? this.image
+          : 'https://vkceyugu.cdn.bspapp.com/VKCEYUGU-dc-site/b6304f00-5168-11eb-bd01-97bc1429a9ff.png';
+        shareOptions.title = '欢迎体验uniapp';
+        shareOptions.miniProgram = {
+          id: 'gh_33446d7f7a26',
+          path: '/pages/tabBar/component/component',
+          webUrl: 'https://uniapp.dcloud.io',
+          type: 0,
+        };
+        break;
+      default:
+        break;
+    }
+
+    if (shareOptions.type === 0 && plus.os.name === 'iOS') {
+      // 如果是图文分享，且是ios平台，则压缩图片
+      (shareOptions.imageUrl as any) = await this.compress();
+    }
+    if (shareOptions.type === 1 && shareOptions.provider === 'qq') {
+      // 如果是分享文字到qq，则必须加上href和title
+      shareOptions.href = 'https://uniapp.dcloud.io';
+      shareOptions.title = '欢迎体验uniapp';
+    }
+    uni.share(shareOptions);
+  }
+
+  // 压缩图片
+  compress() {
+    // 压缩图片 图文分享要求分享图片大小不能超过20Kb
+    console.log('开始压缩');
+    const img = this.image;
+    return new Promise((res) => {
+      const localPath = plus.io.convertAbsoluteFileSystem(img.replace('file://', ''));
+      console.log(`after${localPath}`);
+      // 压缩size
+      plus.io.resolveLocalFileSystemURL(
+        localPath,
+        (entry: any) => {
+          entry.file((file: any) => {
+            // 可通过entry对象操作图片
+            console.log(`getFile:${JSON.stringify(file)}`);
+            if (file.size > 20480) {
+              // 压缩后size 大于20Kb
+              plus.zip.compressImage(
+                {
+                  src: img,
+                  dst: img.replace('.jpg', '2222.jpg').replace('.JPG', '2222.JPG'),
+                  width: '10%',
+                  height: '10%',
+                  quality: 1,
+                  overwrite: true,
+                },
+                (event) => {
+                  console.log(`success zip****${event.size}`);
+                  const newImg = img.replace('.jpg', '2222.jpg').replace('.JPG', '2222.JPG');
+                  res(newImg);
+                },
+                (error) => {
+                  uni.showModal({
+                    content: '分享图片太大,需要请重新选择图片!',
+                    showCancel: false,
+                  });
+                },
+              );
+            }
+          });
+        },
+        (e) => {
+          console.log(`Resolve file URL failed: ${e.message}`);
+          uni.showModal({
+            content: '分享图片太大,需要请重新选择图片!',
+            showCancel: false,
+          });
+        },
+      );
+    });
   }
 
   touchShareMask() {
     this.$emit('touchShareMask');
   }
 
+  @Watch('isShow')
+  watchIsShow(newIsShow: boolean) {
+    // 通过判断新值是否为false 也就是判断是否要是要退出
+    // 如果是要退出的话等200ms 等动画完成后再让整个组件不显示
+    if (!newIsShow) {
+      setTimeout(() => {
+        this.show = newIsShow;
+      }, this.animationTime);
+    } else {
+      this.show = newIsShow;
+    }
+  }
+
+  // 判断是否是 朋友圈
+  get isPYQ(): (name: string) => boolean {
+    return (name: string) => name === '朋友圈';
+  }
+
   get animationClassName(): string {
     return this.isShow ? 'animate__fadeInUp' : 'animate__fadeOutDownBig';
   }
+
   get animationBoxClassName(): string {
+    // 必须判断isShow 因为 show 是延迟的 当延迟的 show 变为 false 时同时整个组件也都不显示了 动画没有时间播放
     return this.isShow ? 'animate__fadeIn' : 'animate__fadeOut';
   }
 }
 </script>
 
 <style lang="scss" scoped>
-.share-box {
+.share-mask {
   position: fixed;
   left: 0;
   bottom: 0;
@@ -76,77 +294,83 @@ export default class Share extends Vue {
   right: 0;
   background: rgba(0, 0, 0, 0.3);
   z-index: 1;
+}
+.share {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  width: 750rpx;
+  background: #ffffff;
+  z-index: 100;
 
-  .share {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    width: 750rpx;
-    background: #ffffff;
-    z-index: 10;
+  .title {
+    @include centered;
+    height: 100rpx;
+    width: 100%;
+    font-size: 32rpx;
+  }
 
-    .title {
+  .center {
+    display: flex;
+
+    .item-box {
       @include centered;
-      height: 100rpx;
-      width: 100%;
-      font-size: 32rpx;
-    }
+      flex-direction: column;
+      flex: 1;
 
-    .center {
-      display: flex;
+      .text {
+        font-size: 30rpx;
+        line-height: 60rpx;
+      }
 
-      .item-box {
+      .pyq {
         @include centered;
-        flex-direction: column;
-        flex: 1;
-
-        .text {
-          font-size: 30rpx;
-          line-height: 60rpx;
+        width: 100rpx;
+        height: 100rpx;
+        background: #514d4c;
+        border-radius: 50%;
+        .pyq-image {
+          width: 70%;
+          height: 70%;
         }
+      }
 
-        .pyq {
-          @include centered;
-          width: 100rpx;
-          height: 100rpx;
-          background: #514d4c;
-          border-radius: 50%;
-          .pyq-image {
-            width: 70%;
-            height: 70%;
-          }
-        }
+      .iconfont {
+        @include centered;
+        width: 100rpx;
+        height: 100rpx;
+        border-radius: 50%;
+        font-size: 65rpx;
+        color: #ffffff;
+      }
 
-        .iconfont {
-          @include centered;
-          width: 100rpx;
-          height: 100rpx;
-          border-radius: 50%;
-          font-size: 65rpx;
-          color: #ffffff;
-        }
+      .icon-weixin {
+        background: #2ad19b;
+      }
 
-        .icon-weixin {
-          background: #2ad19b;
-        }
+      .icon-xinlangweibo {
+        background: #ee5e5e;
+      }
 
-        .icon-xinlangweibo {
-          background: #ee5e5e;
-        }
-
-        .icon-QQ {
-          background: #5280ce;
-        }
+      .icon-QQ {
+        background: #5280ce;
       }
     }
 
-    .cancel {
-      @include centered;
-      height: 100rpx;
-      width: 100%;
-      font-size: 32rpx;
+    .item-hover {
+      background: #eeeeee;
     }
+  }
+
+  .cancel {
+    @include centered;
+    height: 100rpx;
+    width: 100%;
+    font-size: 32rpx;
+  }
+  .cancel-click {
+    background: #bbbbbb;
   }
 }
 </style>

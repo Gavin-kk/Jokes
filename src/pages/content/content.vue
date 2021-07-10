@@ -90,7 +90,7 @@ export default class Content extends Vue {
       avatar: '/static/demo/userpic/1.jpg',
       username: '张三',
       content: value,
-      createAt: moment().startOf().fromNow(),
+      createAt: moment().startOf('hour').fromNow(),
     });
     uni.showToast({ title: `发送评论内容${value}` });
   }
@@ -111,6 +111,9 @@ export default class Content extends Vue {
 </script>
 
 <style lang="scss" scoped>
+.content-box {
+  width: 100%;
+}
 .content-box:after {
   content: '';
   display: inline-block;

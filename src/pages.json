@@ -90,7 +90,14 @@
       }
     },
     {
-      "path": "pages/mine/mine"
+      "path": "pages/mine/mine",
+      "style": {
+        "navigationStyle": "custom",
+        "app-plus": {
+          "bounce": "none", // 关闭反弹效果
+          "titleNView": false
+        }
+      }
     },
     {
       "path": "pages/search/search",

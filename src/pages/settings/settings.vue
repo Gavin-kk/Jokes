@@ -26,8 +26,8 @@ export default class Settings extends Vue {
     { text: '资料编辑', url: '/pages/edit-material/edit-material' },
     { text: '小纸条' },
     { text: '清除缓存' },
-    { text: '意见反馈' },
-    { text: '关于嘻嘻哈哈' },
+    { text: '意见反馈', url: '/pages/feedback/feedback' },
+    { text: '关于嘻嘻哈哈', url: '/pages/about/about' },
   ];
   // 退出登录
   signOut() {

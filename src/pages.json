@@ -241,6 +241,39 @@
           "bounce": "none" // 关闭反弹效果
         }
       }
+    },
+    {
+      "path": "pages/feedback/feedback",
+      "style": {
+        "navigationStyle": "custom",
+        "app-plus": {
+          "titleNView": false,
+          "scrollIndicator": "none",
+          "bounce": "none" // 关闭反弹效果
+        }
+      }
+    },
+    {
+      "path": "pages/about/about",
+      "style": {
+        "navigationStyle": "custom",
+        "app-plus": {
+          "titleNView": false,
+          "scrollIndicator": "none",
+          "bounce": "none" // 关闭反弹效果
+        }
+      }
+    },
+    {
+      "path": "pages/login/login",
+      "style": {
+        "navigationStyle": "custom",
+        "app-plus": {
+          "titleNView": false,
+          "scrollIndicator": "none",
+          "bounce": "none" // 关闭反弹效果
+        }
+      }
     }
   ],
   "globalStyle": {

@@ -108,8 +108,8 @@ export default class EditPassword extends Vue {
 }
 
 .btn {
-  background: #f4f4f4;
-  color: #7d7c7c;
+  background: #ffe933;
+  color: #000000;
   margin: 30rpx 20rpx;
 }
 </style>

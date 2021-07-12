@@ -66,7 +66,7 @@ export default class Mine extends Vue {
   };
 
   // 是否登录
-  private isLogin: boolean = true;
+  private isLogin: boolean = false;
   // 打开设置
   openSettings() {
     uni.navigateTo({

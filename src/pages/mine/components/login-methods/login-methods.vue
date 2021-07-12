@@ -1,12 +1,12 @@
 <template>
   <view class="login">
-    <view class="title">登录嘻嘻哈哈, 体验等多功能</view>
+    <view class="title" v-if="!ifUseIcon">登录嘻嘻哈哈, 体验等多功能</view>
     <view class="methods">
       <view class="iconfont icon-weixin"></view>
       <view class="iconfont icon-xinlangweibo"></view>
       <view class="iconfont icon-QQ"></view>
     </view>
-    <view class="other-login">
+    <view class="other-login" @tap="openLoginPage" v-if="!ifUseIcon">
       账号密码登录
       <view class="iconfont icon-jinru"></view>
     </view>
@@ -14,10 +14,17 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component } from 'vue-property-decorator';
+import { Vue, Component, Prop } from 'vue-property-decorator';
 
 @Component({})
-export default class LoginMethods extends Vue {}
+export default class LoginMethods extends Vue {
+  @Prop({ type: Boolean, default: false })
+  private ifUseIcon!: boolean;
+  // 打开登录页面
+  openLoginPage() {
+    uni.navigateTo({ url: '/pages/login/login' });
+  }
+}
 </script>
 
 <style lang="scss" scoped>

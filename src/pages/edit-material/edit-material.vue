@@ -65,14 +65,15 @@ export default class EditMaterial extends Vue {
     profession: '技术',
     hometown: '内蒙古',
   };
-
+  // 级联选择组件是否显示
   private regionSelectionComponentIsShow: boolean = false;
 
   private currentTime = moment().format('YYYY-MM-DD');
 
   // 城市选择完成事件
   citySelectionCompleted(str: string) {
-    console.log(str);
+    this.userInfo.hometown = str;
+    this.regionSelectionComponentIsShow = false;
   }
   // 城市选择关闭事件
   citySelectionCompletedClose() {

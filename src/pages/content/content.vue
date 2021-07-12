@@ -1,7 +1,7 @@
 <template>
   <view class="content-box">
     <!--导航栏-->
-    <nav-bar :title="data.content" @leftClick="back" @rightClick="openMore"></nav-bar>
+    <i-nav-bar :title="data.content" @leftClick="back" @rightClick="openMore"></i-nav-bar>
     <!-- 主题内容-->
     <moment-list :data="data" is-the-end>
       <view slot="time">{{ data.createAt }}</view>
@@ -18,7 +18,7 @@
 
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator';
-import NavBar from '@pages/content/components/nav-bar/nav-bar.vue';
+import INavBar from '@pages/content/components/nav-bar/nav-bar.vue';
 import MomentList from '@components/moment-list/moment-list.vue';
 import { IMomentList } from '@components/moment-list/moment-list';
 import Comment, { ICommentData } from '@pages/content/components/comment/comment.vue';
@@ -27,7 +27,7 @@ import ChatInputBtn from '@components/chat-input-btn/chat-input-btn.vue';
 import Share from '@components/share/share.vue';
 
 @Component({
-  components: { Share, ChatInputBtn, Comment, MomentList, NavBar },
+  components: { Share, ChatInputBtn, Comment, MomentList, INavBar },
 })
 export default class Content extends Vue {
   // 是否显示分享框

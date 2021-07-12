@@ -13,10 +13,14 @@
       </edit-material-item>
       <edit-material-item :options="userInfo.emotion" title="情感" @clickRight="changeOptions('emotion')" />
       <edit-material-item :options="userInfo.profession" title="职业" @clickRight="changeOptions('profession')" />
-      <edit-material-item title="家乡" @clickRight="changeHometown" :options="userInfo.hometown">
-        <!--        <picker mode="region" :value="userInfo.birthday" @change="datePickerChange">{{ userInfo.birthday }}</picker>-->
+      <edit-material-item title="家乡" is-use-slot>
+        <view @tap="changeHometown" style="font-size: 30rpx">{{ userInfo.hometown }}</view>
+        <cascade-selection
+          @complete="citySelectionCompleted"
+          :component-is-show="regionSelectionComponentIsShow"
+          @cascadeClose="citySelectionCompletedClose"
+        />
       </edit-material-item>
-      <cascade-selection @complete="citySelectionCompleted"></cascade-selection>
     </view>
   </view>
 </template>
@@ -58,15 +62,21 @@ export default class EditMaterial extends Vue {
     gender: '男',
     birthday: moment().format('YYYY-MM-DD'),
     emotion: '已婚',
-    profession: 'IT',
+    profession: '技术',
     hometown: '内蒙古',
   };
+
+  private regionSelectionComponentIsShow: boolean = false;
 
   private currentTime = moment().format('YYYY-MM-DD');
 
   // 城市选择完成事件
   citySelectionCompleted(str: string) {
     console.log(str);
+  }
+  // 城市选择关闭事件
+  citySelectionCompletedClose() {
+    this.regionSelectionComponentIsShow = false;
   }
 
   // 更换头像
@@ -78,14 +88,6 @@ export default class EditMaterial extends Vue {
         this.userInfo.avatar = res.tempFilePaths[res.tempFilePaths.length - 1];
       },
     });
-  }
-
-  onchange(e: any) {
-    const { value } = e.detail;
-    console.log(value);
-  }
-  onnodeclick(node: any) {
-    console.log(node, 'j');
   }
 
   // 在 input 失去焦点后更改昵称
@@ -125,7 +127,10 @@ export default class EditMaterial extends Vue {
   }
 
   // 更改家乡
-  changeHometown() {}
+  changeHometown() {
+    // 显示地区三级列表选择框
+    this.regionSelectionComponentIsShow = true;
+  }
 }
 </script>
 

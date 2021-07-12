@@ -3,7 +3,7 @@
     <view class="left">
       {{ title }}
     </view>
-    <view class="right" @tap="clickRight">
+    <view class="right" @click="clickRight">
       <template v-if="!isUseSlot">
         <!--      头像图片-->
         <view class="avatar-box" v-if="avatar">

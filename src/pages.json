@@ -92,9 +92,12 @@
     {
       "path": "pages/mine/mine",
       "style": {
-        "navigationStyle": "custom",
+//        "navigationStyle": "custom",
         "app-plus": {
           "bounce": "none", // 关闭反弹效果
+          "titleNView": false
+        },
+        "h5": {
           "titleNView": false
         }
       }

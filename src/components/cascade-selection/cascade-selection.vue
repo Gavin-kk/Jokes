@@ -1,55 +1,63 @@
 <template>
-  <view class="box">
-    <view class="title">
-      <view @tap="click">取消</view>
-      <view class="title-right" @tap="complete">完成</view>
-    </view>
-    <view class="content">
-      <view class="m-list">
-        <block v-for="(item, index) in list" :key="index">
-          <view class="swiper-box-m">
-            <swiper
-              :class="['swiper-m', 'animate__animated', animationClassName]"
-              style="animation-duration: 200ms"
-              :display-multiple-items="3"
-              vertical
-              @change="swiperChange(index, $event)"
-              :current="list[index].currentSelectedIndex"
-            >
-              <swiper-item>
-                <view class="item"></view>
-              </swiper-item>
-              <block v-for="(itemx, indey) in item.list" :key="itemx.value">
+  <view>
+    <view :class="['box', 'animate__animated', startAndEndAnimation]" style="animation-duration: 200ms" v-show="isShow">
+      <view class="title">
+        <view @tap="close">取消</view>
+        <view class="title-right" @tap="complete">完成</view>
+      </view>
+      <view class="content">
+        <view class="m-list">
+          <block v-for="(item, index) in list" :key="index">
+            <view class="swiper-box-m animate__animated">
+              <swiper
+                :class="['swiper-m', 'animate__animated', animationClassName]"
+                style="animation-duration: 200ms"
+                :display-multiple-items="3"
+                vertical
+                @change="swiperChange(index, $event)"
+                :current="list[index].currentSelectedIndex"
+              >
                 <swiper-item>
-                  <view
-                    @tap="changeCurrentSelected(indey, index)"
-                    :class="['item', { active: item.currentSelectedIndex === indey }]"
-                  >
-                    {{ itemx.text }}
-                    <view class="loading-box" v-show="itemx.loading">
-                      <image
-                        class="loading"
-                        src="/static/loading.png"
-                        mode="aspectFit"
-                        :style="{ transform: `rotate(${loadingRotationDegree}deg)` }"
-                      ></image>
-                    </view>
-                  </view>
+                  <view class="item"></view>
                 </swiper-item>
-              </block>
-              <swiper-item>
-                <view class="item"></view>
-              </swiper-item>
-            </swiper>
-          </view>
-        </block>
+                <block v-for="(itemx, indey) in item.list" :key="itemx.value">
+                  <swiper-item>
+                    <view
+                      @tap="changeCurrentSelected(indey, index)"
+                      :class="['item', { active: item.currentSelectedIndex === indey }]"
+                    >
+                      {{ itemx.text }}
+                      <view class="loading-box" v-if="itemx.loading">
+                        <image
+                          class="loading"
+                          src="/static/loading.png"
+                          mode="aspectFit"
+                          :style="{ transform: `rotate(${loadingRotationDegree}deg)` }"
+                        ></image>
+                      </view>
+                    </view>
+                  </swiper-item>
+                </block>
+                <swiper-item>
+                  <view class="item"></view>
+                </swiper-item>
+              </swiper>
+            </view>
+          </block>
+        </view>
       </view>
     </view>
+    <view
+      :class="['mask', 'animate__animated', maskAnimation]"
+      @tap="close"
+      v-show="isShow"
+      style="animation-duration: 200ms"
+    ></view>
   </view>
 </template>
 
 <script lang="ts">
-import { Vue, Component } from 'vue-property-decorator';
+import { Vue, Component, Prop, Watch } from 'vue-property-decorator';
 
 export interface ICityList {
   text: string;
@@ -67,6 +75,24 @@ export interface IWrapper {
 let loadingTimer: number | null = null;
 @Component({})
 export default class CascadeSelection extends Vue {
+  // 整个组件是否显示
+  @Prop(Boolean)
+  private componentIsShow!: boolean;
+
+  // 组件内的componentIsShow
+  private isShow: boolean = false;
+
+  @Watch('componentIsShow')
+  watchComponentIsShow(newShow: boolean) {
+    if (!newShow) {
+      setTimeout(() => {
+        this.isShow = newShow;
+      }, 200);
+    } else {
+      this.isShow = newShow;
+    }
+  }
+
   // loading 的旋转度数
   private loadingRotationDegree: number = 0;
 
@@ -145,6 +171,9 @@ export default class CascadeSelection extends Vue {
     setTimeout(() => {
       // 开启动画
       this.whetherToStartAnimation = true;
+      if (pIndex === 0) {
+        this.list.splice(1);
+      }
       this.list[pIndex + 1] = { currentSelectedIndex: 0, list: this.secondaryList };
 
       // 取到数据 loading 停止
@@ -175,8 +204,21 @@ export default class CascadeSelection extends Vue {
     this.$emit('complete', str);
   }
 
+  // 关闭组件
+  close() {
+    this.$emit('cascadeClose');
+  }
+
   get animationClassName(): string {
     return this.whetherToStartAnimation ? 'animate__fadeInRight' : '';
+  }
+  // 控制开始动画和结束动画的计算属性
+  get startAndEndAnimation(): string {
+    return this.componentIsShow ? 'animate__fadeInUp' : 'animate__fadeOutDown';
+  }
+  //  蒙版的动画
+  get maskAnimation(): string {
+    return this.componentIsShow ? 'animate__fadeIn' : 'animate__fadeOut';
   }
 }
 </script>
@@ -189,6 +231,7 @@ export default class CascadeSelection extends Vue {
   right: 0;
   border: 1px solid #cccccc;
   background: #ffffff;
+  z-index: 2;
 
   .title {
     display: flex;
@@ -207,7 +250,7 @@ export default class CascadeSelection extends Vue {
 
   .content {
     position: relative;
-    z-index: 1;
+    z-index: 30;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -272,5 +315,14 @@ export default class CascadeSelection extends Vue {
       }
     }
   }
+}
+.mask {
+  position: fixed;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  top: 0;
+  background: rgba(0, 0, 0, 0.3);
+  z-index: 1;
 }
 </style>

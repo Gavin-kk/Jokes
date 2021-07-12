@@ -1,13 +1,13 @@
 <template>
   <view>
     <!--     导航栏-->
-    <uni-nav-bar title="设置" status-bar :border="false">
-      <view slot="left" class="iconfont icon-fanhui" @tap="back"></view>
-    </uni-nav-bar>
-    <item-list :list="list" @clickListEvent="itemListClickEvent" />
-    <!--  退出登录-->
-    <view class="logout-box">
-      <view class="logout-btn" @tap="signOut">退出登录</view>
+    <nav-bar title="设置" />
+    <view class="box">
+      <item-list :list="list" @clickListEvent="itemListClickEvent" />
+      <!--  退出登录-->
+      <view class="logout-box">
+        <view class="logout-btn" @tap="signOut">退出登录</view>
+      </view>
     </view>
   </view>
 </template>
@@ -16,13 +16,14 @@
 import { Vue, Component } from 'vue-property-decorator';
 import UniNavBar from '@dcloudio/uni-ui/lib/uni-nav-bar/uni-nav-bar.vue';
 import ItemList, { IItemList } from '@components/list/item-list.vue';
+import NavBar from '@pages/content/components/nav-bar/nav-bar.vue';
 
-@Component({ components: { ItemList, UniNavBar } })
+@Component({ components: { NavBar, ItemList, UniNavBar } })
 export default class Settings extends Vue {
   private list: IItemList[] = [
     { text: '账号与安全', url: '/pages/edit-password/edit-password' },
-    { text: '绑定邮箱' },
-    { text: '资料编辑' },
+    { text: '绑定邮箱', url: '/pages/bind-email/bind-email' },
+    { text: '资料编辑', url: '/pages/edit-material/edit-material' },
     { text: '小纸条' },
     { text: '清除缓存' },
     { text: '意见反馈' },
@@ -48,11 +49,9 @@ export default class Settings extends Vue {
 </script>
 
 <style lang="scss" scoped>
-.icon-fanhui {
-  @include centered;
-  width: 100%;
-  justify-content: flex-start;
-  font-size: 40rpx;
+.box {
+  padding: 0 20rpx;
+  box-sizing: border-box;
 }
 
 .logout-box {

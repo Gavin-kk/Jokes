@@ -1,21 +1,24 @@
 <template>
-  <view class="root-box">
+  <view>
     <!--     导航栏-->
-    <uni-nav-bar title="我" status-bar :border="false">
+    <uni-nav-bar status-bar :border="false">
+      <view slot="default" class="title-center">我</view>
       <view slot="right" class="iconfont icon-gengduo1" @tap="openSettings"></view>
     </uni-nav-bar>
-    <!--    登录方式-->
-    <template v-if="!isLogin">
-      <login-methods />
-    </template>
-    <template v-else>
-      <user :data="userinfo" />
-    </template>
-    <!--    信息-->
-    <section-list :sectionList="sectionList" />
-    <!--  列表-->
-    <view class="list">
-      <item-list :list="list" @clickListEvent="clickListEvent" />
+    <view class="root-box">
+      <!--    登录方式-->
+      <template v-if="!isLogin">
+        <login-methods />
+      </template>
+      <template v-else>
+        <user :data="userinfo" />
+      </template>
+      <!--    信息-->
+      <section-list :sectionList="sectionList" />
+      <!--  列表-->
+      <view class="list">
+        <item-list :list="list" @clickListEvent="clickListEvent" />
+      </view>
     </view>
   </view>
 </template>
@@ -82,10 +85,19 @@ export default class Mine extends Vue {
 <style lang="scss" scoped>
 .root-box {
   box-sizing: border-box;
-  padding: 0 10rpx;
+  padding: 0 20rpx;
+}
+
+.title-center {
+  @include centered;
+  width: 100%;
 }
 
 .icon-gengduo1 {
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
   font-size: 40rpx;
+  padding: 0;
 }
 </style>

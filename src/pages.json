@@ -216,6 +216,28 @@
           "bounce": "none" // 关闭反弹效果
         }
       }
+    },
+    {
+      "path": "pages/bind-email/bind-email",
+      "style": {
+        "navigationStyle": "custom",
+        "app-plus": {
+          "titleNView": false,
+          "scrollIndicator": "none",
+          "bounce": "none" // 关闭反弹效果
+        }
+      }
+    },
+    {
+      "path": "pages/edit-material/edit-material",
+      "style": {
+        "navigationStyle": "custom",
+        "app-plus": {
+          "titleNView": false,
+          "scrollIndicator": "none",
+          "bounce": "none" // 关闭反弹效果
+        }
+      }
     }
   ],
   "globalStyle": {

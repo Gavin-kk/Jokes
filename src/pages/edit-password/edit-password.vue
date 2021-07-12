@@ -1,13 +1,11 @@
 <template>
   <view>
     <!--     导航栏-->
-    <uni-nav-bar title="修改密码" status-bar :border="false">
-      <view slot="left" class="iconfont icon-fanhui" @tap="back"></view>
-    </uni-nav-bar>
+    <nav-bar title="修改密码" />
     <!--    输入框-->
     <view class="input-list">
       <input
-        type="text"
+        type="password"
         v-model="oldPassword"
         class="item-input"
         placeholder="输入旧密码"
@@ -15,14 +13,14 @@
       />
       <input
         class="item-input"
-        type="text"
+        type="password"
         v-model="newPassword"
         placeholder="输入新密码"
         placeholder-class="item-input-placeholder"
       />
       <input
         class="item-input"
-        type="text"
+        type="password"
         v-model="confirmPassword"
         placeholder="输入确认密码"
         placeholder-class="item-input-placeholder"
@@ -38,8 +36,9 @@
 import { Vue, Component } from 'vue-property-decorator';
 import UniNavBar from '@dcloudio/uni-ui/lib/uni-nav-bar/uni-nav-bar.vue';
 import ButtonEncapsulation from '@components/button-encapsulation/button-encapsulation.vue';
+import NavBar from '@pages/content/components/nav-bar/nav-bar.vue';
 
-@Component({ components: { ButtonEncapsulation, UniNavBar } })
+@Component({ components: { NavBar, ButtonEncapsulation, UniNavBar } })
 export default class EditPassword extends Vue {
   private oldPassword: string = '';
   private newPassword: string = '';
@@ -85,21 +84,10 @@ export default class EditPassword extends Vue {
       uni.hideLoading();
     }, 1000);
   }
-
-  back() {
-    uni.navigateBack({ delta: 1 });
-  }
 }
 </script>
 
 <style lang="scss" scoped>
-.icon-fanhui {
-  @include centered;
-  width: 100%;
-  justify-content: flex-start;
-  font-size: 40rpx;
-}
-
 .input-list {
   width: 100%;
   box-sizing: border-box;

@@ -49,7 +49,7 @@ export default class ItemList extends Vue {
   width: 100%;
   height: 100rpx;
   box-sizing: border-box;
-  padding: 0 30rpx;
+  //padding: 0 10rpx;
   border-bottom: 1px solid $borderColor;
 
   .left {

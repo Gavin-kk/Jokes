@@ -1,0 +1,276 @@
+<template>
+  <view class="box">
+    <view class="title">
+      <view @tap="click">取消</view>
+      <view class="title-right" @tap="complete">完成</view>
+    </view>
+    <view class="content">
+      <view class="m-list">
+        <block v-for="(item, index) in list" :key="index">
+          <view class="swiper-box-m">
+            <swiper
+              :class="['swiper-m', 'animate__animated', animationClassName]"
+              style="animation-duration: 200ms"
+              :display-multiple-items="3"
+              vertical
+              @change="swiperChange(index, $event)"
+              :current="list[index].currentSelectedIndex"
+            >
+              <swiper-item>
+                <view class="item"></view>
+              </swiper-item>
+              <block v-for="(itemx, indey) in item.list" :key="itemx.value">
+                <swiper-item>
+                  <view
+                    @tap="changeCurrentSelected(indey, index)"
+                    :class="['item', { active: item.currentSelectedIndex === indey }]"
+                  >
+                    {{ itemx.text }}
+                    <view class="loading-box" v-show="itemx.loading">
+                      <image
+                        class="loading"
+                        src="/static/loading.png"
+                        mode="aspectFit"
+                        :style="{ transform: `rotate(${loadingRotationDegree}deg)` }"
+                      ></image>
+                    </view>
+                  </view>
+                </swiper-item>
+              </block>
+              <swiper-item>
+                <view class="item"></view>
+              </swiper-item>
+            </swiper>
+          </view>
+        </block>
+      </view>
+    </view>
+  </view>
+</template>
+
+<script lang="ts">
+import { Vue, Component } from 'vue-property-decorator';
+
+export interface ICityList {
+  text: string;
+  value: string;
+  loading: boolean;
+  child?: ICityList;
+}
+
+export interface IWrapper {
+  currentSelectedIndex: number; // 当前list中选择的index
+  list: ICityList[];
+}
+
+// loading 旋转的定时器
+let loadingTimer: number | null = null;
+@Component({})
+export default class CascadeSelection extends Vue {
+  // loading 的旋转度数
+  private loadingRotationDegree: number = 0;
+
+  // 是否启动动画 通过开关此属性来达到开启动画的效果
+  private whetherToStartAnimation: boolean = false;
+
+  // @Prop({ type: Array, default: [] })
+  private firstLevelList: ICityList[] = [
+    { text: '内蒙古', value: '内蒙古', loading: false },
+    { text: '西藏', value: '西藏', loading: false },
+    { text: '广州', value: '广州', loading: false },
+    { text: '北京', value: '北京', loading: false },
+    { text: '西安', value: '西安', loading: false },
+  ];
+  private secondaryList: ICityList[] = [
+    { text: '呼和浩特', value: '呼和浩特', loading: false },
+    { text: '呼和浩特', value: '呼和浩特', loading: false },
+    { text: '呼和浩特', value: '呼和浩特', loading: false },
+    { text: '呼和浩特', value: '呼和浩特', loading: false },
+    { text: '呼和浩特', value: '呼和浩特', loading: false },
+  ];
+  private threeLevelList: ICityList[] = [
+    { text: '赛罕区', value: '赛罕区', loading: false },
+    { text: '赛罕区', value: '赛罕区', loading: false },
+    { text: '赛罕区', value: '赛罕区', loading: false },
+    { text: '赛罕区', value: '赛罕区', loading: false },
+    { text: '赛罕区', value: '赛罕区', loading: false },
+    { text: '赛罕区', value: '赛罕区', loading: false },
+    { text: '赛罕区', value: '赛罕区', loading: false },
+    { text: '赛罕区', value: '赛罕区', loading: false },
+    { text: '赛罕区', value: '赛罕区', loading: false },
+    { text: '赛罕区', value: '赛罕区', loading: false },
+    { text: '赛罕区', value: '赛罕区', loading: false },
+    { text: '赛罕区', value: '赛罕区', loading: false },
+    { text: '赛罕区', value: '赛罕区', loading: false },
+    { text: '赛罕区', value: '赛罕区', loading: false },
+    { text: '赛罕区', value: '赛罕区', loading: false },
+    { text: '赛罕区', value: '赛罕区', loading: false },
+    { text: '赛罕区', value: '赛罕区', loading: false },
+    { text: '赛罕区', value: '赛罕区', loading: false },
+    { text: '赛罕区', value: '赛罕区', loading: false },
+    { text: '赛罕区', value: '赛罕区', loading: false },
+    { text: '赛罕区', value: '赛罕区', loading: false },
+    { text: '赛罕区', value: '赛罕区', loading: false },
+    { text: '赛罕区', value: '赛罕区', loading: false },
+    { text: '赛罕区', value: '赛罕区', loading: false },
+    { text: '赛罕区', value: '赛罕区', loading: false },
+    { text: '赛罕区', value: '赛罕区', loading: false },
+    { text: '赛罕区', value: '赛罕区', loading: false },
+    { text: '赛罕区', value: '赛罕区', loading: false },
+  ];
+
+  private list: IWrapper[] = [
+    // 省的当前选择项
+    { currentSelectedIndex: 0, list: this.firstLevelList },
+    // 市的当前选择项
+    // { currentSelectedIndex: 0, list: this.secondaryList },
+    // 区或县当前选择项
+    // { currentSelectedIndex: 0, list: this.threeLevelList },
+  ];
+
+  // swiper change 事件
+  swiperChange(index: number, e: { detail: { current: number } }) {
+    this.list[index].currentSelectedIndex = e.detail.current;
+  }
+
+  // 点击切换当前选择
+  changeCurrentSelected(index: number, pIndex: number) {
+    // 让 loading 旋转起来
+    this.list[pIndex].list[index].loading = true;
+    this.rotatingLoading();
+    // 切换当前选择
+    this.list[pIndex].currentSelectedIndex = index;
+
+    // 获取数据
+    setTimeout(() => {
+      // 开启动画
+      this.whetherToStartAnimation = true;
+      this.list[pIndex + 1] = { currentSelectedIndex: 0, list: this.secondaryList };
+
+      // 取到数据 loading 停止
+      this.list[pIndex].list[index].loading = false;
+      // 停止定时器
+      clearInterval(loadingTimer || undefined);
+      // 等动画完毕 关闭动画
+      setTimeout(() => {
+        this.whetherToStartAnimation = false;
+      }, 200);
+    }, 1000);
+  }
+
+  // 动loading旋转
+  rotatingLoading() {
+    loadingTimer = setInterval(() => {
+      this.loadingRotationDegree += 360;
+    }, 500);
+  }
+
+  // 选择完毕 提交选择
+  complete() {
+    let str: string = '';
+    this.list.forEach((item) => {
+      str += `-${item.list[item.currentSelectedIndex].value}`;
+    });
+    str = str.replace('-', '');
+    this.$emit('complete', str);
+  }
+
+  get animationClassName(): string {
+    return this.whetherToStartAnimation ? 'animate__fadeInRight' : '';
+  }
+}
+</script>
+
+<style lang="scss" scoped>
+.box {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  border: 1px solid #cccccc;
+  background: #ffffff;
+
+  .title {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 100rpx;
+    box-sizing: border-box;
+    padding: 0 30rpx;
+    font-size: 32rpx;
+    border-bottom: 1px solid #e9e8e8;
+
+    .title-right {
+      color: #007aff;
+    }
+  }
+
+  .content {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 500rpx;
+    //height: 600rpx;
+
+    .m-list {
+      position: relative;
+      display: flex;
+      height: 350rpx;
+      width: 100%;
+      z-index: 30;
+
+      &:after {
+        content: '';
+        display: inline-block;
+        position: absolute;
+        top: 50%;
+        left: 0;
+        right: 0;
+        transform: translateY(-70%);
+        border-top: 1px solid #e9e8e8;
+        border-bottom: 1px solid #e9e8e8;
+        width: 100%;
+        height: 100rpx;
+        z-index: -1;
+      }
+
+      .swiper-box-m {
+        height: 100%;
+        flex: 1;
+      }
+
+      .item {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 30rpx;
+        height: 100rpx;
+        color: #adadad;
+
+        .loading-box {
+          display: flex;
+          justify-content: center;
+          align-items: center;
+
+          .loading {
+            width: 25rpx;
+            height: 25rpx;
+            margin-left: 10rpx;
+            transition: all 0.5s;
+            transform-origin: center;
+            /*#ifdef H5*/
+            margin-top: 3rpx;
+            /*#endif*/
+          }
+        }
+      }
+
+      .active {
+        color: #000000;
+      }
+    }
+  }
+}
+</style>

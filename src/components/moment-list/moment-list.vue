@@ -9,9 +9,7 @@
       <view class="title">
         <view class="title-left">
           <view class="username">{{ data.username }}</view>
-          <view class="grade" :style="{ background: data.gender ? '#ff6a8d' : '#44b3ff' }"
-            ><view :class="['iconfont', judgingMenAndWomen]">{{ data.age }}</view></view
-          >
+          <gender-tag :age="data.age" :gender="data.gender"></gender-tag>
         </view>
         <view class="title-right">
           <view class="attention" v-show="!isFollow" @tap="attention">关注</view>
@@ -56,9 +54,12 @@
 <script lang="ts">
 import { Vue, Component, Prop } from 'vue-property-decorator';
 // eslint-disable-next-line import/no-self-import
+import GenderTag from '@components/gender-tag/gender-tag.vue';
 import { IMomentList } from './moment-list';
 
-@Component({})
+@Component({
+  components: { GenderTag },
+})
 export default class MomentList extends Vue {
   @Prop(Object)
   private data!: IMomentList;
@@ -116,9 +117,9 @@ export default class MomentList extends Vue {
     }
   }
 
-  get judgingMenAndWomen() {
-    return !this.data.gender ? 'icon-nan' : 'icon-nv';
-  }
+  // get judgingMenAndWomen() {
+  //   return !this.data.gender ? 'icon-nan' : 'icon-nv';
+  // }
 }
 </script>
 
@@ -173,20 +174,6 @@ export default class MomentList extends Vue {
           overflow: hidden;
           white-space: nowrap;
           text-overflow: ellipsis;
-        }
-        .grade {
-          @include centered;
-          height: 30rpx;
-
-          border-radius: 30rpx;
-          overflow: hidden;
-          padding: 0 10rpx;
-          margin-left: 10rpx;
-
-          .iconfont {
-            font-size: 24rpx;
-            color: #dbf0ff;
-          }
         }
       }
       .title-right {

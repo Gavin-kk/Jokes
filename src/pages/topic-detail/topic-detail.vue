@@ -19,7 +19,6 @@
     <!--    tab切换-->
     <view>
       <home-topbar
-        class="bar"
         :list="titleNavList"
         :activeIndex="activeIndex"
         itemStyle="width:50%;"

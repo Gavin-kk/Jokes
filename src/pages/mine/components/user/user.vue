@@ -1,5 +1,5 @@
 <template>
-  <view class="user-box">
+  <view class="user-box" @tap="openDetail">
     <view class="left">
       <view class="avatar-box">
         <image class="avatar" src="/static/demo/userpic/1.jpg" mode="aspectFill" lazy-load></image>
@@ -35,6 +35,12 @@ export default class User extends Vue {
     },
   })
   private data!: IUserinfo;
+
+  openDetail() {
+    uni.navigateTo({
+      url: '/pages/personal-space/personal-space',
+    });
+  }
 }
 </script>
 

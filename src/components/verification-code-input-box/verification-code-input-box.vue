@@ -1,13 +1,6 @@
 <template>
   <view class="verification-code">
     <slot class="input" name="input"></slot>
-    <!--    <input-->
-    <!--      class="input"-->
-    <!--      type="text"-->
-    <!--      v-model="eMailVerificationCode"-->
-    <!--      placeholder="请输入验证码"-->
-    <!--      placeholder-class="item-input-placeholder"-->
-    <!--    />-->
     <view v-if="!isSendVCode" @tap="getVCode" class="get-btn">获取验证码</view>
     <view v-else class="countdown">{{ getEmailVCodeCountdown }}秒后可重发</view>
   </view>

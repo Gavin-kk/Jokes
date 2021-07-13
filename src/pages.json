@@ -274,6 +274,36 @@
           "bounce": "none" // 关闭反弹效果
         }
       }
+    },
+    {
+      "path": "pages/personal-space/personal-space",
+      "style": {
+        "navigationStyle": "custom",
+        "app-plus": {
+          "titleNView": {
+            "scrollIndicator": "none",
+            "type": "transparent", // 渐变
+            "buttons": [
+              {
+                "type": "menu" // 按钮样式
+              }
+            ]
+          },
+          "scrollIndicator": "none",
+          "bounce": "none" // 关闭反弹效果
+        }
+      }
+    },
+    {
+      "path": "pages/personal-space/pages/customize-bg/customize-bg",
+      "style": {
+        "navigationStyle": "custom",
+        "app-plus": {
+          "titleNView": false,
+          "scrollIndicator": "none",
+          "bounce": "none" // 关闭反弹效果
+        }
+      }
     }
   ],
   "globalStyle": {

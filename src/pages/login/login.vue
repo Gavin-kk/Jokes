@@ -4,37 +4,29 @@
     <!--    背景图-->
     <view class="login-bg">
       <image class="bg" src="/static/login-bg.png" mode="widthFix"></image>
+      <view class="iconfont icon-guanbi" @tap="back"></view>
     </view>
     <view class="box">
-      <view class="input-box">
-        <view class="phone">
-          <view class="area-code">+86</view>
-          <input
-            class="phone-input"
-            type="text"
-            v-model="phone"
-            placeholder="请输入手机号"
-            placeholder-class="placeholder"
-          />
-        </view>
-        <verification-code-input-box type="phone" class="verification-code-input" :value="phone">
-          <input
-            slot="input"
-            type="text"
-            v-model="verificationCode"
-            placeholder="请输入手机验证码"
-            placeholder-class="placeholder"
-          />
-        </verification-code-input-box>
-      </view>
+      <!-- 验证码登录组件-->
+      <template v-if="currentShow">
+        <verification-code-login @VerificationCodeValue="setVerificationCodeValue" @phoneValue="setPhoneValue" />
+      </template>
+      <!-- 账号密码登录组件-->
+      <template v-else>
+        <account-password-login @usernameChange="usernameChange" @passwordChange="passwordChange" />
+      </template>
+
       <view class="login-btn">
-        <button>登录</button>
+        <button @tap="login">登录</button>
       </view>
-      <view class="change-login-method">账号密码登录 {{ '>' }}</view>
+      <view class="change-login-method">
+        <text @tap="changeLoginMethod">{{ currentLoginMethodsText }} {{ '>' }}</text>
+      </view>
       <view class="sign-in-with">
         <view class="prompt">
           <view class="prompt-text">第三方登录</view>
         </view>
+        <!--第三方登录组件-->
         <login-methods if-use-icon />
         <view class="user-agreement">注册即代表您同意<view style="color: #0a98d5">《用户协议》</view></view>
       </view>
@@ -44,19 +36,87 @@
 
 <script lang="ts">
 import { Vue, Component } from 'vue-property-decorator';
-import VerificationCodeInputBox from '@components/verification-code-input-box/verification-code-input-box.vue';
 import LoginMethods from '@pages/mine/components/login-methods/login-methods.vue';
+import VerificationCodeLogin from '@pages/login/components/verification-code-login/verification-code-login.vue';
+import AccountPasswordLogin from '@pages/login/components/account-password-login/account-password-login.vue';
+
+export const enum LoginMethodsEnum {
+  password,
+  verificationCode,
+}
 
 @Component({
-  components: { LoginMethods, VerificationCodeInputBox },
+  components: { AccountPasswordLogin, VerificationCodeLogin, LoginMethods },
 })
 export default class Login extends Vue {
   // statusBar的高度
   private statusBarHeight: number = 0;
   // 要发送验证码的手机号
-  private phone: string = '13154888681';
+  private phone: string = '';
   // 输入的验证码
   private verificationCode: string = '';
+
+  // 账号密码登录
+  private username: string = '';
+  private password: string = '';
+
+  // 当前登录方法
+  private loginMethods: LoginMethodsEnum = LoginMethodsEnum.verificationCode;
+
+  // 点击登录按钮触发
+  login() {
+    //  判断是否输入框是否有值 与合法
+    if (!this.checkInput()) return;
+    uni.showToast({ title: '校验成功' });
+  }
+
+  checkInput(): boolean {
+    const phoneReg: RegExp = /^(13[0-9]|14[01456879]|15[0-35-9]|16[2567]|17[0-8]|18[0-9]|19[0-35-9])\d{8}$/;
+    if (this.loginMethods === LoginMethodsEnum.verificationCode && this.phone && this.verificationCode) {
+      if (!phoneReg.test(this.phone)) {
+        uni.showToast({ title: '手机号不合法', icon: 'none' });
+        return false;
+      }
+      return true;
+    }
+    return !!(this.loginMethods === LoginMethodsEnum.password && this.username && this.password);
+  }
+
+  usernameChange(value: string) {
+    this.username = value;
+  }
+  passwordChange(value: string) {
+    this.password = value;
+  }
+
+  // 更改登录方法
+  changeLoginMethod() {
+    this.clearInput();
+    // eslint-disable-next-line no-unused-expressions
+    this.loginMethods === LoginMethodsEnum.verificationCode
+      ? (this.loginMethods = LoginMethodsEnum.password)
+      : (this.loginMethods = LoginMethodsEnum.verificationCode);
+  }
+
+  // 验证码失去焦点事件
+  setVerificationCodeValue(value: string) {
+    this.verificationCode = value;
+  }
+  // 输入框手机号失去焦点事件
+  setPhoneValue(value: string) {
+    this.phone = value;
+  }
+
+  clearInput() {
+    this.password = '';
+    this.phone = '';
+    this.username = '';
+    this.verificationCode = '';
+  }
+
+  back() {
+    uni.navigateBack({ delta: 1 });
+  }
 
   created() {
     uni.getSystemInfo({
@@ -65,6 +125,14 @@ export default class Login extends Vue {
       },
     });
   }
+
+  get currentLoginMethodsText(): string {
+    return this.loginMethods === LoginMethodsEnum.verificationCode ? '账号密码登录' : '验证码登录';
+  }
+  //  判断当前显示什么
+  get currentShow(): boolean {
+    return this.loginMethods === LoginMethodsEnum.verificationCode;
+  }
 }
 </script>
 
@@ -72,12 +140,22 @@ export default class Login extends Vue {
 $promptFontColor: #b4b4b4;
 
 .login-bg {
+  position: relative;
   box-sizing: border-box;
   width: 100%;
   height: 372rpx;
+
   .bg {
     width: 100%;
     height: 100%;
+  }
+
+  .icon-guanbi {
+    position: absolute;
+    left: 20rpx;
+    top: 20rpx;
+    font-size: 40rpx;
+    z-index: 1;
   }
 }
 
@@ -85,38 +163,6 @@ $promptFontColor: #b4b4b4;
   box-sizing: border-box;
   margin-top: 50rpx;
   padding: 0 20rpx;
-
-  .input-box {
-    .phone {
-      display: flex;
-      align-items: center;
-      font-size: 32rpx;
-      box-sizing: border-box;
-      padding: 0 20rpx;
-      border-bottom: 1px solid $borderColor;
-      height: 100rpx;
-
-      .area-code {
-        font-weight: bolder;
-      }
-
-      .phone-input {
-        box-sizing: border-box;
-        padding: 0 20rpx;
-      }
-    }
-
-    .placeholder {
-      font-size: 32rpx;
-    }
-
-    .verification-code-input {
-      display: flex;
-      align-items: center;
-      box-sizing: border-box;
-      height: 100rpx;
-    }
-  }
 
   .login-btn {
     margin-top: 40rpx;

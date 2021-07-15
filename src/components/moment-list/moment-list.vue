@@ -55,6 +55,7 @@
 import { Vue, Component, Prop } from 'vue-property-decorator';
 // eslint-disable-next-line import/no-self-import
 import GenderTag from '@components/gender-tag/gender-tag.vue';
+// eslint-disable-next-line import/no-self-import
 import { IMomentList } from './moment-list';
 
 @Component({

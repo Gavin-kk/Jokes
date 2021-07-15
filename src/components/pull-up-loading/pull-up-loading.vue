@@ -3,12 +3,18 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop } from 'vue-property-decorator';
+import { Vue, Component, Prop, Watch } from 'vue-property-decorator';
+import { LoadingStatus } from '@components/sliding-list/loading-status';
 
 @Component({})
 export default class PullUpLoading extends Vue {
-  @Prop({ type: String, default: '上拉加载更多' })
+  @Prop({ type: String, default: LoadingStatus.load })
   private text?: string;
+
+  @Watch('text')
+  sdf(newText: string) {
+    // console.log(newText, 1);
+  }
 }
 </script>
 

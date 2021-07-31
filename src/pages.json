@@ -139,6 +139,8 @@
       "style": {
         "navigationStyle": "custom",
         "app-plus": {
+          "animationType": "slide-in-bottom",
+          "animationDuration": 200,
           "scrollIndicator": "none",
           "titleNView": false
         }
@@ -161,6 +163,8 @@
         "enablePullDownRefresh": true, // 开启下拉刷新
         "navigationBarTitleText": "话题详情",
         "app-plus": {
+          "animationType": "slide-in-bottom",
+          "animationDuration": 200,
           "scrollIndicator": "none",
           "bounce": "none", // 关闭反弹效果
           "titleNView": {
@@ -180,6 +184,7 @@
         "navigationStyle": "custom",
         //				"enablePullDownRefresh": true, // 开启下拉刷新
         "app-plus": {
+          "animationType": "slide-in-bottom",
           "titleNView": false,
           "scrollIndicator": "none",
           "bounce": "none" // 关闭反弹效果

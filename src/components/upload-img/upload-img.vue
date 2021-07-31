@@ -14,8 +14,9 @@
                 <image class="uni-uploader__img" :src="image" :data-src="image" @tap.stop="previewImage"></image>
               </view>
             </block>
-            <view class="uni-uploader__input-box">
-              <view class="uni-uploader__input" @tap="chooseImage"></view>
+            <!--            文件上传按钮-->
+            <view class="uni-uploader__input-box" @tap="chooseImage">
+              <view class="uni-uploader__input"></view>
             </view>
           </view>
         </view>
@@ -187,5 +188,10 @@ export default class UploadImg extends Vue {
     text-align: center;
     line-height: 45rpx;
   }
+}
+.uni-uploader__input-box {
+  width: 200px;
+  height: 200px;
+  background: #4cd964;
 }
 </style>

@@ -1,7 +1,7 @@
 <template>
   <view>
     <!--    导航栏-->
-    <nav-bar title="意见反馈" />
+    <nav-bar title="意见反馈" page-path="/pages/settings/settings" />
     <!--    -->
     <view>
       <uni-collapse>

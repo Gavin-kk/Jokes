@@ -13,7 +13,7 @@
       <template v-else>
         <user :data="userinfo" />
       </template>
-      <!--    信息-->
+      <!--    各种计数-->
       <section-list :sectionList="sectionList" />
       <!--  列表-->
       <view class="list">
@@ -28,45 +28,55 @@ import { Vue, Component } from 'vue-property-decorator';
 import UniNavBar from '@dcloudio/uni-ui/lib/uni-nav-bar/uni-nav-bar.vue';
 import ItemList, { IItemList } from '@components/list/item-list.vue';
 import LoginMethods from '@pages/mine/components/login-methods/login-methods.vue';
-import User, { IUserinfo } from '@pages/mine/components/user/user.vue';
+import User from '@pages/mine/components/user/user.vue';
 import MSearch from '@components/search/m-search.vue';
 import SectionList from '@pages/mine/components/section-list/section-list.vue';
+import { namespace } from 'vuex-class';
+import { ModuleConstant } from '@store/module.constant';
+import { UserStoreActionType } from '@store/module/user/constant';
+import { ICount, IUser } from '@store/module/user';
+
+const UserModule = namespace('userModule');
 
 @Component({ components: { SectionList, MSearch, User, LoginMethods, ItemList, UniNavBar } })
 export default class Mine extends Vue {
-  private sectionList: { count: number; text: string }[] = [
-    {
-      count: 0,
-      text: '糗事',
-    },
-    {
-      count: 0,
-      text: '动态',
-    },
-    {
-      count: 0,
-      text: '评论',
-    },
-    {
-      count: 0,
-      text: '收藏',
-    },
-  ];
+  // 是否登录
+  @UserModule.State('isLogin')
+  private readonly isLogin!: boolean;
+  @UserModule.State('userInfo')
+  private readonly userinfo!: IUser;
+  @UserModule.State('count')
+  private readonly countObj!: ICount;
+
+  created() {
+    // uni.getStorage({
+    //   key: '_token',
+    //   success: ({ data: token }: { data: string }) => {
+    //     if (token) {
+    //       // 如果token 存在则向服务端请求用户的信息
+    //       this.$store.dispatch(`${ModuleConstant.userModule}/${UserStoreActionType.GET_USER_INFO}`);
+    //     }
+    //   },
+    // });
+  }
+
+  get sectionList(): { count: number; text: string }[] {
+    const countKeys: string[] = Object.keys(this.countObj);
+    const list: string[] = ['文章', '话题', '评论', '收藏'];
+    return countKeys.map((item: string, index: number) => ({ count: this.countObj[item], text: list[index] }));
+  }
   // 列表数据
   private list: IItemList[] = [
     { iconfontClass: 'icon-liulan', text: '浏览历史', color: '#68c1ff' },
     { iconfontClass: 'icon-huiyuanvip', text: '认证', color: '#ff7332' },
     { iconfontClass: 'icon-icon_im_keyboard', text: '陪审团', color: '#7ccaff' },
   ];
-  // 用户数据
-  private userinfo: IUserinfo = {
-    username: '张三',
-    totalVisitors: 200,
-    todayVisitor: 100,
-  };
-
-  // 是否登录
-  private isLogin: boolean = true;
+  // // 用户数据
+  // private userinfo: IUserinfo = {
+  //   username: '张三',
+  //   totalVisitors: 200,
+  //   todayVisitor: 100,
+  // };
 
   // 打开设置
   openSettings() {

@@ -2,13 +2,13 @@
   <view class="user-box" @tap="openDetail">
     <view class="left">
       <view class="avatar-box">
-        <image class="avatar" src="/static/demo/userpic/1.jpg" mode="aspectFill" lazy-load></image>
+        <image class="avatar" :src="avatar" mode="aspectFill" lazy-load></image>
       </view>
     </view>
     <view class="right">
       <view class="right-left">
         <view class="username">{{ data.username }}</view>
-        <view class="visitor-count">总访客 {{ data.totalVisitors }} 今日 {{ data.todayVisitor }}</view>
+        <view class="visitor-count">总访客 {{ data.totalVisitors }} 今日 {{ data.todaySVisitor }}</view>
       </view>
       <view class="right-right iconfont icon-jinru"></view>
     </view>
@@ -17,12 +17,7 @@
 
 <script lang="ts">
 import { Vue, Component, Prop } from 'vue-property-decorator';
-
-export interface IUserinfo {
-  username: string;
-  totalVisitors: number;
-  todayVisitor: number;
-}
+import { IUser } from '@store/module/user';
 
 @Component({})
 export default class User extends Vue {
@@ -31,15 +26,21 @@ export default class User extends Vue {
     default: {
       username: '',
       totalVisitors: 0,
-      todayVisitor: 0,
+      todaySVisitor: 0,
     },
   })
-  private data!: IUserinfo;
+  private data!: IUser;
 
   openDetail() {
     uni.navigateTo({
       url: '/pages/personal-space/personal-space',
     });
+  }
+
+  get avatar(): string {
+    return this.data.avatar
+      ? this.data.avatar
+      : 'http://localhost:5000/static/304d7fa6-91d8-477b-ac75-58f2bfcd3dcf.png';
   }
 }
 </script>

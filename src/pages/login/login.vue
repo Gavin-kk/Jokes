@@ -17,7 +17,7 @@
       </template>
 
       <view class="login-btn">
-        <button @tap="login">登录</button>
+        <button @tap="login" :disabled="loginBtnDisabled">登录</button>
       </view>
       <view class="change-login-method">
         <text @tap="changeLoginMethod">{{ currentLoginMethodsText }} {{ '>' }}</text>
@@ -35,26 +35,49 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component } from 'vue-property-decorator';
+import { Vue, Component, Watch } from 'vue-property-decorator';
+import { namespace } from 'vuex-class';
 import LoginMethods from '@pages/mine/components/login-methods/login-methods.vue';
 import VerificationCodeLogin from '@pages/login/components/verification-code-login/verification-code-login.vue';
 import AccountPasswordLogin from '@pages/login/components/account-password-login/account-password-login.vue';
+import { IUser } from '@store/module/user';
+import { ModuleConstant } from '@store/module.constant';
+import { UserStoreActionType } from '@store/module/user/constant';
 
 export const enum LoginMethodsEnum {
   password,
   verificationCode,
 }
+export interface IVCodeLogin {
+  email: string;
+  VCode: number;
+}
+export interface IUsernameLogin {
+  username: string;
+  password: string;
+}
+
+const UserModule = namespace('userModule');
 
 @Component({
   components: { AccountPasswordLogin, VerificationCodeLogin, LoginMethods },
 })
 export default class Login extends Vue {
+  // 是否登录
+  @UserModule.State('isLogin') isLogin!: boolean;
+
+  @Watch('isLogin')
+  goToMinepage(newIsLogin: boolean) {
+    if (newIsLogin) {
+      uni.switchTab({ url: '/pages/mine/mine' });
+    }
+  }
   // statusBar的高度
   private statusBarHeight: number = 0;
-  // 要发送验证码的手机号
-  private phone: string = '';
+  // 要发送验证码的邮箱
+  private email: string = '';
   // 输入的验证码
-  private verificationCode: string = '';
+  private verificationCode: number | null = null;
 
   // 账号密码登录
   private username: string = '';
@@ -67,14 +90,33 @@ export default class Login extends Vue {
   login() {
     //  判断是否输入框是否有值 与合法
     if (!this.checkInput()) return;
-    uni.showToast({ title: '校验成功' });
+
+    // 派发登录action
+    // 邮箱验证码登录
+    if (this.loginMethods === LoginMethodsEnum.verificationCode) {
+      this.$store.dispatch(
+        `${ModuleConstant.userModule}/${UserStoreActionType.SEND_EMAIL_VERIFICATION_CODE_TO_LOG_IN}`,
+        {
+          email: this.email,
+          VCode: this.verificationCode,
+        },
+      );
+      uni.showToast({ title: '发送验证码登录请求' });
+    } else {
+      // 账号密码登录
+      this.$store.dispatch(`${ModuleConstant.userModule}/${UserStoreActionType.SEND_ACCOUNT_PASSWORD_TO_LOG_IN}`, {
+        username: this.username,
+        password: this.password,
+      });
+      uni.showToast({ title: '发送账号密码登录' });
+    }
   }
 
   checkInput(): boolean {
-    const phoneReg: RegExp = /^(13[0-9]|14[01456879]|15[0-35-9]|16[2567]|17[0-8]|18[0-9]|19[0-35-9])\d{8}$/;
-    if (this.loginMethods === LoginMethodsEnum.verificationCode && this.phone && this.verificationCode) {
-      if (!phoneReg.test(this.phone)) {
-        uni.showToast({ title: '手机号不合法', icon: 'none' });
+    const phoneReg: RegExp = /^[A-Za-z0-9\u4e00-\u9fa5]+@[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)+$/;
+    if (this.loginMethods === LoginMethodsEnum.verificationCode && this.email && this.verificationCode) {
+      if (!phoneReg.test(this.email)) {
+        uni.showToast({ title: '邮箱不合法', icon: 'none' });
         return false;
       }
       return true;
@@ -99,23 +141,23 @@ export default class Login extends Vue {
   }
 
   // 验证码失去焦点事件
-  setVerificationCodeValue(value: string) {
+  setVerificationCodeValue(value: number) {
     this.verificationCode = value;
   }
   // 输入框手机号失去焦点事件
   setPhoneValue(value: string) {
-    this.phone = value;
+    this.email = value;
   }
 
   clearInput() {
     this.password = '';
-    this.phone = '';
+    this.email = '';
     this.username = '';
-    this.verificationCode = '';
+    this.verificationCode = null;
   }
 
   back() {
-    uni.navigateBack({ delta: 1 });
+    uni.switchTab({ url: '/pages/mine/mine' });
   }
 
   created() {
@@ -129,9 +171,16 @@ export default class Login extends Vue {
   get currentLoginMethodsText(): string {
     return this.loginMethods === LoginMethodsEnum.verificationCode ? '账号密码登录' : '验证码登录';
   }
-  //  判断当前显示什么
+  //  判断当前显示什么页面
   get currentShow(): boolean {
     return this.loginMethods === LoginMethodsEnum.verificationCode;
+  }
+  //  判断登录按钮什么时候可以点击
+  get loginBtnDisabled(): boolean {
+    if (this.loginMethods === LoginMethodsEnum.verificationCode && this.email && this.verificationCode) {
+      return false;
+    }
+    return !(this.loginMethods === LoginMethodsEnum.password && this.username && this.password);
   }
 }
 </script>

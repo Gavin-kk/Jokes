@@ -64,7 +64,7 @@ export default class Release extends Vue {
   private isReturns: boolean = true;
 
   // 显示下拉框
-  showSelectList(): void {
+  showSelectList() {
     const itemList: string[] = this.selectList.map((item) => item.name);
     // 显示选择框
     uni.showActionSheet({
@@ -73,7 +73,7 @@ export default class Release extends Vue {
     });
   }
 
-  imageListChange(imageList: string[]): void {
+  imageListChange(imageList: string[]) {
     this.imageBlobUrl = imageList;
   }
 

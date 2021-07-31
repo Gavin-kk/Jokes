@@ -1,16 +1,29 @@
 <script lang="ts">
 import Vue from 'vue';
+import { ModuleConstant } from '@store/module.constant';
+import { UserStoreActionType } from '@store/module/user/constant';
 
 export default Vue.extend({
   mpType: 'app',
   onLaunch() {
-    console.log('加载');
+    const token: string | '' = uni.getStorageSync('_token');
+    if (token) {
+      this.$store.dispatch(`${ModuleConstant.userModule}/${UserStoreActionType.GET_USER_INFO}`);
+    }
   },
   onShow() {
-    console.log('App Show');
+    // console.log('App Show');
+    // uni.getNetworkType({
+    //   success(res) {
+    //     console.log(res.networkType, 123);
+    //   },
+    // });
+    // uni.onNetworkStatusChange((res) => {
+    //   uni.showToast({ title: '网络错误', icon: 'none', duration: 2000 });
+    // });
   },
   onHide() {
-    console.log('App Hide');
+    // console.log('App Hide');
   },
 });
 </script>
@@ -18,7 +31,7 @@ export default Vue.extend({
 <style lang="scss">
 /*每个页面公共css */
 /* 引入uni的css */
-@import './common/style/uni.css';
+//@import './common/style/uni.css';
 
 /* 引入iconfont 图标库 */
 @import './common/style/icon.css';

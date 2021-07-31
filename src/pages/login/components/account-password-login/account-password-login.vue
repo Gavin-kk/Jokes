@@ -1,18 +1,12 @@
 <template>
   <view class="input-box">
     <view class="username">
-      <input
-        v-model="username"
-        @blur="usernameChange"
-        type="text"
-        class="username-input"
-        placeholder="请输入昵称/手机号/邮箱"
-      />
+      <input @input="usernameChange" type="text" class="username-input" placeholder="请输入昵称/手机号/邮箱" />
     </view>
 
     <view class="password">
       <view class="input-box">
-        <input v-model="password" @blur="passwordChange" class="password-input" type="text" placeholder="请输入密码" />
+        <input @input="passwordChange" class="password-input" type="text" placeholder="请输入密码" />
       </view>
       <view class="forgot-password">忘记密码?</view>
     </view>
@@ -24,16 +18,16 @@ import { Vue, Component } from 'vue-property-decorator';
 
 @Component({})
 export default class AccountPasswordLogin extends Vue {
-  private username: string = '';
-  private password: string = '';
+  // private username: string = '';
+  // private password: string = '';
 
   // username 失去焦点时触发
-  usernameChange() {
-    this.$emit('usernameChange', this.username);
+  usernameChange(data: { detail: { value: string } }) {
+    this.$emit('usernameChange', data.detail.value);
   }
   //  password 失去焦点时触发
-  passwordChange() {
-    this.$emit('passwordChange', this.password);
+  passwordChange(data: { detail: { value: string } }) {
+    this.$emit('passwordChange', data.detail.value);
   }
 }
 </script>

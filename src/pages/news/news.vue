@@ -2,9 +2,13 @@
   <view>
     <drop-down-menu
       :is-show-menu="isShowMenu"
-      @changeIsShow="changeIsShow"
-      @addFriend="addFriend"
-      @clearUnread="clearUnread"
+      first-text="加好友"
+      last-text="清除未读"
+      last-iconfont-class="icon-qingchu"
+      first-iconfont-class="icon-sousuo"
+      @close="changeIsShow"
+      @clickOnTheFirst="addFriend"
+      @clickTheLastOne="clearUnread"
     />
     <view class="list-box">
       <block v-for="(item, index) in dataList" :key="item.id">
@@ -31,7 +35,7 @@ import { Vue, Component } from 'vue-property-decorator';
 import NewsList from '@pages/news/components/news-list/news-list.vue';
 import UniSwipeAction from '@dcloudio/uni-ui/lib/uni-swipe-action/uni-swipe-action.vue';
 import uniSwipeActionItem from '@dcloudio/uni-ui/lib/uni-swipe-action-item/uni-swipe-action-item.vue';
-import DropDownMenu from '@pages/news/components/drop-down-menu/drop-down-menu.vue';
+import DropDownMenu from '@components/drop-down-menu/drop-down-menu.vue';
 
 @Component({ components: { DropDownMenu, NewsList, UniSwipeAction, uniSwipeActionItem } })
 export default class News extends Vue {

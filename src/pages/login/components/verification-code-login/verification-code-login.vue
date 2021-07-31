@@ -1,25 +1,16 @@
 <template>
   <view class="input-box">
     <view class="phone">
-      <view class="area-code">+86</view>
       <input
         class="phone-input"
         type="text"
-        v-model="phone"
-        placeholder="请输入手机号"
+        placeholder="请输入邮箱"
         placeholder-class="placeholder"
-        @blur="phoneBlur"
+        @input="phoneInput"
       />
     </view>
-    <verification-code-input-box type="phone" class="verification-code-input" :value="phone">
-      <input
-        slot="input"
-        type="text"
-        v-model="verificationCode"
-        placeholder="请输入手机验证码"
-        placeholder-class="placeholder"
-        @blur="blur"
-      />
+    <verification-code-input-box type="email" class="verification-code-input" :value="email">
+      <input slot="input" type="number" placeholder="请输入邮箱验证码" placeholder-class="placeholder" @input="input" />
     </verification-code-input-box>
   </view>
 </template>
@@ -30,15 +21,16 @@ import VerificationCodeInputBox from '@components/verification-code-input-box/ve
 
 @Component({ components: { VerificationCodeInputBox } })
 export default class VerificationCodeLogin extends Vue {
-  private phone: string = '';
-  private verificationCode: string = '';
+  private email: string = '';
+  // private verificationCode: string = '';
 
   //  验证码输入框 失去焦点事件
-  blur() {
-    this.$emit('VerificationCodeValue', this.verificationCode);
+  input(data: { detail: { value: string } }) {
+    this.$emit('VerificationCodeValue', +data.detail.value);
   }
-  phoneBlur() {
-    this.$emit('phoneValue', this.phone);
+  phoneInput(data: { detail: { value: string } }) {
+    this.email = data.detail.value;
+    this.$emit('phoneValue', data.detail.value);
   }
 }
 </script>
@@ -53,7 +45,6 @@ export default class VerificationCodeLogin extends Vue {
     align-items: center;
     font-size: 32rpx;
     box-sizing: border-box;
-    padding: 0 20rpx;
     border-bottom: 1px solid $borderColor;
     height: 100rpx;
 

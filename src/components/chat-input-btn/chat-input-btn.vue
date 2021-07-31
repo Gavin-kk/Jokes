@@ -1,5 +1,5 @@
 <template>
-  <view class="input-box">
+  <view class="input-box-m">
     <input
       v-model="text"
       @confirm="confirm"
@@ -30,7 +30,7 @@ export default class ChatInputBtn extends Vue {
 </script>
 
 <style lang="scss" scoped>
-.input-box {
+.input-box-m {
   position: fixed;
   bottom: 0;
   display: flex;

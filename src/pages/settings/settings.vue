@@ -1,7 +1,7 @@
 <template>
   <view>
     <!--     导航栏-->
-    <nav-bar title="设置" />
+    <nav-bar title="设置" page-path="/pages/mine/mine" />
     <view class="box">
       <item-list :list="list" @clickListEvent="itemListClickEvent" />
       <!--  退出登录-->
@@ -14,20 +14,19 @@
 
 <script lang="ts">
 import { Vue, Component } from 'vue-property-decorator';
-import UniNavBar from '@dcloudio/uni-ui/lib/uni-nav-bar/uni-nav-bar.vue';
 import ItemList, { IItemList } from '@components/list/item-list.vue';
-import NavBar from '@pages/content/components/nav-bar/nav-bar.vue';
+import NavBar from '@components/nav-bar/nav-bar.vue';
 
-@Component({ components: { NavBar, ItemList, UniNavBar } })
+@Component({ components: { NavBar, ItemList } })
 export default class Settings extends Vue {
   private list: IItemList[] = [
-    { text: '账号与安全', url: '/pages/edit-password/edit-password' },
-    { text: '绑定邮箱', url: '/pages/bind-email/bind-email' },
-    { text: '资料编辑', url: '/pages/edit-material/edit-material' },
+    { text: '账号与安全', method: 'nav', url: '/pages/edit-password/edit-password' },
+    { text: '绑定邮箱', method: 'nav', url: '/pages/bind-email/bind-email' },
+    { text: '资料编辑', method: 'nav', url: '/pages/edit-material/edit-material' },
     { text: '小纸条' },
-    { text: '清除缓存' },
-    { text: '意见反馈', url: '/pages/feedback/feedback' },
-    { text: '关于嘻嘻哈哈', url: '/pages/about/about' },
+    { text: '清除缓存', method: 'clear' },
+    { text: '意见反馈', method: 'nav', url: '/pages/feedback/feedback' },
+    { text: '关于嘻嘻哈哈', method: 'nav', url: '/pages/about/about' },
   ];
   // 退出登录
   signOut() {
@@ -37,8 +36,28 @@ export default class Settings extends Vue {
 
   // 列表点击事件
   itemListClickEvent(item: IItemList) {
-    if (!item.url) return;
-    uni.navigateTo({ url: item.url });
+    if (item.method === 'nav' && item.url) {
+      uni.navigateTo({ url: item.url });
+    }
+    if (item.method === 'clear') {
+      this.clearCache();
+    }
+  }
+  // 清除缓存
+  clearCache() {
+    uni.showModal({
+      title: '提示',
+      content: '是否清除缓存',
+      cancelText: '取消',
+      confirmText: '清除',
+      success: (res) => {
+        if (res.confirm) {
+          // 清除本地缓存
+          uni.clearStorage();
+          uni.showToast({ title: '清除成功' });
+        }
+      },
+    });
   }
 
   // 返回

@@ -1,6 +1,6 @@
 <template>
   <view>
-    <nav-bar title="关于" />
+    <nav-bar title="关于" page-path="/pages/settings/settings" />
     <view class="box">
       <!--    logo-->
       <view class="logo">

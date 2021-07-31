@@ -16,8 +16,16 @@ export default class NavBar extends Vue {
   @Prop({ type: String, default: '设置' })
   private title!: string;
 
+  @Prop({ type: String, default: '/pages/home/home' })
+  private pagePath!: string;
+
   clickLeft() {
-    uni.navigateBack({ delta: 1 });
+    uni.redirectTo({
+      url: this.pagePath,
+      fail: () => {
+        uni.switchTab({ url: this.pagePath });
+      },
+    });
   }
 }
 </script>

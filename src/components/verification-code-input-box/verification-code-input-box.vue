@@ -7,7 +7,10 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop } from 'vue-property-decorator';
+import { Component, Prop, Vue } from 'vue-property-decorator';
+import { namespace } from 'vuex-class';
+import { getEmailVerificationCode } from '@services/common.request';
+import { SendEmailType } from '@common/enum/send-email-type';
 
 let timer: number | undefined;
 
@@ -18,12 +21,14 @@ export default class VerificationCodeInputBox extends Vue {
   // 是否发送验证码
   private isSendVCode: boolean = false;
   // 获取邮箱验证码倒计时
-  private getEmailVCodeCountdown: number = 60;
+  private getEmailVCodeCountdown: number = 300;
   // 要发送的手机号或邮箱 用于判断是否输入了 如果没输入则 停止发送 和 发送验证码时所用
   @Prop({ type: String, default: '' })
   private value!: string;
   @Prop({ type: String, default: 'phone' })
   private type!: 'phone' | 'email';
+  @Prop({ type: Number, default: SendEmailType.Login })
+  private emailType!: SendEmailType;
 
   check(): boolean {
     let reg: RegExp | undefined;
@@ -37,30 +42,35 @@ export default class VerificationCodeInputBox extends Vue {
   }
 
   // 获取验证码
-  getVCode() {
+  async getVCode() {
     // 验证是否输入了邮箱
     if (!this.check()) {
-      let text: string | undefined;
-      if (this.type === 'phone') {
-        text = '手机号格式不正确';
-      }
       if (this.type === 'email') {
-        text = '邮箱格式不正确';
+        uni.showToast({ title: '邮箱格式不正确', icon: 'none' });
+        return;
       }
-      uni.showToast({ title: text, icon: 'none' });
-      return;
     }
-    this.isSendVCode = true;
-    //  发送验证码
-    uni.showToast({ title: '发送验证码' });
-    timer = setInterval(() => {
-      this.getEmailVCodeCountdown--;
-      if (this.getEmailVCodeCountdown === 0) {
-        clearInterval(timer || undefined);
-        this.getEmailVCodeCountdown = 60;
-        this.isSendVCode = false;
+
+    try {
+      // 发送验证码请求
+      await getEmailVerificationCode(this.value, this.emailType);
+      uni.showToast({ title: '已发送' });
+      this.isSendVCode = true;
+      timer = setInterval(() => {
+        this.getEmailVCodeCountdown--;
+        if (this.getEmailVCodeCountdown === 0) {
+          clearInterval(timer || undefined);
+          this.getEmailVCodeCountdown = 60;
+          this.isSendVCode = false;
+        }
+      }, 1000);
+    } catch (err) {
+      clearInterval(timer || undefined);
+      this.isSendVCode = false;
+      if (err.response.data.message === '操作频繁') {
+        uni.showToast({ title: err.response.data.message, icon: 'none' });
       }
-    }, 1000);
+    }
   }
 }
 </script>

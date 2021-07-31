@@ -21,6 +21,7 @@ export interface IItemList {
   text: string;
   color?: string;
   url?: string; // 本地的路由页面
+  method?: 'clear' | 'nav';
 }
 
 @Component({})

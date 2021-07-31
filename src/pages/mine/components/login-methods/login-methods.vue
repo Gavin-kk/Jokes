@@ -2,9 +2,9 @@
   <view class="login">
     <view class="title" v-if="!ifUseIcon">登录嘻嘻哈哈, 体验等多功能</view>
     <view class="methods">
-      <!--      <view class="iconfont icon-weixin"></view>-->
-      <!--      <view class="iconfont icon-xinlangweibo"></view>-->
-      <!--      <view class="iconfont icon-QQ"></view>-->
+      <view class="iconfont icon-weixin"></view>
+      <view class="iconfont icon-xinlangweibo"></view>
+      <view class="iconfont icon-QQ"></view>
       <block v-for="item in providerList" :key="item.id">
         <view :class="['iconfont', item.iconClassName]" @tap="login(item)"></view>
       </block>

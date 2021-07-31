@@ -5,9 +5,9 @@
     </view>
     <view class="user">
       <view class="avatar-box">
-        <image class="avatar" src="/static/demo/userpic/1.jpg" mode="widthFix"></image>
+        <image class="avatar" :src="userInfo.avatar" mode="widthFix"></image>
       </view>
-      <view class="username">张三 <gender-tag :gender="0" :age="18" /></view>
+      <view class="username">{{ userInfo.username }} <gender-tag :gender="info.gender" :age="info.age" /></view>
       <view class="attention-btn">
         <view :class="['follow-text', { followed: isFollow }]" @tap="attention">
           <view class="iconfont icon-zengjia" v-show="!isFollow"></view>
@@ -19,11 +19,33 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component } from 'vue-property-decorator';
+import { Vue, Component, Watch } from 'vue-property-decorator';
+import { namespace } from 'vuex-class';
 import GenderTag from '@components/gender-tag/gender-tag.vue';
+import { IUser, IUserinfo } from '@store/module/user';
+import {} from '@pages/edit-material/edit-material.vue';
+
+const UserModule = namespace('userModule');
 
 @Component({ components: { GenderTag } })
 export default class UserPageHead extends Vue {
+  @UserModule.State('userInfo')
+  private readonly userInfo!: IUser;
+  private info: IUserinfo | Record<string, unknown> = {};
+
+  @Watch('userInfo')
+  watchUserInfo() {
+    if (this.userInfo?.userinfo && !this.info.id) {
+      this.info = this.userInfo.userinfo[0];
+    }
+  }
+
+  mounted() {
+    if (this.userInfo?.userinfo && !this.info.id) {
+      this.info = this.userInfo.userinfo[0];
+    }
+  }
+
   // 是否关注
   private isFollow: boolean = false;
   // 判断是不是自己

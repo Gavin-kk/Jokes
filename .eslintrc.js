@@ -14,6 +14,7 @@ module.exports = {
   },
   plugins: ['vue', '@typescript-eslint', 'html'],
   rules: {
+    'prefer-destructuring': 0,
     'no-shadow': 0,
     'import/no-unresolved': 0,
     'object-curly-newline': 0,

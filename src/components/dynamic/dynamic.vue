@@ -81,6 +81,7 @@ import { handleNumber } from '@utils/handle-number';
 import { ArticleType, IArticle } from '@store/module/home';
 import { namespace } from 'vuex-class';
 import { IUser } from '@store/module/user';
+import { likeArticleRequest } from '@services/home.request';
 
 const UserModule = namespace('userModule');
 
@@ -143,8 +144,16 @@ export default class Dynamic extends Vue {
     uni.previewImage({ urls: [picUrl] });
   }
 
+  async likeRequest(type: number) {
+    try {
+      await likeArticleRequest({ articleId: this.momentData.id, type });
+    } catch ({ response }) {
+      console.log(response.data);
+    }
+  }
+
   // 喜欢帖子事件
-  likeEvent(): void {
+  async likeEvent() {
     // 发送喜欢请求
     if (this.dislike) {
       this.dislike = 0;
@@ -157,10 +166,11 @@ export default class Dynamic extends Vue {
       this.isLike = 0;
       this.likeCount!--;
     }
+    await this.likeRequest(1);
   }
 
   // 点击不喜欢帖子事件
-  dislikeEvent(): void {
+  async dislikeEvent() {
     if (this.isLike) {
       this.isLike = 0;
       this.likeCount!--;
@@ -172,6 +182,7 @@ export default class Dynamic extends Vue {
       this.dislike = 1;
       this.dontLikeCount!++;
     }
+    await this.likeRequest(0);
   }
 
   get momentPicIsExists(): boolean {

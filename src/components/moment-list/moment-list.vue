@@ -2,24 +2,26 @@
   <view :class="['moment', 'animate__animated', { animate__slideInUp: !isTheEnd }]" style="animation-duration: 300ms">
     <view class="left">
       <view class="avatar-box">
-        <image class="avatar" :src="data.avatar" mode="scaleToFill"></image>
+        <image class="avatar" :src="data.user.avatar" mode="scaleToFill"></image>
       </view>
     </view>
     <view class="right">
       <view class="title">
         <view class="title-left">
-          <view class="username">{{ data.username }}</view>
-          <gender-tag :age="data.age" :gender="data.gender"></gender-tag>
+          <view class="username">{{ data.user.username }}</view>
+          <gender-tag :age="data.user.userinfo[0].age" :gender="data.user.userinfo[0].gender"></gender-tag>
         </view>
         <view class="title-right">
           <view class="attention" v-show="!isFollow" @tap="attention">关注</view>
           <view class="iconfont icon-guanbi"></view>
         </view>
       </view>
-      <view class="time"><slot name="time"></slot></view>
+      <view class="time">
+        <slot name="time"></slot>
+      </view>
       <text class="content" @tap="openMomentDetail">{{ data.content }}</text>
-      <view :class="['image']" v-if="!data.share" v-show="data.momentPic" @tap="openMomentDetail">
-        <image class="content-img" :src="data.momentPic" mode="aspectFill" @tap="preViewImage"></image>
+      <view :class="['image']" v-if="!data.share" v-show="data.pic" @tap="openMomentDetail">
+        <image class="content-img" :src="data.pic" mode="aspectFill" @tap="preViewImage"></image>
         <!--          当内容是视频时显示-->
         <view class="video-play-mask" v-if="data.video">
           <view class="iconfont icon-bofang"></view>
@@ -30,14 +32,14 @@
         </view>
       </view>
       <view v-else class="share-dynamic-box" @tap="openShare">
-        <image class="content-img" :src="data.share.momentPic" mode="aspectFill"></image>
-        <text class="share-content">{{ data.share.content }}</text>
+        <image class="content-img" :src="data.share.pic" mode="aspectFill"></image>
+        <text class="share-content">{{ data.content }}</text>
       </view>
       <view class="bottom-bar">
         <view class="bottom-left">{{ data.address }} </view>
         <view class="bottom-right">
           <view class="iconfont icon-zhuanfa" @tap="share">
-            <text class="count">{{ data.forwardCount }}</text>
+            <text class="count">{{ data.shareCount }}</text>
           </view>
           <view class="iconfont icon-pinglun1" @tap="openCommentsList">
             <text class="count">{{ data.commentCount }}</text>
@@ -52,42 +54,44 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop } from 'vue-property-decorator';
+import { Vue, Component, Prop, Watch } from 'vue-property-decorator';
 // eslint-disable-next-line import/no-self-import
 import GenderTag from '@components/gender-tag/gender-tag.vue';
 // eslint-disable-next-line import/no-self-import
-import { IMomentList } from './moment-list';
+import { IArticle } from '@store/module/home';
+import { IUser } from '@store/module/user';
+// import { IMomentList } from './moment-list';
 
 @Component({
   components: { GenderTag },
 })
 export default class MomentList extends Vue {
   @Prop(Object)
-  private data!: IMomentList;
+  private data!: IArticle;
 
   @Prop({ type: Boolean, default: false })
   private isTheEnd!: boolean;
 
   private isLike: number | null = null;
   private likeCount: number | null = null;
-  private isFollow: number | null = null;
+  private isFollow: boolean | null = null;
 
   created() {
-    this.isLike = this.data.isLike;
-    this.likeCount = this.data.likeCount;
-    this.isFollow = this.data.isFollow;
+    this.isLike = (this.data?.userArticlesLikes && this.data.userArticlesLikes[0]?.isLike) || 0;
+    this.likeCount = this.data?.likeCount || 0;
+    this.isFollow = !!(this.data?.user.followed && this.data.user.followed[0]);
   }
 
   // 预览图片
   preViewImage() {
     uni.previewImage({
-      urls: [this.data.momentPic ? this.data.momentPic : ''],
+      urls: [this.data?.pic || ''],
     });
   }
 
   attention() {
     uni.showToast({ title: '关注成功' });
-    this.isFollow = 1;
+    this.isFollow = true;
   }
 
   openCommentsList() {
@@ -170,8 +174,8 @@ export default class MomentList extends Vue {
           display: flex;
           justify-content: flex-start;
           align-items: center;
-          color: #b1b1b1;
-          max-width: 200rpx;
+          color: rgb(79, 181, 225);
+          max-width: 400rpx;
           overflow: hidden;
           white-space: nowrap;
           text-overflow: ellipsis;

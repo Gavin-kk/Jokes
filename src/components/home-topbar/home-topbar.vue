@@ -10,6 +10,7 @@
 
 <script lang="ts">
 import { Vue, Component, Prop } from 'vue-property-decorator';
+import { IClassify } from '@store/module/home';
 
 @Component({})
 export default class HomeTopBar extends Vue {
@@ -20,9 +21,9 @@ export default class HomeTopBar extends Vue {
   private itemStyle!: string;
 
   @Prop(Array)
-  private list!: { id: number; title: string }[];
+  private list!: IClassify[];
 
-  private itemClick(index: number): void {
+  itemClick(index: number): void {
     this.$emit('currentSwiperIndexChange', index);
   }
 }

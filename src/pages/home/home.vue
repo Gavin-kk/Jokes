@@ -1,38 +1,100 @@
 <template>
   <view class="home">
-    <home-top-bar :list="list" :activeIndex="currentSwiperIndex" @currentSwiperIndexChange="swiperIndexChange" />
-    <sliding-list
-      v-if="newList.length"
-      :list="newList"
+    <home-top-bar
+      :list="classifyArticleList"
       :activeIndex="currentSwiperIndex"
       @currentSwiperIndexChange="swiperIndexChange"
     />
+    <template v-if="isShowList">
+      <sliding-list
+        :list.sync="classifyArticleList"
+        :activeIndex="currentSwiperIndex"
+        @currentSwiperIndexChange="swiperIndexChange"
+        @scrolltolowerEvent="scrolltolowerEvent"
+      />
+    </template>
   </view>
 </template>
 
 <script lang="ts">
-import { Vue, Component } from 'vue-property-decorator';
+import { Component, Vue, Watch } from 'vue-property-decorator';
 import HomeTopBar from '@components/home-topbar/home-topbar.vue';
 import slidingList from '@components/sliding-list/sliding-list.vue';
 import { namespace } from 'vuex-class';
-import { ActionTypes } from '@store/module/system';
 import { ModuleConstant } from '@store/module.constant';
-import { IMomentList } from '@components/moment-list/moment-list';
 import moment from 'moment';
+import { HomeStoreActionType } from '@store/module/home/constant';
+import { IArticle, IClassify } from '@store/module/home';
+import { LoadingStatus } from '@components/sliding-list/loading-status';
+import { getClassifyAllArticleRequest } from '@services/home.request';
+import { AxiosResponse } from 'axios';
+import { IResponse } from '@services/interface/response.interface';
+import lodash from 'lodash';
+
+export interface IClassifyArticleList extends IClassify {
+  articleList: IArticle[];
+  loadingText: LoadingStatus;
+  pageNum: number;
+}
 
 moment.locale('zh-cn');
-const SystemModule = namespace('systemModule');
+const HomeModule = namespace('homeModule');
 
 @Component({
   components: { HomeTopBar, slidingList },
 })
 export default class Home extends Vue {
-  @SystemModule.State('systemInfo') systemInfo!: SystemInfo;
+  @HomeModule.State('classifyList')
+  private readonly classifyList!: IClassify[];
+  // @HomeModule.State('articleList')
+  // private readonly articleList!: IArticle[];
 
   private currentSwiperIndex: number = 0;
+  private classifyArticleList: IClassifyArticleList[] = [];
 
-  created(): void {
-    this.$store.dispatch(`${ModuleConstant.systemModule}/${ActionTypes.GET_SYSTEM_INFO}`);
+  get isShowList(): boolean {
+    return !!this.classifyArticleList.length;
+  }
+
+  @Watch('currentSwiperIndex')
+  async watchCurrentSwiperIndex(newIndex: number) {
+    if (lodash.isEmpty(this.classifyArticleList[newIndex].articleList)) {
+      //  请求相应页面数据
+      const result: AxiosResponse<IResponse<IArticle[]>> = await getClassifyAllArticleRequest(
+        this.classifyArticleList[newIndex].pageNum,
+        this.classifyList[newIndex].id,
+      );
+      this.classifyArticleList[newIndex].articleList = result.data.data;
+    }
+  }
+
+  @Watch('classifyList')
+  async watchClassifyList(classifyList: IClassify[]) {
+    this.classifyArticleList = classifyList.map((item) => ({
+      ...item,
+      articleList: [],
+      loadingText: LoadingStatus.load,
+      pageNum: 1,
+    }));
+
+    const result: AxiosResponse<IResponse<IArticle[]>> = await getClassifyAllArticleRequest(
+      this.classifyArticleList[0].pageNum,
+      this.classifyArticleList[0].id,
+    );
+    this.classifyArticleList[0].articleList = result.data.data;
+  }
+
+  created() {
+    this.$store.dispatch(`${ModuleConstant.homeModule}/${HomeStoreActionType.GET_ALL_ARTICLE_CATEGORIES}`);
+  }
+  // 滚动到列表最下方触发的事件
+  scrolltolowerEvent(index: number) {
+    if (this.classifyArticleList[index].loadingText !== LoadingStatus.load) return;
+    this.classifyArticleList[index].loadingText = LoadingStatus.loading;
+    //  请求数据
+    setTimeout(() => {
+      this.classifyArticleList[index].loadingText = LoadingStatus.load;
+    }, 1000);
   }
   // 搜索框点击监听事件
   onNavigationBarSearchInputClicked(): void {
@@ -54,150 +116,9 @@ export default class Home extends Vue {
   }
 
   swiperIndexChange(index: number): void {
+    console.log(1);
     this.currentSwiperIndex = index;
   }
-
-  private momentList: IMomentList[] = [
-    {
-      id: +(Math.random() * 1000 + 1).toFixed(),
-      username: '张三',
-      content: '如何用手账改变你的一生?',
-      gender: 0,
-      age: 18,
-      address: '上海',
-      avatar: '/static/demo/userpic/1.jpg',
-      video: {
-        playCount: 1234,
-        totalTime: '13451',
-      },
-      share: null,
-      commentCount: 200,
-      likeCount: 200,
-      dontLikeCount: 200512344,
-      forwardCount: 200,
-      isFollow: 0,
-      momentPic: '/static/demo/datapic/1.jpg',
-      isLike: 0,
-      dislike: 0,
-      createAt: moment(new Date().getTime() - 1000 * 60 * 60 * 12)
-        .startOf('day')
-        .fromNow(),
-    },
-    {
-      id: +(Math.random() * 1000 + 1).toFixed(),
-      username: 'asdf',
-      content: '如何用手账改变你的一生?',
-      gender: 0,
-      age: 18,
-      address: '上海',
-      avatar: '/static/demo/userpic/1.jpg',
-      video: null,
-      share: null,
-      commentCount: 200,
-      likeCount: 200,
-      dontLikeCount: 200512344,
-      forwardCount: 200,
-      isFollow: 0,
-      momentPic: '/static/demo/datapic/1.jpg',
-      isLike: 0,
-      dislike: 0,
-      createAt: moment(new Date().getTime() - 1000 * 60 * 60 * 12).format('L'),
-    },
-    {
-      id: +(Math.random() * 1000 + 1).toFixed(),
-      username: '瓦岗山',
-      content: '如何用手账改变你的一生?',
-      gender: 0,
-      age: 18,
-      address: '上海',
-      avatar: '/static/demo/userpic/1.jpg',
-      video: {
-        playCount: 1234,
-        totalTime: '13451',
-      },
-      share: null,
-      commentCount: 200,
-      likeCount: 200,
-      dontLikeCount: 200512344,
-      forwardCount: 200,
-      isFollow: 0,
-      momentPic: '/static/demo/datapic/1.jpg',
-      isLike: 0,
-      dislike: 0,
-      createAt: moment(new Date().getTime() - 1000 * 60 * 60 * 12).format('L'),
-    },
-    {
-      id: +(Math.random() * 1000 + 1).toFixed(),
-      username: '访问',
-      content: '如何用手账改变你的一生?',
-      gender: 0,
-      age: 18,
-      address: '上海',
-      avatar: '/static/demo/userpic/1.jpg',
-      video: {
-        playCount: 1234,
-        totalTime: '13451',
-      },
-      share: null,
-      commentCount: 200,
-      likeCount: 200,
-      dontLikeCount: 200512344,
-      forwardCount: 200,
-      isFollow: 0,
-      momentPic: '/static/demo/datapic/1.jpg',
-      isLike: 0,
-      dislike: 0,
-      createAt: moment(new Date().getTime() - 1000 * 60 * 60 * 12).format('L'),
-    },
-  ];
-
-  private list: { id: number; title: string }[] = [
-    {
-      id: 1,
-      title: '关注',
-    },
-    {
-      id: 2,
-      title: '推荐',
-    },
-    {
-      id: 3,
-      title: '关注',
-    },
-    {
-      id: 4,
-      title: '关注',
-    },
-    {
-      id: 5,
-      title: '关注',
-    },
-    {
-      id: 6,
-      title: '关注',
-    },
-    {
-      id: 7,
-      title: '关注',
-    },
-    {
-      id: 8,
-      title: '关注',
-    },
-    {
-      id: 9,
-      title: '关注',
-    },
-    {
-      id: 10,
-      title: '喜欢',
-    },
-  ];
-  private newList: { list: IMomentList[]; loadingText: string; id: number }[] = this.list.map(() => ({
-    id: Math.random() * 1000 + 1,
-    list: this.momentList,
-    loadingText: '上拉加载更多',
-  }));
 }
 </script>
 

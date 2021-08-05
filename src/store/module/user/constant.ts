@@ -13,6 +13,7 @@ export const enum UserStoreActionType {
   GET_USER_INFO = 'get_user_info',
   // 修改用户密码
   MODIFY_USER_PASSWORD = 'modify_user_password',
-  // 获取文章话题评论收藏的数量
+  // 获取当前用户的所有文章,话题文章,评论的文章,点赞的文章 的数量
   GET_COUNT = 'get_count',
+  CHANGE_COUNT = 'change_count',
 }

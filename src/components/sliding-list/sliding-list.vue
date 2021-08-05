@@ -4,9 +4,9 @@
     <view class="my-uni-tab-bar" v-if="listIsShow">
       <swiper class="my-swiper-box" :current="activeIndex" :style="{ height: windowHeight }" @change="swiperChange">
         <swiper-item v-for="(items, index) in newList" :key="items.id">
-          <view v-if="!!items.list.length" :style="{ height: windowHeight, width: '100%' }">
+          <view v-if="isShowArticleList(items)" :style="{ height: windowHeight, width: '100%' }">
             <scroll-view scroll-y class="my-list" @scrolltolower="scrolltolowerEvent(index)">
-              <view v-for="item in items.list" :key="item.id">
+              <view v-for="item in items.articleList" :key="item.id">
                 <dynamic :moment-data="item" />
               </view>
               <pull-up-loading :text="items.loadingText" />
@@ -21,34 +21,38 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop } from 'vue-property-decorator';
+import { Vue, Component, Prop, Watch, PropSync } from 'vue-property-decorator';
 import Dynamic from '@components/dynamic/dynamic.vue';
-import { namespace } from 'vuex-class';
-
 import PullUpLoading from '@components/pull-up-loading/pull-up-loading.vue';
 import Empty from '@components/empty/empty.vue';
-import moment from 'moment';
-import { IMomentList } from '@components/moment-list/moment-list';
+import { IClassifyArticleList } from '@pages/home/home.vue';
+import lodash from 'lodash';
+import { IArticle } from '@store/module/home';
 import { LoadingStatus } from './loading-status';
 
-type list = { id: number; list: IMomentList[]; loadingText: string };
-
-const SystemModule = namespace('systemModule');
 @Component({ components: { Empty, PullUpLoading, Dynamic } })
 export default class SlidingList extends Vue {
-  @Prop(Number)
+  @Prop({ type: Number, default: 0 })
   private activeIndex!: number;
-  @Prop(Array)
-  private list!: list[];
+  @PropSync('list', { type: Array, default: [] })
+  private newList!: IClassifyArticleList[];
 
-  private newList: list[] = [];
-
-  @SystemModule.State('systemInfo')
-  private readonly systemInfo!: SystemInfo;
+  private systemInfo: SystemInfo | null = null;
   private topBarHeight: number = 0;
-
-  created() {
-    this.newList = this.list;
+  // 判断是否显示文章的列表
+  get isShowArticleList() {
+    return (items: IClassifyArticleList) => !!items.articleList.length;
+  }
+  // 计算window的高度
+  get windowHeight(): string {
+    if (this.systemInfo) {
+      return `${this.systemInfo.windowHeight - this.topBarHeight - 1}px`;
+    }
+    return '0px';
+  }
+  // 判断列表是否显示
+  get listIsShow(): boolean {
+    return !!this.newList.length;
   }
 
   mounted() {
@@ -60,6 +64,7 @@ export default class SlidingList extends Vue {
         }
       })
       .exec();
+    this.systemInfo = uni.getSystemInfoSync();
   }
 
   swiperChange({ detail }: { detail: { current: number } }): void {
@@ -68,43 +73,7 @@ export default class SlidingList extends Vue {
 
   // 滚动到列表最下方触发的事件
   scrolltolowerEvent(index: number) {
-    if (this.newList[index].loadingText !== '上拉加载更多') return;
-    this.newList[index].loadingText = LoadingStatus.loading;
-
-    setTimeout(() => {
-      this.newList[index].list.push({
-        id: +(Math.random() * 1000 + 1).toFixed(),
-        username: '访问',
-        content: '如何用手账改变你的一生?',
-        gender: 0,
-        age: 18,
-        address: '上海',
-        avatar: '/static/demo/userpic/1.jpg',
-        video: {
-          playCount: 1234,
-          totalTime: '13451',
-        },
-        share: null,
-        commentCount: 200,
-        likeCount: 200,
-        dontLikeCount: 200512344,
-        forwardCount: 200,
-        isFollow: 0,
-        momentPic: '/static/demo/datapic/1.jpg',
-        isLike: 0,
-        dislike: 0,
-        createAt: moment(`${new Date().getTime() - 1000 * 60 * 60 * 12}`).format('llll'),
-      });
-      this.newList[index].loadingText = LoadingStatus.load;
-    }, 1500);
-  }
-
-  get windowHeight(): string {
-    return `${this.systemInfo.windowHeight - this.topBarHeight - 1}px`;
-  }
-
-  get listIsShow(): boolean {
-    return !!this.newList.length;
+    this.$emit('scrolltolowerEvent', index);
   }
 }
 </script>

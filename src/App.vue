@@ -2,13 +2,15 @@
 import Vue from 'vue';
 import { ModuleConstant } from '@store/module.constant';
 import { UserStoreActionType } from '@store/module/user/constant';
+import { ArticleStoreActionType } from '@store/module/article/constant';
 
 export default Vue.extend({
   mpType: 'app',
-  onLaunch() {
+  async onLaunch() {
     const token: string | '' = uni.getStorageSync('_token');
     if (token) {
-      this.$store.dispatch(`${ModuleConstant.userModule}/${UserStoreActionType.GET_USER_INFO}`);
+      // 获取用户信息 并且得到用户的数据
+      await this.$store.dispatch(`${ModuleConstant.userModule}/${UserStoreActionType.GET_USER_INFO}`);
     }
   },
   onShow() {

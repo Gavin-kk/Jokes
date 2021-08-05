@@ -6,8 +6,9 @@
       <item-list :list="list" @clickListEvent="itemListClickEvent" />
       <!--  退出登录-->
       <view class="logout-box">
-        <view class="logout-btn" @tap="signOut">退出登录</view>
+        <view class="logout-btn" @tap="signOutRequest">退出登录</view>
       </view>
+      <button @tap="upload">upload</button>
     </view>
   </view>
 </template>
@@ -16,6 +17,9 @@
 import { Vue, Component } from 'vue-property-decorator';
 import ItemList, { IItemList } from '@components/list/item-list.vue';
 import NavBar from '@components/nav-bar/nav-bar.vue';
+import { signOutRequest } from '@src/services/common.request';
+import { ModuleConstant } from '@store/module.constant';
+import { UserStoreActionType } from '@store/module/user/constant';
 
 @Component({ components: { NavBar, ItemList } })
 export default class Settings extends Vue {
@@ -28,10 +32,56 @@ export default class Settings extends Vue {
     { text: '意见反馈', method: 'nav', url: '/pages/feedback/feedback' },
     { text: '关于嘻嘻哈哈', method: 'nav', url: '/pages/about/about' },
   ];
+  upload() {
+    uni.chooseImage({
+      success(res) {
+        const takes = uni.uploadFile({
+          url: 'http://localhost:5000/api/v1/upload/video',
+          name: 'video',
+          filePath: res.tempFilePaths[0],
+          header: { Authorization: `Bearer ${uni.getStorageSync('_token')}` },
+          success(r) {
+            console.log(r);
+          },
+          fail(res) {
+            console.log(res.errMsg);
+          },
+        });
+        takes.onProgressUpdate((result) => {
+          console.log(result);
+        });
+      },
+    });
+  }
   // 退出登录
-  signOut() {
-    // 这里执行退出登录代码
-    uni.showToast({ title: '退出登录' });
+  async signOutRequest() {
+    uni.showModal({
+      title: '确定退出吗',
+      success: async (res) => {
+        if (res.confirm) {
+          try {
+            // 发送退出请求
+            await signOutRequest();
+            // eslint-disable-next-line no-empty
+          } catch (e) {}
+
+          // 删除本地token
+          uni.removeStorageSync('_token');
+          // 改变登录状态
+          await this.$store.commit(`${ModuleConstant.userModule}/${UserStoreActionType.CHANGE_LOGIN_STATUS}`, false);
+          // 清除vuex中的数据
+          await this.$store.commit(`${ModuleConstant.userModule}/${UserStoreActionType.CHANGE_USER_INFO}`, {});
+          await this.$store.commit(`${ModuleConstant.userModule}/${UserStoreActionType.CHANGE_COUNT}`, {
+            articleCount: 0,
+            topicArticleCount: 0,
+            commentCount: 0,
+            likeCount: 0,
+          });
+          // 导航到用户主页
+          uni.switchTab({ url: '/pages/mine/mine' });
+        }
+      },
+    });
   }
 
   // 列表点击事件

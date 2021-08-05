@@ -10,5 +10,3 @@ export const editEmailRequest = (payload: { password: string; VCode: number; new
   request.put('/user/edit/email', payload);
 // 修改个人资料
 export const editUserInfoRequest = (payload: IEditMaterialSubmit) => request.put('/user/edit/userinfo', payload);
-// 获取用户个人文章话题评论和点过赞文章的数量
-export const getCountRequest = () => request.get('/user/');

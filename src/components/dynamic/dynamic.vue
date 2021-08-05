@@ -3,23 +3,51 @@
     <view class="title-box">
       <view class="title-left">
         <view class="img-box">
-          <image :src="momentData.avatar" mode="widthFix" class="img" lazy-load></image>
+          <image :src="momentData.user.avatar" mode="widthFix" class="img" lazy-load></image>
         </view>
-        <view class="username">{{ momentData.username }}</view>
+        <view class="username">{{ momentData.user.username }}</view>
       </view>
       <view class="title-right">
         <view class="attention-btn" v-if="!whetherFollow" @tap="followUsers">关注</view>
         <view class="close-icon iconfont icon-guanbi" />
       </view>
     </view>
-    <view class="text-box" @tap="openDetail(momentData)">{{ momentData.content }}</view>
-    <view class="img-box" @tap="openDetail(momentData)">
-      <image class="content-img" :src="momentData.momentPic" mode="aspectFill" lazy-load />
-      <view class="play-btn iconfont icon-bofang" v-if="fileType" />
-      <view class="video-count" v-if="fileType">
-        <view class="play-count">{{ momentData.video.playCount | handleNumber }}次播放</view>
-        <view class="totalTime">{{ momentData.video.totalTime }}</view>
-      </view>
+    <view class="text-box" @tap="openDetail">{{ momentData.content }}</view>
+    <view class="img-box">
+      <template v-if="videoShow">
+        <video
+          class="content-img"
+          :src="momentData.video.videoUrl"
+          :poster="momentData.video.pic"
+          loop
+          @play="videoPlay"
+        ></video>
+        <view class="video-count">
+          <view class="play-count" v-show="playCountControl">
+            {{ momentData.video.playCount | handleNumber }}次播放
+          </view>
+        </view>
+      </template>
+      <template v-else-if="imageShow">
+        <image
+          class="content-img"
+          :src="momentData.pic"
+          mode="aspectFill"
+          lazy-load
+          @tap="previewImage(momentData.pic)"
+        />
+      </template>
+      <template v-else-if="shareShow">
+        <view class="share-dynamic-box">
+          <image class="content-img" :src="shareImage" mode="aspectFill"></image>
+          <text class="share-content">{{ momentData.share.content }}</text>
+        </view>
+        <template v-if="momentPicIsExists">
+          <image class="content-img" :src="momentData.pic" mode="aspectFill" lazy-load />
+        </template>
+      </template>
+      <!--      <image class="content-img" :src="momentData.video.pic" mode="aspectFill" lazy-load />-->
+      <!--      <view class="play-btn iconfont icon-bofang" v-if="fileType" />-->
     </view>
     <view class="btn-box">
       <view class="btn-left">
@@ -40,7 +68,7 @@
         </view>
         <view class="btn-child-box">
           <text class="smiley-icon iconfont icon-zhuanfa"></text>
-          {{ momentData.forwardCount | handleNumber }}
+          {{ momentData.shareCount | handleNumber }}
         </view>
       </view>
     </view>
@@ -48,47 +76,71 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop } from 'vue-property-decorator';
+import { Component, Prop, Vue } from 'vue-property-decorator';
 import { handleNumber } from '@utils/handle-number';
-import { IMomentList } from '../moment-list/moment-list';
+import { ArticleType, IArticle } from '@store/module/home';
+import { namespace } from 'vuex-class';
+import { IUser } from '@store/module/user';
+
+const UserModule = namespace('userModule');
 
 @Component({
   filters: { handleNumber },
 })
 export default class Dynamic extends Vue {
   @Prop({ type: Object, required: true })
-  private momentData!: IMomentList;
+  private momentData!: IArticle;
+  @UserModule.State('userInfo')
+  private userInfo!: IUser;
+  // 本属性只是为了让本组件可以使用到多个地方 不用在获取个人的文章时还要判断是不是要显示关注
+  @Prop({ type: Boolean, required: false, default: false })
+  private isShowFollow!: boolean;
+  // play控件是否显示
+  private playCountControl: boolean = true;
 
   private likeCount: number | null = null;
   private dontLikeCount: number | null = null;
-  private whetherFollow: number | null = null;
+  private whetherFollow: boolean = false;
   private isLike: number | null = null;
   private dislike: number | null = null;
 
   created() {
     this.likeCount = this.momentData.likeCount;
-    this.dontLikeCount = this.momentData.dontLikeCount || null;
-    this.whetherFollow = this.momentData.isFollow;
-    this.isLike = this.momentData.isLike;
-    this.dislike = this.momentData.dislike || null;
+    this.dontLikeCount = this.momentData.disLikeCount;
+    this.whetherFollow =
+      this.isShowFollow ||
+      !!(this.momentData.user.followed && this.momentData.user.followed[0]) ||
+      this.userInfo.id === this.momentData.user.id;
+    this.isLike = (this.momentData.userArticlesLikes && this.momentData.userArticlesLikes[0]?.isLike) || 0;
+    this.dislike = this.momentData.userArticlesLikes && this.momentData.userArticlesLikes[0]?.isLike === 0 ? 1 : 0;
   }
 
-  openDetail(momentData: IMomentList) {
+  // 视频播放事件
+  videoPlay() {
+    this.playCountControl = false;
+  }
+
+  openDetail() {
     //  跳转到对应页面 并请求数据
     uni.navigateTo({
-      url: `/pages/content/content?data=${JSON.stringify(momentData)}`,
+      url: `/pages/content/content?id=${this.momentData.id}`,
     });
   }
 
   // 关注用户事件
   followUsers(): void {
     // 发送关注请求
-    this.whetherFollow = 1;
+    this.whetherFollow = true;
     // 显示关注成功提示框
     uni.showToast({
       title: '关注成功',
       icon: 'success',
     });
+  }
+
+  // 预览图片
+  previewImage(picUrl: string) {
+    uni.previewImage({ urls: [picUrl] });
   }
 
   // 喜欢帖子事件
@@ -122,11 +174,23 @@ export default class Dynamic extends Vue {
     }
   }
 
-  get whetherToFollow(): boolean {
-    return this.whetherFollow === 0;
+  get momentPicIsExists(): boolean {
+    return !!this.momentData.pic;
   }
-  get fileType(): boolean {
-    return !!this.momentData?.video;
+  get shareImage() {
+    return this.momentData?.share?.pic || this.momentData?.share?.video?.pic;
+  }
+  get videoShow(): boolean {
+    return this.momentData?.type === ArticleType.Video;
+  }
+  get imageShow(): boolean {
+    return this.momentData?.type === ArticleType.Graphic;
+  }
+  get textShow(): boolean {
+    return this.momentData?.type === ArticleType.PlainText;
+  }
+  get shareShow(): boolean {
+    return this.momentData?.type === ArticleType.Share && (!!this.momentData.share.pic || !!this.momentData.video?.pic);
   }
 }
 </script>
@@ -140,7 +204,7 @@ export default class Dynamic extends Vue {
   box-sizing: border-box;
   color: #cdcdcd;
   border-bottom: 1rpx solid #efefef;
-  height: 650rpx;
+  //height: 650rpx;
 
   .title-box {
     @include bothSides;
@@ -206,19 +270,49 @@ export default class Dynamic extends Vue {
   .img-box {
     position: relative;
     width: 100%;
-    height: 350rpx;
+    //height: 350rpx;
     border-radius: 5px;
     overflow: hidden;
 
+    // 分享动态的css
+    .share-dynamic-box {
+      display: flex;
+      align-items: center;
+      box-sizing: border-box;
+      height: 120rpx;
+      width: 100%;
+      background: #f7f7f7;
+      border-radius: 10rpx;
+      flex-shrink: 0;
+      padding-right: 10rpx;
+
+      .content-img {
+        width: 150rpx;
+        height: 100rpx;
+        border-radius: 20rpx;
+        overflow: hidden;
+      }
+
+      .share-content {
+        @include twoLines(2);
+        line-height: 50rpx;
+        font-size: 30rpx;
+        width: 420rpx;
+        flex-shrink: 0;
+        margin-left: 20rpx;
+        color: #000000;
+      }
+    }
+
     .content-img {
       width: 100%;
-      height: 100%;
+      height: 350rpx;
       will-change: transform;
     }
 
     .play-btn {
       @include positioningCentered;
-      color: rgba(255, 255, 255, 0.7);
+      color: rgba(255, 255, 255, 0.8);
       font-size: 100rpx;
     }
 

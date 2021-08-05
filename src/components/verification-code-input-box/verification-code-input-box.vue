@@ -9,7 +9,7 @@
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator';
 import { namespace } from 'vuex-class';
-import { getEmailVerificationCode } from '@services/common.request';
+import { getEmailVerificationCodeRequest } from '@services/common.request';
 import { SendEmailType } from '@common/enum/send-email-type';
 
 let timer: number | undefined;
@@ -53,7 +53,7 @@ export default class VerificationCodeInputBox extends Vue {
 
     try {
       // 发送验证码请求
-      await getEmailVerificationCode(this.value, this.emailType);
+      await getEmailVerificationCodeRequest(this.value, this.emailType);
       uni.showToast({ title: '已发送' });
       this.isSendVCode = true;
       timer = setInterval(() => {

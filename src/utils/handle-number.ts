@@ -1,5 +1,5 @@
 export const handleNumber = (num: number): string => {
-  const centerNum: (n: number) => number = (n: number) => +(num / n).toFixed(2);
+  const centerNum = (n: number) => +(num / n).toFixed(2);
 
   switch (true) {
     case num > 1000 && num < 10000:

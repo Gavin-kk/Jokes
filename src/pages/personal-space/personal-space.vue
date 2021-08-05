@@ -30,9 +30,9 @@
             <view class="content-item">
               <view class="row title">个人信息</view>
               <view class="row">星座: {{ calculateTheConstellation }}</view>
-              <view class="row">职业: {{ info.job }}</view>
-              <view class="row">故乡: {{ info.hometown }}</view>
-              <view class="row">情感状态: {{ info.emotion }}</view>
+              <view class="row">职业: {{ info.job || ifNullText }}</view>
+              <view class="row">故乡: {{ info.hometown || ifNullText }}</view>
+              <view class="row">情感状态: {{ info.emotion || ifNullText }}</view>
             </view>
           </view>
         </swiper-item>
@@ -107,6 +107,7 @@ const UserModule = namespace('userModule');
 export default class PersonalSpace extends Vue {
   @UserModule.State('userInfo')
   private readonly userInfo!: IUser;
+  private ifNullText: string = '快去填写吧';
 
   private info: IUserinfo | Record<string, unknown> = {};
 
@@ -246,12 +247,15 @@ export default class PersonalSpace extends Vue {
   get usageTime(): string {
     return this.userInfo.createAt ? moment().diff(this.userInfo.createAt, 'month', true).toFixed(1) : '';
   }
-
+  // 计算星座
   get calculateTheConstellation(): string {
-    return this.userInfo?.userinfo ? getHoroscope(moment(this.userInfo?.userinfo[0]?.birthday).valueOf()) : '';
+    if (this.userInfo?.userinfo && this.userInfo.userinfo[0].birthday) {
+      return getHoroscope(moment(this.userInfo?.userinfo[0]?.birthday).valueOf());
+    }
+    return this.ifNullText;
   }
 
-  get sectionList(): { count: number; text: string }[] {
+  get sectionList(): { count: number | undefined; text: string }[] {
     return [
       { count: this.userInfo.likeCount, text: '获赞' },
       { count: this.userInfo.followCount, text: '关注' },

@@ -165,7 +165,7 @@ export default class Chat extends Mixins(WebsocketMixin) {
   }
 
   @Watch('readState')
-  MwatchReadState(newState: IReadState) {
+  watchReadState(newState: IReadState) {
     console.log(newState);
   }
 
@@ -194,13 +194,11 @@ export default class Chat extends Mixins(WebsocketMixin) {
   }
 
   mounted() {
-    this.$nextTick(() => {
-      setTimeout(() => {
-        this.getHeight().then(() => {
-          this.getChatListHeight(true);
-        });
-      }, 50);
-    });
+    setTimeout(() => {
+      this.getHeight().then(() => {
+        this.getChatListHeight(true);
+      });
+    }, 50);
   }
 
   // 获取每一个信息组件的高度 然后赋值给 scrollTop

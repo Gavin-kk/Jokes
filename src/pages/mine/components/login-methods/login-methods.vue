@@ -2,12 +2,11 @@
   <view class="login">
     <view class="title" v-if="!ifUseIcon">登录嘻嘻哈哈, 体验等多功能</view>
     <view class="methods">
-      <view class="iconfont icon-weixin"></view>
-      <view class="iconfont icon-xinlangweibo"></view>
-      <view class="iconfont icon-QQ"></view>
+      <!--#ifndef H5-->
       <block v-for="item in providerList" :key="item.id">
         <view :class="['iconfont', item.iconClassName]" @tap="login(item)"></view>
       </block>
+      <!--#endif-->
     </view>
     <view class="other-login" @tap="openLoginPage" v-if="!ifUseIcon">
       账号密码登录
@@ -97,7 +96,9 @@ export default class LoginMethods extends Vue {
   .methods {
     @include centered;
     box-sizing: border-box;
+    /*#ifndef H5*/
     padding: 20rpx;
+    /*#endif*/
 
     .iconfont {
       border-radius: 50%;
@@ -126,11 +127,16 @@ export default class LoginMethods extends Vue {
     width: 100%;
     height: 80rpx;
     font-size: $fontMini;
-
+    /*#ifdef H5*/
+    color: #0a98d5;
+    /*#endif*/
     .icon-jinru {
       margin-top: 4rpx;
       font-size: $fontMini;
       color: #bbbbbb;
+      /*#ifdef H5*/
+      color: #0a98d5;
+      /*#endif*/
     }
   }
 }

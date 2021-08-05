@@ -35,6 +35,7 @@ import { namespace } from 'vuex-class';
 import { ModuleConstant } from '@store/module.constant';
 import { UserStoreActionType } from '@store/module/user/constant';
 import { ICount, IUser } from '@store/module/user';
+import { ArticleStoreActionType } from '@store/module/article/constant';
 
 const UserModule = namespace('userModule');
 
@@ -48,21 +49,20 @@ export default class Mine extends Vue {
   @UserModule.State('count')
   private readonly countObj!: ICount;
 
-  created() {
-    // uni.getStorage({
-    //   key: '_token',
-    //   success: ({ data: token }: { data: string }) => {
-    //     if (token) {
-    //       // 如果token 存在则向服务端请求用户的信息
-    //       this.$store.dispatch(`${ModuleConstant.userModule}/${UserStoreActionType.GET_USER_INFO}`);
-    //     }
-    //   },
-    // });
+  onShow() {
+    console.log(this.isLogin);
+    if (this.isLogin) {
+      // this.$store
+      //   .dispatch(`${ModuleConstant.articleModule}/${ArticleStoreActionType.GET_ALL_PERSONAL_ARTICLES}`, 1)
+      //   .catch((err) => {
+      //     console.log(err.response.data);
+      //   });
+    }
   }
 
   get sectionList(): { count: number; text: string }[] {
     const countKeys: string[] = Object.keys(this.countObj);
-    const list: string[] = ['文章', '话题', '评论', '收藏'];
+    const list: string[] = ['文章', '话题', '评论', '点赞'];
     return countKeys.map((item: string, index: number) => ({ count: this.countObj[item], text: list[index] }));
   }
   // 列表数据
@@ -71,12 +71,6 @@ export default class Mine extends Vue {
     { iconfontClass: 'icon-huiyuanvip', text: '认证', color: '#ff7332' },
     { iconfontClass: 'icon-icon_im_keyboard', text: '陪审团', color: '#7ccaff' },
   ];
-  // // 用户数据
-  // private userinfo: IUserinfo = {
-  //   username: '张三',
-  //   totalVisitors: 200,
-  //   todayVisitor: 100,
-  // };
 
   // 打开设置
   openSettings() {

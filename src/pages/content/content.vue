@@ -1,16 +1,21 @@
 <template>
   <view class="content-box">
     <!--导航栏-->
-    <i-nav-bar :title="data.content" @leftClick="back" @rightClick="openMore"></i-nav-bar>
-    <!-- 主题内容-->
-    <moment-list :data="data" is-the-end>
-      <view slot="time">{{ data.createAt }}</view>
-    </moment-list>
-    <!--评论模块-->
-    <view class="comment-title">最新评论</view>
-    <block v-for="(item, index) in commentList" :key="index">
-      <comment :data="item" @contentClick="contentClick" @userClick="userClick"></comment>
-    </block>
+    <i-nav-bar :title="dataCt.content" @leftClick="back" @rightClick="openMore"></i-nav-bar>
+    <template v-if="data">
+      <!-- 主题内容-->
+      <template v-if="data">
+        <moment-list :data="data" is-the-end>
+          <view slot="time">{{ dataCt.createAt }}</view>
+        </moment-list>
+      </template>
+      <!--评论模块-->
+      <view class="comment-title">最新评论</view>
+      <block v-for="item in commentList" :key="item.id">
+        <comment :data="item" @contentClick="contentClick" @userClick="userClick"></comment>
+      </block>
+      <!--      <reply-comment-comment :replyList="commentList[1].reply-comment" />-->
+    </template>
     <chat-input-btn @confirm="submit"></chat-input-btn>
     <share :is-show="isShowShare" @touchShareMask="touchShareMask"></share>
   </view>
@@ -20,57 +25,40 @@
 import { Component, Vue } from 'vue-property-decorator';
 import INavBar from '@pages/content/components/nav-bar/nav-bar.vue';
 import MomentList from '@components/moment-list/moment-list.vue';
-import { IMomentList } from '@components/moment-list/moment-list';
-import Comment, { ICommentData } from '@pages/content/components/comment/comment.vue';
-import moment from 'moment';
+import Comment from '@pages/content/components/comment/comment.vue';
 import ChatInputBtn from '@components/chat-input-btn/chat-input-btn.vue';
 import Share from '@components/share/share.vue';
+import { getArticleDetailRequest } from '@services/common.request';
+import { AxiosResponse } from 'axios';
+import { IArticleDetail } from '@pages/content/content.interface';
+import { IResponse } from '@services/interface/response.interface';
+import ReplyComment from '@pages/content/components/reply-comment/reply-comment.vue';
 
 @Component({
-  components: { Share, ChatInputBtn, Comment, MomentList, INavBar },
+  components: { Share, ChatInputBtn, Comment, MomentList, INavBar, ReplyComment },
 })
 export default class Content extends Vue {
   // 是否显示分享框
   private isShowShare: boolean = false;
   // 主题内容
-  private data: IMomentList | null = null;
+  private data: IArticleDetail | null = null;
   // 是否显示输入框
   private inputShow: boolean = false;
-  // 评论的数据
-  private commentList: ICommentData[] = [
-    {
-      isReply: false,
-      avatar: '/static/demo/userpic/1.jpg',
-      username: '张三',
-      content: '今天天气很不错',
-      createAt: moment().startOf('day').fromNow(),
-    },
-    {
-      isReply: true,
-      avatar: '/static/demo/userpic/1.jpg',
-      username: '张三',
-      content: '今天天气很不错',
-      createAt: moment().startOf('day').fromNow(),
-    },
-    {
-      isReply: true,
-      avatar: '/static/demo/userpic/1.jpg',
-      username: '张三',
-      content:
-        '今天天气4444444444443333333333333333333333333444444444444444444444444444422222222222222222222222fffffffffffffffffeeeeeeeeeeeeeeeeeeeeeee很不错',
-      createAt: moment().startOf('day').fromNow(),
-    },
-    {
-      isReply: false,
-      avatar: '/static/demo/userpic/1.jpg',
-      username: '张三',
-      content: '今天天气很不错',
-      createAt: moment().startOf('day').fromNow(),
-    },
-  ];
 
-  onLoad({ data }: { data: string }) {
-    this.data = JSON.parse(data);
+  get commentList() {
+    return this.data?.comments || [];
+  }
+
+  get dataCt(): IArticleDetail | Record<string, any> {
+    return this.data || {};
+  }
+
+  async mounted() {
+    const routes: any = getCurrentPages();
+    const { id } = routes[routes.length - 1].options;
+
+    const result: AxiosResponse<IResponse<IArticleDetail>> = await getArticleDetailRequest(+id);
+    this.data = result.data.data;
   }
 
   // 点击评论内容显示回复输入框
@@ -85,13 +73,13 @@ export default class Content extends Vue {
 
   // 发送评论内容
   submit(value: string) {
-    this.commentList.push({
-      isReply: false,
-      avatar: '/static/demo/userpic/1.jpg',
-      username: '张三',
-      content: value,
-      createAt: moment().startOf('hour').fromNow(),
-    });
+    // this.commentList.push({
+    //   isReply: false,
+    //   avatar: '/static/demo/userpic/1.jpg',
+    //   username: '张三',
+    //   content: value,
+    //   createAt: moment().startOf('hour').fromNow(),
+    // });
     uni.showToast({ title: `发送评论内容${value}` });
   }
 
@@ -107,6 +95,39 @@ export default class Content extends Vue {
   touchShareMask() {
     this.isShowShare = false;
   }
+
+  // 评论的数据
+  // private commentList: ICommentData[] = [
+  //   {
+  //     isReply: false,
+  //     avatar: '/static/demo/userpic/1.jpg',
+  //     username: '张三',
+  //     content: '今天天气很不错',
+  //     createAt: moment().startOf('day').fromNow(),
+  //   },
+  //   {
+  //     isReply: true,
+  //     avatar: '/static/demo/userpic/1.jpg',
+  //     username: '张三',
+  //     content: '今天天气很不错',
+  //     createAt: moment().startOf('day').fromNow(),
+  //   },
+  //   {
+  //     isReply: true,
+  //     avatar: '/static/demo/userpic/1.jpg',
+  //     username: '张三',
+  //     content:
+  //       '今天天气4444444444443333333333333333333333333444444444444444444444444444422222222222222222222222fffffffffffffffffeeeeeeeeeeeeeeeeeeeeeee很不错',
+  //     createAt: moment().startOf('day').fromNow(),
+  //   },
+  //   {
+  //     isReply: false,
+  //     avatar: '/static/demo/userpic/1.jpg',
+  //     username: '张三',
+  //     content: '今天天气很不错',
+  //     createAt: moment().startOf('day').fromNow(),
+  //   },
+  // ];
 }
 </script>
 

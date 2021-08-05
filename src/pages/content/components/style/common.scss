@@ -1,0 +1,96 @@
+.box {
+  display: flex;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 10rpx 20rpx;
+    border-bottom: 1px solid rgba(187, 187, 187, 0.1);
+
+  .left {
+    display: flex;
+    align-items: flex-start;
+    justify-content: flex-start;
+    width: 100rpx;
+    height: auto;
+    flex-shrink: 0;
+
+    .avatar-box {
+      width: 80rpx;
+      height: 80rpx;
+      overflow: hidden;
+      border-radius: 50%;
+      flex-shrink: 0;
+      margin-top: 10rpx;
+
+      .avatar {
+        width: 100%;
+        height: 100%;
+      }
+    }
+  }
+
+  .right {
+    display: flex;
+    width: 100%;
+    flex-direction: column;
+    justify-content: flex-start;
+    font-size: 28rpx;
+
+    .username {
+      color: #4fb5e1;
+      line-height: 50rpx;
+      @include ellipsis(400rpx);
+    }
+
+    .comment-text {
+      line-height: 50rpx;
+      font-size: 30rpx;
+      word-break: break-all;
+    }
+
+    .time {
+      line-height: 50rpx;
+      color: #cccccc;
+    }
+
+    .load-comment {
+      display: flex;
+      align-items: center;
+      transition: all 0.3s;
+
+      .load-comment-icon {
+        width: 20rpx;
+        height: 20rpx;
+        margin-left: 5rpx;
+        box-sizing: border-box;
+      }
+    }
+  }
+}
+
+.count {
+  padding: 0 10rpx;
+}
+.right-box {
+  position: relative;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+}
+.isLike {
+  color: #fedd31;
+}
+.icon-ccdbaa {
+  box-sizing: border-box;
+  width: 20rpx;
+  height: 20rpx;
+  position: absolute;
+  right: 35rpx;
+  top: 100rpx;
+}
+
+.reply {
+  width: 100%;
+  box-sizing: border-box;
+  margin-right: 20rpx;
+  border-radius: 5rpx;
+}

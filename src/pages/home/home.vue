@@ -97,13 +97,13 @@ export default class Home extends Vue {
     }, 1000);
   }
   // 搜索框点击监听事件
-  onNavigationBarSearchInputClicked(): void {
+  onNavigationBarSearchInputClicked() {
     uni.navigateTo({
       url: '../search/search',
     });
   }
   // 原生顶栏按钮点击监听事件
-  onNavigationBarButtonTap(e: INavigationBarButtonTapEvent): void {
+  onNavigationBarButtonTap(e: INavigationBarButtonTapEvent) {
     if (e.index === 0) {
       uni.showToast({
         title: '签到成功 经验+3',
@@ -115,8 +115,7 @@ export default class Home extends Vue {
     }
   }
 
-  swiperIndexChange(index: number): void {
-    console.log(1);
+  swiperIndexChange(index: number) {
     this.currentSwiperIndex = index;
   }
 }

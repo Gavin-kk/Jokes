@@ -13,25 +13,24 @@
         </view>
         <view class="title-right">
           <view class="attention" v-show="!isFollow" @tap="attention">关注</view>
-          <view class="iconfont icon-guanbi"></view>
+          <view class="iconfont icon-guanbi" v-if="!isTheEnd"></view>
         </view>
       </view>
       <view class="time">
         <slot name="time"></slot>
       </view>
       <text class="content" @tap="openMomentDetail">{{ data.content }}</text>
-      <view :class="['image']" v-if="!data.share" v-show="data.pic" @tap="openMomentDetail">
+      <view class="image" v-if="imageShow" @tap="openMomentDetail">
         <image class="content-img" :src="data.pic" mode="aspectFill" @tap="preViewImage"></image>
-        <!--          当内容是视频时显示-->
-        <view class="video-play-mask" v-if="data.video">
-          <view class="iconfont icon-bofang"></view>
-        </view>
+      </view>
+      <view v-if="videoShow" class="video-box">
+        <!--当内容是视频时显示-->
+        <video class="video" :src="data.video.videoUrl" :poster="data.video.pic" loop @play="videoPlay"></video>
         <view class="tag" v-if="data.video" @tap="openMomentDetail">
-          <view class="play-count">{{ data.video.playCount }}</view>
-          <view>{{ data.video.totalTime }}</view>
+          <view class="play-count" v-if="!isTheEnd">{{ data.video.playCount }}</view>
         </view>
       </view>
-      <view v-else class="share-dynamic-box" @tap="openShare">
+      <view v-if="shareShow" class="share-dynamic-box" @tap="openShare">
         <image class="content-img" :src="data.share.pic" mode="aspectFill"></image>
         <text class="share-content">{{ data.content }}</text>
       </view>
@@ -58,8 +57,9 @@ import { Vue, Component, Prop, Watch } from 'vue-property-decorator';
 // eslint-disable-next-line import/no-self-import
 import GenderTag from '@components/gender-tag/gender-tag.vue';
 // eslint-disable-next-line import/no-self-import
-import { IArticle } from '@store/module/home';
+import { ArticleType, IArticle } from '@store/module/home';
 import { IUser } from '@store/module/user';
+import { likeArticleRequest } from '@services/home.request';
 // import { IMomentList } from './moment-list';
 
 @Component({
@@ -68,20 +68,33 @@ import { IUser } from '@store/module/user';
 export default class MomentList extends Vue {
   @Prop(Object)
   private data!: IArticle;
-
   @Prop({ type: Boolean, default: false })
   private isTheEnd!: boolean;
-
   private isLike: number | null = null;
   private likeCount: number | null = null;
   private isFollow: boolean | null = null;
 
+  get videoShow(): boolean {
+    return this.data?.type === ArticleType.Video;
+  }
+  get imageShow(): boolean {
+    return this.data?.type === ArticleType.Graphic;
+  }
+  get textShow(): boolean {
+    return this.data?.type === ArticleType.PlainText;
+  }
+  get shareShow(): boolean {
+    return this.data?.type === ArticleType.Share && (!!this.data.share?.pic || !!this.data.video?.pic);
+  }
   created() {
     this.isLike = (this.data?.userArticlesLikes && this.data.userArticlesLikes[0]?.isLike) || 0;
     this.likeCount = this.data?.likeCount || 0;
     this.isFollow = !!(this.data?.user.followed && this.data.user.followed[0]);
   }
 
+  videoPlay() {
+    uni.showToast({ title: '视频播放数++' });
+  }
   // 预览图片
   preViewImage() {
     uni.previewImage({
@@ -103,7 +116,7 @@ export default class MomentList extends Vue {
   }
 
   openShare() {
-    uni.showToast({ title: '打开分享' });
+    uni.navigateTo({ url: `/pages/content/content?id=${this.data.shareId}` });
   }
 
   openMomentDetail() {
@@ -112,7 +125,7 @@ export default class MomentList extends Vue {
     }
   }
 
-  likeOrUnlike() {
+  async likeOrUnlike() {
     if (this.isLike) {
       this.isLike = 0;
       this.likeCount!--;
@@ -120,6 +133,7 @@ export default class MomentList extends Vue {
       this.isLike = 1;
       this.likeCount!++;
     }
+    await likeArticleRequest({ articleId: this.data.id, type: 1 });
   }
 
   // get judgingMenAndWomen() {
@@ -207,6 +221,14 @@ export default class MomentList extends Vue {
       width: 100%;
       font-size: 28rpx;
       color: #bbbbbb;
+    }
+    .video-box {
+      width: 600rpx;
+      height: 400rpx;
+      .video {
+        width: 100%;
+        height: 100%;
+      }
     }
 
     .content {

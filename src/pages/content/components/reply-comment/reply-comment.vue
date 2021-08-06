@@ -17,7 +17,7 @@
                 </text>
               </view>
             </view>
-            <view class="comment-text" @tap="contentClick">{{ reply.content }}</view>
+            <view class="comment-text" @tap="contentClick(reply)">{{ reply.content }}</view>
             <view class="time">{{ reply.createAt | timeFilter }}</view>
           </view>
           <view :class="['iconfont', 'icon-ccdbaa', { isLike: isLike }]" @tap="like">
@@ -41,8 +41,11 @@ export default class ReplyComment extends Vue {
   @Prop({ type: Array, required: true, default: [] })
   private replyList!: IReply[];
   private isLike: boolean = false;
-  contentClick(index: number) {
-    this.$emit('contentClick', this.replyList && this.replyList[index].content);
+
+  contentClick(reply: IReply) {
+    if (this.replyList) {
+      this.$emit('contentClick', { commentId: reply.commentId, id: reply.id });
+    }
   }
   userClick(username: string) {
     uni.showToast({ title: `打开${username}个人主页` });

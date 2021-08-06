@@ -50,10 +50,11 @@ export default class NavBar extends Vue {
 }
 
 .nav-center {
-  width: 100%;
   @include centered;
+  width: 100%;
 
   .text {
+    @include centered;
     @include ellipsis(380rpx);
   }
 }

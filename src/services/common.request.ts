@@ -1,5 +1,6 @@
 import { SendEmailType } from '@common/enum/send-email-type';
 import { request } from '@services/service';
+import { ISendCommentPayload } from '@pages/content/content.vue';
 // 请求验证码
 export const getEmailVerificationCodeRequest = (email: string, type: SendEmailType) =>
   request.get('/email/code', { params: { email, type } });
@@ -12,3 +13,5 @@ export const getArticleDetailRequest = (id: number) => request.get(`/article/det
 // 请求一级评论的子评论数据
 export const getCommentChildListRequest = (commentId: number) =>
   request.get('/comment/list', { params: { commentId } });
+// 发送评论
+export const sendCommentRequest = (payload: ISendCommentPayload) => request.post('/comment/publish', payload);

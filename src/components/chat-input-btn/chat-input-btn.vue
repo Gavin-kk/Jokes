@@ -5,6 +5,8 @@
       @confirm="confirm"
       class="input"
       type="text"
+      :focus="focus"
+      @blur="blur"
       placeholder="文明发言"
       placeholder-class="input-placeholder"
     />
@@ -15,16 +17,21 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component } from 'vue-property-decorator';
+import { Vue, Component, Prop, PropSync } from 'vue-property-decorator';
 
 @Component({})
 export default class ChatInputBtn extends Vue {
+  @PropSync('isFocus', { type: Boolean, default: false })
+  private focus!: boolean;
   private text: string = '';
 
   confirm() {
     if (!this.text) return;
     this.$emit('confirm', this.text);
     this.text = '';
+  }
+  blur() {
+    this.$emit('outOfFocus');
   }
 }
 </script>

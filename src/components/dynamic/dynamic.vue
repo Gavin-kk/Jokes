@@ -12,7 +12,7 @@
         <view class="close-icon iconfont icon-guanbi" />
       </view>
     </view>
-    <view class="text-box" @tap="openDetail">{{ momentData.content }}</view>
+    <view class="text-box" @tap="openDetail(momentData.id)">{{ momentData.content }}</view>
     <view class="img-box">
       <template v-if="videoShow">
         <video
@@ -38,13 +38,10 @@
         />
       </template>
       <template v-else-if="shareShow">
-        <view class="share-dynamic-box">
+        <view class="share-dynamic-box" @tap="openDetail(momentData.share.id)">
           <image class="content-img" :src="shareImage" mode="aspectFill"></image>
           <text class="share-content">{{ momentData.share.content }}</text>
         </view>
-        <template v-if="momentPicIsExists">
-          <image class="content-img" :src="momentData.pic" mode="aspectFill" lazy-load />
-        </template>
       </template>
       <!--      <image class="content-img" :src="momentData.video.pic" mode="aspectFill" lazy-load />-->
       <!--      <view class="play-btn iconfont icon-bofang" v-if="fileType" />-->
@@ -62,7 +59,7 @@
         </view>
       </view>
       <view class="btn-right">
-        <view class="btn-child-box">
+        <view class="btn-child-box" @tap="openDetail(momentData.id)">
           <text class="smiley-icon iconfont icon-pinglun1"></text>
           {{ momentData.commentCount | handleNumber }}
         </view>
@@ -121,10 +118,10 @@ export default class Dynamic extends Vue {
     this.playCountControl = false;
   }
 
-  openDetail() {
+  openDetail(id: number) {
     //  跳转到对应页面 并请求数据
     uni.navigateTo({
-      url: `/pages/content/content?id=${this.momentData.id}`,
+      url: `/pages/content/content?id=${id}`,
     });
   }
 
@@ -185,9 +182,6 @@ export default class Dynamic extends Vue {
     await this.likeRequest(0);
   }
 
-  get momentPicIsExists(): boolean {
-    return !!this.momentData.pic;
-  }
   get shareImage() {
     return this.momentData?.share?.pic || this.momentData?.share?.video?.pic;
   }

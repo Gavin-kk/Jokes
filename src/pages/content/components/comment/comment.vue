@@ -12,7 +12,11 @@
         <view class="comment-text" @tap="contentClick">{{ content }}</view>
         <view class="time">{{ data.createAt | timeFilter }}</view>
         <view style="overflow: hidden">
-          <reply-comment :reply-list="replyList" v-if="replyListComponentIsShow"></reply-comment>
+          <reply-comment
+            :reply-list="replyList"
+            v-if="replyListComponentIsShow"
+            @contentClick="replyClick"
+          ></reply-comment>
         </view>
 
         <view
@@ -43,22 +47,12 @@ import { IResponse } from '@services/interface/response.interface';
 import Loading from '@components/loading/loading.vue';
 import { timeFilter } from '@common/filters/time.filter';
 
-// export interface ICommentData {
-//   id?: number; // 评论的id
-//   userId?: number; // 用户的id
-//   isReply: boolean;
-//   avatar: string;
-//   username: string;
-//   content: string;
-//   createAt: string;
-// }
-
 @Component({
   components: { Loading, ReplyComment },
   filters: { timeFilter },
 })
 export default class Comment extends Vue {
-  @Prop(Object)
+  @Prop({ type: Object, default: {} })
   private data?: IComments;
   private replyList: IReply[] = [];
   // 评论的加载loading状态
@@ -105,9 +99,12 @@ export default class Comment extends Vue {
     this.isLike = !this.isLike;
   }
   contentClick() {
-    this.$emit('contentClick', this.data?.content);
+    this.$emit('contentClick', this.data?.id);
   }
-
+  // 回复 commentId 是共同的一级评论id id是当前点击的要回复评论的id
+  replyClick(payload: { commentId: number; id: number }) {
+    this.$emit('replyClick', payload);
+  }
   userClick() {
     this.$emit('userClick', this.data?.user.username);
   }

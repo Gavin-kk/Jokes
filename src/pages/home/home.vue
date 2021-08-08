@@ -76,26 +76,38 @@ export default class Home extends Vue {
       loadingText: LoadingStatus.load,
       pageNum: 1,
     }));
-
-    const result: AxiosResponse<IResponse<IArticle[]>> = await getClassifyAllArticleRequest(
-      this.classifyArticleList[0].pageNum,
-      this.classifyArticleList[0].id,
-    );
-    this.classifyArticleList[0].articleList = result.data.data;
+    await this.getData();
   }
 
   created() {
     this.$store.dispatch(`${ModuleConstant.homeModule}/${HomeStoreActionType.GET_ALL_ARTICLE_CATEGORIES}`);
   }
+
+  // 请求数据
+  async getData(index: number = 0): Promise<boolean> {
+    const result: AxiosResponse<IResponse<IArticle[]>> = await getClassifyAllArticleRequest(
+      this.classifyArticleList[index].pageNum,
+      this.classifyArticleList[index].id,
+    );
+    if (!result.data.data.length) return false;
+    this.classifyArticleList[index].articleList.push(...result.data.data);
+    return true;
+  }
+
   // 滚动到列表最下方触发的事件
-  scrolltolowerEvent(index: number) {
+  async scrolltolowerEvent(index: number) {
     if (this.classifyArticleList[index].loadingText !== LoadingStatus.load) return;
     this.classifyArticleList[index].loadingText = LoadingStatus.loading;
+    this.classifyArticleList[index].pageNum += 1;
     //  请求数据
-    setTimeout(() => {
-      this.classifyArticleList[index].loadingText = LoadingStatus.load;
-    }, 1000);
+    const result: boolean = await this.getData(index);
+    if (!result) {
+      this.classifyArticleList[index].loadingText = LoadingStatus.air;
+      return;
+    }
+    this.classifyArticleList[index].loadingText = LoadingStatus.load;
   }
+
   // 搜索框点击监听事件
   onNavigationBarSearchInputClicked() {
     uni.navigateTo({

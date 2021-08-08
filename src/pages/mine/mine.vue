@@ -49,17 +49,6 @@ export default class Mine extends Vue {
   @UserModule.State('count')
   private readonly countObj!: ICount;
 
-  onShow() {
-    console.log(this.isLogin);
-    if (this.isLogin) {
-      // this.$store
-      //   .dispatch(`${ModuleConstant.articleModule}/${ArticleStoreActionType.GET_ALL_PERSONAL_ARTICLES}`, 1)
-      //   .catch((err) => {
-      //     console.log(err.response.data);
-      //   });
-    }
-  }
-
   get sectionList(): { count: number; text: string }[] {
     const countKeys: string[] = Object.keys(this.countObj);
     const list: string[] = ['文章', '话题', '评论', '点赞'];

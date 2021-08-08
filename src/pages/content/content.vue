@@ -12,7 +12,7 @@
       <!--评论模块-->
       <view class="comment-title">最新评论</view>
       <template v-if="commentOrEmpty">
-        <block v-for="(item, index) in commentList" :key="item.id">
+        <block v-for="item in commentList" :key="item.id">
           <comment :data="item" @contentClick="contentClick" @userClick="userClick" @replyClick="replyClick"></comment>
         </block>
       </template>
@@ -139,6 +139,8 @@ export default class Content extends Vue {
   // input 框失焦事件
   outOfFocus() {
     this.isFocus = false;
+    this.commentId = 0;
+    this.childId = 0;
   }
   // 打开分享
   openMore() {
@@ -148,39 +150,6 @@ export default class Content extends Vue {
   touchShareMask() {
     this.isShowShare = false;
   }
-
-  // 评论的数据
-  // private commentList: ICommentData[] = [
-  //   {
-  //     isReply: false,
-  //     avatar: '/static/demo/userpic/1.jpg',
-  //     username: '张三',
-  //     content: '今天天气很不错',
-  //     createAt: moment().startOf('day').fromNow(),
-  //   },
-  //   {
-  //     isReply: true,
-  //     avatar: '/static/demo/userpic/1.jpg',
-  //     username: '张三',
-  //     content: '今天天气很不错',
-  //     createAt: moment().startOf('day').fromNow(),
-  //   },
-  //   {
-  //     isReply: true,
-  //     avatar: '/static/demo/userpic/1.jpg',
-  //     username: '张三',
-  //     content:
-  //       '今天天气4444444444443333333333333333333333333444444444444444444444444444422222222222222222222222fffffffffffffffffeeeeeeeeeeeeeeeeeeeeeee很不错',
-  //     createAt: moment().startOf('day').fromNow(),
-  //   },
-  //   {
-  //     isReply: false,
-  //     avatar: '/static/demo/userpic/1.jpg',
-  //     username: '张三',
-  //     content: '今天天气很不错',
-  //     createAt: moment().startOf('day').fromNow(),
-  //   },
-  // ];
 }
 </script>
 

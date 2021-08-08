@@ -7,16 +7,16 @@
           <view class="uni-uploader-info">{{ imageList.length }}/9</view>
         </view>
         <view class="uni-uploader-body">
-          <view class="uni-uploader__files">
+          <view class="preview-picture">
             <block v-for="(image, index) in imageList" :key="index">
-              <view class="uni-uploader__file">
+              <view class="images-box">
                 <view class="delete-img iconfont icon-shanchu" @tap="deleteImg(index)"></view>
-                <image class="uni-uploader__img" :src="image" :data-src="image" @tap.stop="previewImage"></image>
+                <image class="images" :src="image" :data-src="image" @tap.stop="previewImage" mode="aspectFill"></image>
               </view>
             </block>
             <!--            文件上传按钮-->
-            <view class="uni-uploader__input-box" @tap="chooseImage">
-              <view class="uni-uploader__input"></view>
+            <view class="upload-btn" @tap="chooseImage">
+              <view>+</view>
             </view>
           </view>
         </view>
@@ -193,5 +193,51 @@ export default class UploadImg extends Vue {
   width: 200px;
   height: 200px;
   background: #4cd964;
+}
+
+.upload-btn {
+  @include centered;
+  box-sizing: border-box;
+  //margin: 10rpx;
+  width: 200rpx;
+  height: 200rpx;
+  background: #f1f1f1;
+  font-size: 100rpx;
+  font-weight: 200;
+  color: #bbbbbb;
+}
+.preview-picture {
+  margin-top: 15rpx;
+  display: grid;
+  justify-content: space-between;
+  align-items: center;
+  grid-template-columns: repeat(auto-fill, 200rpx);
+  grid-gap: 15rpx;
+  flex-wrap: wrap;
+}
+
+.images-box {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 200rpx;
+  height: 200rpx;
+  object-fit: fill;
+  vertical-align: bottom;
+  .images {
+    width: 100%;
+    height: 100%;
+  }
+  .delete-img {
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: 50rpx;
+    height: 50rpx;
+    z-index: 10;
+    text-align: center;
+    line-height: 50rpx;
+  }
 }
 </style>

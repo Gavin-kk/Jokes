@@ -67,5 +67,14 @@
     },
     "mp-qq" : {
         "usingComponents" : true
+    },
+    "h5" : {
+        "sdkConfigs" : {
+            "maps" : {
+                "qqmap" : {
+                    "key" : "J54BZ-7V565-J5ZIE-QINRD-XHIO6-INFTM"
+                }
+            }
+        }
     }
 }

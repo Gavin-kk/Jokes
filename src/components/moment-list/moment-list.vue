@@ -21,12 +21,18 @@
       </view>
       <text class="content" @tap="openMomentDetail">{{ data.content }}</text>
       <view class="image" v-if="imageShow" @tap="openMomentDetail">
-        <image class="content-img" :src="data.pic" mode="aspectFill" @tap="preViewImage"></image>
+        <swiper style="width: 100%; height: 100%" indicator-dots>
+          <block v-for="(item, index) in data.contentImg" :key="index">
+            <swiper-item>
+              <image class="content-img" :src="item" mode="aspectFill" @tap="preViewImage"></image>
+            </swiper-item>
+          </block>
+        </swiper>
       </view>
       <view v-if="videoShow" class="video-box">
         <!--当内容是视频时显示-->
         <video class="video" :src="data.video.videoUrl" :poster="data.video.pic" loop @play="videoPlay"></video>
-        <view class="tag" v-if="data.video" @tap="openMomentDetail">
+        <view class="tag" v-if="data.video">
           <view class="play-count" v-if="!isTheEnd">{{ data.video.playCount }}</view>
         </view>
       </view>
@@ -34,8 +40,10 @@
         <image class="content-img" :src="data.share.pic" mode="aspectFill"></image>
         <text class="share-content">{{ data.content }}</text>
       </view>
+
       <view class="bottom-bar">
-        <view class="bottom-left">{{ data.address }} </view>
+        <!--        <view class="bottom-left">{{ data.address }} </view>-->
+        <view class="address">呼和浩特市-呼和浩特市人民政府</view>
         <view class="bottom-right">
           <view class="iconfont icon-zhuanfa" @tap="share">
             <text class="count">{{ data.shareCount }}</text>
@@ -53,14 +61,10 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop, Watch } from 'vue-property-decorator';
-// eslint-disable-next-line import/no-self-import
+import { Vue, Component, Prop } from 'vue-property-decorator';
 import GenderTag from '@components/gender-tag/gender-tag.vue';
-// eslint-disable-next-line import/no-self-import
 import { ArticleType, IArticle } from '@store/module/home';
-import { IUser } from '@store/module/user';
 import { likeArticleRequest } from '@services/home.request';
-// import { IMomentList } from './moment-list';
 
 @Component({
   components: { GenderTag },
@@ -98,7 +102,7 @@ export default class MomentList extends Vue {
   // 预览图片
   preViewImage() {
     uni.previewImage({
-      urls: [this.data?.pic || ''],
+      urls: this.data?.contentImg || [''],
     });
   }
 
@@ -121,7 +125,7 @@ export default class MomentList extends Vue {
 
   openMomentDetail() {
     if (!this.isTheEnd) {
-      uni.showToast({ title: '打开动态详情' });
+      uni.navigateTo({ url: `/pages/content/content?id=${this.data.id}` });
     }
   }
 
@@ -327,11 +331,14 @@ export default class MomentList extends Vue {
       color: #cdcdcd;
       font-size: 28rpx;
 
-      .bottom-left {
+      .address {
+        font-size: 25rpx;
+        @include ellipsis(400rpx);
       }
 
       .bottom-right {
-        @include centered;
+        display: flex;
+        align-items: center;
         height: 100%;
 
         .iconfont {

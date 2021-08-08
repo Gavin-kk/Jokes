@@ -34,7 +34,7 @@
           :src="momentData.pic"
           mode="aspectFill"
           lazy-load
-          @tap="previewImage(momentData.pic)"
+          @tap="previewImage(momentData.contentImg)"
         />
       </template>
       <template v-else-if="shareShow">
@@ -137,8 +137,8 @@ export default class Dynamic extends Vue {
   }
 
   // 预览图片
-  previewImage(picUrl: string) {
-    uni.previewImage({ urls: [picUrl] });
+  previewImage(picUrl: string[]) {
+    uni.previewImage({ urls: picUrl });
   }
 
   async likeRequest(type: number) {

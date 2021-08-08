@@ -15,3 +15,6 @@ export const getCommentChildListRequest = (commentId: number) =>
   request.get('/comment/list', { params: { commentId } });
 // 发送评论
 export const sendCommentRequest = (payload: ISendCommentPayload) => request.post('/comment/publish', payload);
+// 通过经纬度获取地址
+export const getAddressByLatitudeAndLongitudeRequest = (payload: { longitude: number; latitude: number }) =>
+  request.get('/geography/geocode', { params: payload });

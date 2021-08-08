@@ -101,14 +101,12 @@ export default class Login extends Vue {
           VCode: this.verificationCode,
         },
       );
-      uni.showToast({ title: '发送验证码登录请求' });
     } else {
       // 账号密码登录
       this.$store.dispatch(`${ModuleConstant.userModule}/${UserStoreActionType.SEND_ACCOUNT_PASSWORD_TO_LOG_IN}`, {
         username: this.username,
         password: this.password,
       });
-      uni.showToast({ title: '发送账号密码登录' });
     }
   }
 

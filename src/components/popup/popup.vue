@@ -1,44 +1,32 @@
 <template>
-  <block v-if="show">
-    <uni-popup ref="popup" type="center" :mask-click="true">
-      <view class="popup-box">
-        <view class="m-img-box">
-          <image class="img" src="/static/bullet-frame-icon.png" mode="aspectFit"></image>
+  <view>
+    <view class="mask" v-if="show"></view>
+    <block v-if="show">
+      <view class="animate__animated animate__bounceInUp">
+        <view class="popup-box">
+          <view class="m-img-box">
+            <image class="img" src="/static/bullet-frame-icon.png" mode="aspectFit"></image>
+          </view>
+          <view class="text">1. 涉及黄色,政治,广告及骚扰信息</view>
+          <view class="text">2. 涉及人身攻击</view>
+          <view class="text">3. 留联系方式,透露他人隐私</view>
+          <view class="text">一经核实将被封禁, 情节严重者永久封禁</view>
+          <view class="realize" @tap="confirm">我知道了</view>
+          <view class="placeholder"></view>
         </view>
-        <view class="text">1. 涉及黄色,政治,广告及骚扰信息</view>
-        <view class="text">2. 涉及人身攻击</view>
-        <view class="text">3. 留联系方式,透露他人隐私</view>
-        <view class="text">一经核实将被封禁, 情节严重者永久封禁</view>
-        <view class="realize" @tap="confirm">我知道了</view>
-        <view class="placeholder"></view>
       </view>
-    </uni-popup>
-  </block>
+    </block>
+  </view>
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop, Watch } from 'vue-property-decorator';
+import { Vue, Component, Prop } from 'vue-property-decorator';
 import UniPopup from '@dcloudio/uni-ui/lib/uni-popup/uni-popup.vue';
 
 @Component({ components: { UniPopup } })
 export default class Popup extends Vue {
   @Prop({ type: Boolean, default: false })
   private show!: boolean;
-
-  mounted() {
-    if (this.show) {
-      (this.$refs.popup as any).open();
-    }
-  }
-
-  @Watch('show')
-  change(newShow: boolean) {
-    if (newShow) {
-      (this.$refs.popup as any).open();
-    } else {
-      (this.$refs.popup as any).close();
-    }
-  }
 
   confirm() {
     //  点击确认执行的函数
@@ -50,7 +38,18 @@ export default class Popup extends Vue {
 <style lang="scss" scoped>
 @import 'src/common/style/global';
 
+.mask {
+  position: fixed;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  top: 0;
+  background: #bbbbbb88;
+}
 .popup-box {
+  position: fixed;
+  left: 50%;
+  transform: translate(-50%, -50%);
   width: 650rpx;
   background: #ffffff;
   border-radius: 10rpx;

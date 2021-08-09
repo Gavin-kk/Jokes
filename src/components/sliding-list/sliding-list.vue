@@ -27,7 +27,7 @@ import PullUpLoading from '@components/pull-up-loading/pull-up-loading.vue';
 import Empty from '@components/empty/empty.vue';
 import { IClassifyArticleList } from '@pages/home/home.vue';
 import lodash from 'lodash';
-import { IArticle } from '@store/module/home';
+
 import { LoadingStatus } from './loading-status';
 
 @Component({ components: { Empty, PullUpLoading, Dynamic } })

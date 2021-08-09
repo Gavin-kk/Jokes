@@ -10,6 +10,7 @@ export interface IClassify {
   id: number;
   title: string;
   status: number;
+  count: number;
   createAt: string;
   updateAt: string;
 }
@@ -54,6 +55,5 @@ export interface IArticle {
 
 export interface IHomeState {
   classifyList: IClassify[];
-  articleList: IArticle[];
   [key: string]: unknown;
 }

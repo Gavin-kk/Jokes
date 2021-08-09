@@ -1,4 +1,4 @@
-import { ArticleType, IArticle, IUserArticlesLikes, IVideo } from '@store/module/home';
+import { ArticleType, IArticle, IUserArticlesLikes, IVideo } from '@pages/home/store';
 import { IUser } from '@store/module/user';
 
 export interface IReply {

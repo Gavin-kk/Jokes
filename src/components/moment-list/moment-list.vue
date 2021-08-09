@@ -43,7 +43,7 @@
 
       <view class="bottom-bar">
         <!--        <view class="bottom-left">{{ data.address }} </view>-->
-        <view class="address">呼和浩特市-呼和浩特市人民政府</view>
+        <view class="address">{{ data.address }}</view>
         <view class="bottom-right">
           <view class="iconfont icon-zhuanfa" @tap="share">
             <text class="count">{{ data.shareCount }}</text>
@@ -63,17 +63,23 @@
 <script lang="ts">
 import { Vue, Component, Prop } from 'vue-property-decorator';
 import GenderTag from '@components/gender-tag/gender-tag.vue';
-import { ArticleType, IArticle } from '@store/module/home';
+import { ArticleType, IArticle } from '@pages/home/store';
 import { likeArticleRequest } from '@services/home.request';
+import { namespace } from 'vuex-class';
+import { IUser } from '@store/module/user';
+
+const UserModule = namespace('userModule');
 
 @Component({
   components: { GenderTag },
 })
 export default class MomentList extends Vue {
+  @UserModule.State('userInfo')
+  private readonly userInfo!: IUser;
   @Prop(Object)
-  private data!: IArticle;
+  private readonly data!: IArticle;
   @Prop({ type: Boolean, default: false })
-  private isTheEnd!: boolean;
+  private readonly isTheEnd!: boolean;
   private isLike: number | null = null;
   private likeCount: number | null = null;
   private isFollow: boolean | null = null;
@@ -93,7 +99,8 @@ export default class MomentList extends Vue {
   created() {
     this.isLike = (this.data?.userArticlesLikes && this.data.userArticlesLikes[0]?.isLike) || 0;
     this.likeCount = this.data?.likeCount || 0;
-    this.isFollow = !!(this.data?.user.followed && this.data.user.followed[0]);
+    this.isFollow =
+      !!(this.data?.user.followed && this.data.user.followed[0]) || this.data?.user.username === this.userInfo.username;
   }
 
   videoPlay() {

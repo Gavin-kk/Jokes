@@ -1,4 +1,5 @@
 import { request } from '@services/service';
+import { PublishDto } from '@pages/release/release.vue';
 // 删除图片
 export const deleteUploadImage = (imageName: string) =>
   request.delete('/upload/image', {
@@ -16,4 +17,4 @@ export const deleteUploadVideo = (videoName: string) =>
     },
   });
 // 发布文章
-export const postArticleRequest = (payload: any) => request.post('/article/publish', payload);
+export const postArticleRequest = (payload: PublishDto) => request.post('/article/publish', payload);

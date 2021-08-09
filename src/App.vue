@@ -2,7 +2,6 @@
 import Vue from 'vue';
 import { ModuleConstant } from '@store/module.constant';
 import { UserStoreActionType } from '@store/module/user/constant';
-import { ArticleStoreActionType } from '@store/module/article/constant';
 
 export default Vue.extend({
   mpType: 'app',

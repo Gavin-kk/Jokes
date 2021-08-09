@@ -1,6 +1,9 @@
+import momentModule from '@pages/moment/store';
+
 export enum ModuleConstant {
   systemModule = 'systemModule',
   userModule = 'userModule',
-  articleModule = 'articleModule',
+  mineModule = 'mineModule',
   homeModule = 'homeModule',
+  momentModule = 'momentModule',
 }

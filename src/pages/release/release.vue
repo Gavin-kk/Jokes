@@ -5,7 +5,7 @@
       <view class="dropDown">
         <view class="select-box">
           <view class="selected-title" @tap="showSelectList">
-            {{ selectList[currentSelectedIndex].name }}
+            {{ selectList[currentSelectedIndex] }}
           </view>
         </view>
         <view class="iconfont icon-xialazhankai"></view>
@@ -44,8 +44,18 @@
       </template>
     </view>
     <!--选择内容所属分类-->
-    <view class="select-article-classify"> 文章分类 </view>
-    <view class="select-article-classify"> 话题分类 </view>
+    <template v-if="articleOrTopic">
+      <view class="select-article-classify" @tap="openSelectClassify">
+        <image src="/static/icon-dianyu.png" class="select-article-classify-icon"></image>
+        <text>{{ selectedClassifyTitle }} </text>
+      </view>
+    </template>
+    <template v-else>
+      <view class="select-article-classify" @tap="openSelectClassify">
+        <image src="/static/icon-dianyu.png" class="select-article-classify-icon"></image>
+        <text>{{ selectedTopicDataTitle }} </text>
+      </view>
+    </template>
     <!--  选择发布本文章时的地区-->
     <view class="address-select">
       <view class="left">
@@ -53,9 +63,9 @@
         <view class="loading-box">
           <loading :loading="loading" class="loading"></loading>
         </view>
-        <view :class="[{ horizontalLine: !position }, 'address']" @tap="reacquireLocation">{{
-          geographicLocation
-        }}</view>
+        <view :class="[{ horizontalLine: !position }, 'address']" @tap="reacquireLocation">
+          {{ geographicLocation }}
+        </view>
       </view>
       <view class="right" @tap="switchPosition">
         <view class="ball" :style="{ transform: `translateX(${animationSlider})` }"></view>
@@ -75,27 +85,73 @@ import uniIcons from '@dcloudio/uni-ui/lib/uni-icons/uni-icons.vue';
 import uniFilePicker from '@dcloudio/uni-ui/lib/uni-file-picker/uni-file-picker.vue';
 import UploadImg from '@components/upload-img/upload-img.vue';
 import Popup from '@components/popup/popup.vue';
-import { ArticleType } from '@store/module/home';
+import { ArticleType, IClassify } from '@pages/home/store';
 import Loading from '@components/loading/loading.vue';
 import { IResponse } from '@services/interface/response.interface';
 import RoundScheduleProgress from '@components/round-schedule-progress/round-schedule-progress.vue';
-import { deleteUploadVideo } from '@services/release.request';
+import { deleteUploadVideo, postArticleRequest } from '@services/release.request';
+import { namespace } from 'vuex-class';
+import { ITopic } from '@pages/moment/store';
+import { getAddressByLatitudeAndLongitudeRequest } from '@services/common.request';
 
-type Select = { id: number; name: string };
+export const enum ArticleTypeEnum {
+  article,
+  topic,
+}
+
+export interface PublishDto {
+  // @ApiProperty({ description: '文章内容' })
+  // @IsNotEmpty({ message: '内容不可为空' })
+  content: string;
+  // @ApiProperty({ description: '文章的图片', required: false })
+  contentImg?: string[];
+  // @ApiProperty({ description: '隐私状态 0所有人可见 1 仅自己可见' })
+  // @IsNumber({ allowNaN: false }, { message: '不是number类型' })
+  // @IsIn([0, 1], { message: '参数错误' })
+  privacyStatus: 0 | 1;
+  // @ApiProperty({ description: '文章的类型 0 代表图文 1代表纯文字 2代表分享 3视频' })
+  // @IsNumber({ allowNaN: false }, { message: '不是number类型' })
+  // @IsIn([0, 1, 2, 3], { message: '参数错误' })
+  type: ArticleType;
+  // @ApiProperty({ description: '当type等于3时 此项必填 视频的url' })
+  videoUrl?: string;
+  // @ApiProperty({ description: '当type等于3时 此项必填 视频的封面' })
+  videoPic?: string;
+  // @ApiProperty({ description: '文章分类的id', required: false })
+  ACId?: number;
+  // @ApiProperty({ description: '文章所属的分类 0 代表文章分类 1 代表话题分类' })
+  isTopic?: ArticleTypeEnum;
+  // @ApiProperty({
+  //   description: '话题分类的id 文章如果属于话题分类 则此参数必须传递',
+  // })
+  topicId?: number;
+  // @ApiProperty({
+  //   description: '发布文章时所在的地理位置 如果用户选择隐藏就发送 在某个不知名的地方',
+  // })
+  address?: string;
+  // @ApiProperty({
+  //   description: '引用文章的id 可以为空 number类型',
+  //   required: false,
+  // })
+  shareId?: number;
+}
+
 let timer: number | undefined;
+const HomeModule = namespace('homeModule');
 @Component({ components: { RoundScheduleProgress, Loading, Popup, UploadImg, UniNavBar, uniIcons, uniFilePicker } })
 export default class Release extends Vue {
+  @HomeModule.State('classifyList')
+  private classifyList!: IClassify[];
+  // 当前选择的隐私状态的索引
   private currentSelectedIndex: number = 0;
-  private selectList: Select[] = [
-    { id: 2, name: '所有人可见' },
-    { id: 3, name: '仅自己可见' },
-  ];
+  // 隐私状态
+  private selectList: string[] = ['所有人可见', '仅自己可见'];
   // 获取位置的loading
   private loading: boolean = true;
   // 输入框输入的内容
   private inputValue: string = '';
-  // 要上传的文件 blob 地址
-  private imageBlobUrl: string[] = [];
+  // 要上传的文件服务器url地址
+  private imageUrl: string[] = [];
   // 是否显示警告提示框
   private show: boolean = false;
   // 是否不可以返回
@@ -114,6 +170,12 @@ export default class Release extends Vue {
   private uploadVideoLoading: boolean = false;
   // 视频上传的进度
   private uploadVideUploadProgress: number = 0;
+  // 文章的类型 可以是article或topic
+  private articleType: ArticleTypeEnum = ArticleTypeEnum.article;
+  // 选中文章分类数据
+  private selectedClassify: IClassify | Record<string, unknown> = {};
+  // 选中的话题数据
+  private selectedTopicData: ITopic | Record<string, unknown> = {};
 
   get animationSlider() {
     return this.position ? '100%' : '0';
@@ -125,9 +187,108 @@ export default class Release extends Vue {
   get videoIsExists(): boolean {
     return this.videoUrl !== '';
   }
+  // 判断请求 文章分类还是话题分类 页面显示话题分类还是文章分类
+  get articleOrTopic(): boolean {
+    return this.articleType === ArticleTypeEnum.article;
+  }
+
+  get selectedTopicDataTitle(): string {
+    return (this.selectedTopicData.title as string) || '选择话题分类';
+  }
+  get selectedClassifyTitle(): string {
+    return (this.selectedClassify.title as string) || '选择文章分类';
+  }
 
   created() {
     this.getLocation();
+    this.getPage();
+  }
+
+  onShow() {
+    uni.$on('selectedTopic', (data: ITopic) => {
+      this.selectedTopicData = data;
+    });
+    uni.$on('selectedClassify', (data: IClassify) => {
+      this.selectedClassify = data;
+    });
+  }
+
+  // 发布动态
+  async publishNews() {
+    if (!this.checkInput()) return;
+
+    const publishDto: PublishDto = {
+      content: this.inputValue,
+      privacyStatus: this.currentSelectedIndex as 0 | 1,
+      type: ArticleType.PlainText,
+      address:
+        !!this.geographicLocation && this.geographicLocation !== '地址获取失败' && this.position
+          ? this.geographicLocation
+          : undefined,
+    };
+    if (this.articleType === ArticleTypeEnum.article) {
+      publishDto.ACId = this.selectedClassify.id as number;
+    } else {
+      publishDto.topicId = this.selectedTopicData.id as number;
+      publishDto.isTopic = ArticleTypeEnum.topic;
+    }
+
+    switch (true) {
+      case this.imageUrl.length !== 0 && this.inputValue !== '':
+        publishDto.contentImg = this.imageUrl;
+        publishDto.type = ArticleType.Graphic;
+        break;
+      case this.videoUrl !== '' && this.inputValue !== '':
+        publishDto.videoPic = this.videoPic;
+        publishDto.videoUrl = this.videoUrl;
+        publishDto.type = ArticleType.Video;
+        break;
+      case this.imageUrl.length === 0 && this.inputValue !== '' && this.videoUrl === '' && this.videoPic === '':
+        // 纯文
+        publishDto.type = ArticleType.PlainText;
+        break;
+      default:
+    }
+    try {
+      await postArticleRequest(publishDto);
+      uni.showToast({ title: '发布成功' });
+      this.isReturns = false;
+      uni.navigateBack({ delta: 1 });
+    } catch ({ response }) {
+      console.log(response);
+    }
+  }
+
+  checkInput(): boolean {
+    if (this.inputValue === '') {
+      uni.showToast({ title: '说点什么吧', icon: 'none' });
+      return false;
+    }
+    if (this.articleType === ArticleTypeEnum.article && !this.selectedClassify.id) {
+      uni.showToast({ title: '请选择文章分类', icon: 'none' });
+      return false;
+    }
+    if (this.articleType === ArticleTypeEnum.topic && !this.selectedTopicData.id) {
+      uni.showToast({ title: '请选择话题分类', icon: 'none' });
+      return false;
+    }
+    return true;
+  }
+
+  // 获取当前是那一页跳转来的 用于判断显示是属于文章列表还是属于话题列表
+  getPage() {
+    const pages: any = getCurrentPages();
+    const {
+      options: { type },
+    }: { options: { type: string } } = pages[pages.length - 1];
+    if (+type !== ArticleTypeEnum.article) {
+      this.articleType = ArticleTypeEnum.topic;
+    }
+  }
+
+  // 打开选择话题或文章分类列表
+  openSelectClassify() {
+    uni.navigateTo({ url: `/pages/select-classify/select-classify?type=${this.articleType}` });
   }
 
   getLocation() {
@@ -136,19 +297,19 @@ export default class Release extends Vue {
       this.geographicLocation = '地址获取失败';
       this.loading = false;
     }, 5000);
-    // uni.getLocation({
-    //   success: async ({ latitude, longitude }) => {
-    //     const result: any = await getAddressByLatitudeAndLongitudeRequest({ latitude, longitude });
-    //     this.geographicLocation = `${result.data.addressComponent.city}-${result.data.addressComponent.district}`;
-    //     this.loading = false;
-    //     clearInterval(timer);
-    //   },
-    // });
+    uni.getLocation({
+      success: async ({ latitude, longitude }) => {
+        const result: any = await getAddressByLatitudeAndLongitudeRequest({ latitude, longitude });
+        this.geographicLocation = `${result.data.addressComponent.city}-${result.data.addressComponent.district}`;
+        this.loading = false;
+        clearInterval(timer);
+      },
+    });
   }
+
   // 发布视频或发布图片
   async releaseTypeChange() {
     if (this.releaseType === '发布图片' && this.videoUrl) {
-      // uni.showToast({ title: '请删除视频以切换发布图片', icon: 'none' });
       // 删除的图片名称;
       const urlArr = this.videoUrl.split('/');
       // 发送删除请求
@@ -203,9 +364,10 @@ export default class Release extends Vue {
                   return;
                 }
                 this.uploadVideoLoading = false;
-                uni.hideLoading();
                 this.videoUrl = videoUrl.data.success[videoUrl.data.success.length - 1].videoUrl;
                 this.videoPic = videoUrl.data.success[videoUrl.data.success.length - 1].coverUrl;
+                console.log(videoUrl.data.success[videoUrl.data.success.length - 1].videoUrl);
+                uni.hideLoading();
               },
               fail: () => {
                 uni.showToast({ title: '上传错误', icon: 'none' });
@@ -228,10 +390,9 @@ export default class Release extends Vue {
 
   // 显示下拉框
   showSelectList() {
-    const itemList: string[] = this.selectList.map((item) => item.name);
     // 显示选择框
     uni.showActionSheet({
-      itemList,
+      itemList: this.selectList,
       success: (res) => (this.currentSelectedIndex = res.tapIndex),
     });
   }
@@ -251,7 +412,7 @@ export default class Release extends Vue {
   }
 
   imageListChange(imageList: string[]) {
-    this.imageBlobUrl = imageList;
+    this.imageUrl = imageList;
   }
 
   // 用户点击提示框确认
@@ -266,29 +427,9 @@ export default class Release extends Vue {
     });
   }
 
-  // 发布动态
-  publishNews(): void {
-    let type: ArticleType | null = null;
-    switch (true) {
-      case this.imageBlobUrl.length !== 0 && this.inputValue !== '':
-        type = ArticleType.Graphic;
-        break;
-      case this.imageBlobUrl.length === 0 && this.inputValue !== '':
-        // 纯文
-        type = ArticleType.PlainText;
-        break;
-      case this.videoUrl !== '' && this.inputValue !== '':
-        type = ArticleType.Video;
-        break;
-      default:
-    }
-    // if()
-    uni.showToast({ title: '发布成功' });
-  }
-
   // 监听 uni.navigateBack 的返回事件 如果返回为true 则不跳转 false 为返回
   onBackPress(): boolean {
-    if (!this.imageBlobUrl.length && !this.inputValue.length) {
+    if (!this.imageUrl.length && !this.inputValue.length) {
       return false;
     }
 
@@ -377,6 +518,7 @@ export default class Release extends Vue {
   height: 100rpx;
   padding: 20rpx;
   box-sizing: border-box;
+  border-bottom: 1px solid $borderColor;
 
   .left {
     position: relative;
@@ -399,8 +541,9 @@ export default class Release extends Vue {
       position: absolute;
     }
     .location-icon {
-      width: 50rpx;
-      height: 50rpx;
+      width: 40rpx;
+      height: 40rpx;
+      margin-right: 10rpx;
     }
     .address {
       font-size: 30rpx;
@@ -453,5 +596,22 @@ export default class Release extends Vue {
   justify-content: center;
   align-items: center;
   width: 100%;
+}
+
+.select-article-classify {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  height: 100rpx;
+  box-sizing: border-box;
+  padding: 20rpx;
+  font-size: 30rpx;
+  border-top: 1px solid $borderColor;
+  border-bottom: 1px solid $borderColor;
+  .select-article-classify-icon {
+    width: 40rpx;
+    height: 40rpx;
+    margin-right: 10rpx;
+  }
 }
 </style>

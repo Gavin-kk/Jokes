@@ -10,7 +10,7 @@
 
 <script lang="ts">
 import { Vue, Component, Prop } from 'vue-property-decorator';
-import { IClassify } from '@store/module/home';
+import { IClassify } from '@pages/home/store';
 
 @Component({})
 export default class HomeTopBar extends Vue {

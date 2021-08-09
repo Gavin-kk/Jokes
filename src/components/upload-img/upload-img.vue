@@ -26,8 +26,10 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Emit, Prop, Watch } from 'vue-property-decorator';
+import { Vue, Component } from 'vue-property-decorator';
 import permision from '@utils/permission';
+import { IResponse } from '@services/interface/response.interface';
+import { deleteUploadImage } from '@services/release.request';
 
 const sourceType = [['camera'], ['album'], ['camera', 'album']];
 const sizeType = [['compressed'], ['original'], ['compressed', 'original']];
@@ -70,8 +72,26 @@ export default class UploadImg extends Vue {
           ? 9 - this.imageList.length
           : this.count[this.countIndex],
       success: (res) => {
-        this.imageList = this.imageList.concat(res.tempFilePaths);
-        this.$emit('imageListChange', this.imageList);
+        // eslint-disable-next-line no-restricted-syntax
+        for (const filePath of res.tempFilePaths as string[]) {
+          uni.uploadFile({
+            filePath,
+            name: 'files',
+            url: 'http://localhost:5000/api/v1/upload/images',
+            success: (response) => {
+              const data: IResponse<{ success: string[]; notSupport: string[]; restricted: string[] }> = JSON.parse(
+                response.data,
+              );
+              this.imageList.push(...data.data.success);
+              this.$emit('imageListChange', this.imageList);
+            },
+            header: {
+              Authorization: `Bearer ${uni.getStorageSync('_token')}`,
+            },
+          });
+        }
+
+        // this.imageList = this.imageList.concat(res.tempFilePaths);
       },
       fail: (err) => {
         // #ifdef APP-PLUS
@@ -145,8 +165,14 @@ export default class UploadImg extends Vue {
     uni.showModal({
       title: '提示',
       content: '是否删除图片',
-      success: (res) => {
+      success: async (res) => {
         if (res.confirm) {
+          const pathArr: string[] = this.imageList[index].split('/');
+          try {
+            await deleteUploadImage(pathArr[pathArr.length - 1]);
+          } catch (err) {
+            uni.showToast({ title: '删除失败', icon: 'none' });
+          }
           this.imageList.splice(index, 1);
           uni.showToast({ title: '删除成功' });
           this.$emit('imageListChange', this.imageList);

@@ -35,7 +35,7 @@ import { namespace } from 'vuex-class';
 import { ModuleConstant } from '@store/module.constant';
 import { UserStoreActionType } from '@store/module/user/constant';
 import { ICount, IUser } from '@store/module/user';
-import { ArticleStoreActionType } from '@store/module/article/constant';
+import { ArticleStoreActionType } from './store/constant';
 
 const UserModule = namespace('userModule');
 

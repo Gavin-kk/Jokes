@@ -4,7 +4,7 @@ import { ICount, IUser, IUserState } from '@store/module/user/state.interface';
 import { accountPasswordLogin, emailVerificationCodeLogin } from '@services/auth.request';
 import { IResponse } from '@services/interface/response.interface';
 import { editPasswordRequest, getUserInfoRequest } from '@services/user.request';
-import { IArticleState } from '@store/module/article';
+import { IArticleState } from '@pages/mine/store';
 import { getCountRequest } from '@services/common.request';
 import { UserStoreActionType } from './constant';
 

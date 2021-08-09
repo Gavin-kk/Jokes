@@ -23,13 +23,14 @@ import slidingList from '@components/sliding-list/sliding-list.vue';
 import { namespace } from 'vuex-class';
 import { ModuleConstant } from '@store/module.constant';
 import moment from 'moment';
-import { HomeStoreActionType } from '@store/module/home/constant';
-import { IArticle, IClassify } from '@store/module/home';
 import { LoadingStatus } from '@components/sliding-list/loading-status';
 import { getClassifyAllArticleRequest } from '@services/home.request';
 import { AxiosResponse } from 'axios';
 import { IResponse } from '@services/interface/response.interface';
 import lodash from 'lodash';
+import { ArticleTypeEnum } from '@pages/release/release.vue';
+import { HomeStoreActionType } from './store/constant';
+import { IArticle, IClassify } from './store';
 
 export interface IClassifyArticleList extends IClassify {
   articleList: IArticle[];
@@ -46,8 +47,6 @@ const HomeModule = namespace('homeModule');
 export default class Home extends Vue {
   @HomeModule.State('classifyList')
   private readonly classifyList!: IClassify[];
-  // @HomeModule.State('articleList')
-  // private readonly articleList!: IArticle[];
 
   private currentSwiperIndex: number = 0;
   private classifyArticleList: IClassifyArticleList[] = [];
@@ -122,7 +121,7 @@ export default class Home extends Vue {
       });
     } else if (e.index === 1) {
       uni.navigateTo({
-        url: '../release/release',
+        url: `../release/release?type=${ArticleTypeEnum.article}`,
       });
     }
   }

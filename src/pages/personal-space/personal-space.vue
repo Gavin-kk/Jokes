@@ -230,7 +230,7 @@ export default class PersonalSpace extends Vue {
   // 三个页面的loadingText
   private loadingText: string[] = [LoadingStatus.load, LoadingStatus.load, LoadingStatus.load];
   // 三个页面容器的 id
-  private idArr: string[] = ['home-height', 'content-height', 'dynamic-height'];
+  private idArr: string[] = ['store-height', 'content-height', 'dynamic-height'];
 
   // 是否显示右上角菜单
   private isShowMenu: boolean = false;

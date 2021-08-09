@@ -55,6 +55,21 @@
           "titleNView": false
         }
       }
+    },    {
+      "path": "pages/select-classify/select-classify",
+      "style": {
+        "app-plus": {
+          "scrollIndicator": "none",
+          "bounce": "none", // 关闭反弹效果
+          "titleNView": false,
+          "navigationStyle": "custom"
+        },
+        "h5": {
+          "bounce": "none", // 关闭反弹效果
+          "navigationStyle": "custom",
+          "titleNView": false
+        }
+      }
     },
     {
       "path": "pages/news/news",

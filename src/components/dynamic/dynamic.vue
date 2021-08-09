@@ -75,7 +75,7 @@
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator';
 import { handleNumber } from '@utils/handle-number';
-import { ArticleType, IArticle } from '@store/module/home';
+import { ArticleType, IArticle } from '@pages/home/store';
 import { namespace } from 'vuex-class';
 import { IUser } from '@store/module/user';
 import { likeArticleRequest } from '@services/home.request';
@@ -101,6 +101,22 @@ export default class Dynamic extends Vue {
   private whetherFollow: boolean = false;
   private isLike: number | null = null;
   private dislike: number | null = null;
+
+  get shareImage() {
+    return this.momentData?.share?.pic || this.momentData?.share?.video?.pic;
+  }
+  get videoShow(): boolean {
+    return this.momentData?.type === ArticleType.Video;
+  }
+  get imageShow(): boolean {
+    return this.momentData?.type === ArticleType.Graphic;
+  }
+  get textShow(): boolean {
+    return this.momentData?.type === ArticleType.PlainText;
+  }
+  get shareShow(): boolean {
+    return this.momentData?.type === ArticleType.Share && (!!this.momentData.share.pic || !!this.momentData.video?.pic);
+  }
 
   created() {
     this.likeCount = this.momentData.likeCount;
@@ -180,22 +196,6 @@ export default class Dynamic extends Vue {
       this.dontLikeCount!++;
     }
     await this.likeRequest(0);
-  }
-
-  get shareImage() {
-    return this.momentData?.share?.pic || this.momentData?.share?.video?.pic;
-  }
-  get videoShow(): boolean {
-    return this.momentData?.type === ArticleType.Video;
-  }
-  get imageShow(): boolean {
-    return this.momentData?.type === ArticleType.Graphic;
-  }
-  get textShow(): boolean {
-    return this.momentData?.type === ArticleType.PlainText;
-  }
-  get shareShow(): boolean {
-    return this.momentData?.type === ArticleType.Share && (!!this.momentData.share.pic || !!this.momentData.video?.pic);
   }
 }
 </script>

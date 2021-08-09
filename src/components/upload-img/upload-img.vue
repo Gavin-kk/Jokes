@@ -26,7 +26,7 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component } from 'vue-property-decorator';
+import { Vue, Component, Prop, PropSync } from 'vue-property-decorator';
 import permision from '@utils/permission';
 import { IResponse } from '@services/interface/response.interface';
 import { deleteUploadImage } from '@services/release.request';
@@ -43,6 +43,15 @@ export default class UploadImg extends Vue {
   private sizeType: string[] = ['压缩', '原图', '压缩或原图'];
   private countIndex = 8;
   private count: number[] = [1, 2, 3, 4, 5, 6, 7, 8, 9];
+
+  @PropSync('cache', { type: Array, default: [] })
+  private imageCache!: string[];
+
+  created() {
+    if (this.imageCache.length > 0) {
+      this.imageList.push(...this.imageCache);
+    }
+  }
 
   previewImage(e: any) {
     const current = e.target.dataset.src;

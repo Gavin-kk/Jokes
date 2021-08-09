@@ -16,7 +16,7 @@ export default class NavBar extends Vue {
   @Prop({ type: String, default: '设置' })
   private title!: string;
 
-  @Prop({ type: String, default: '/pages/store/store' })
+  @Prop({ type: String, default: '/pages/home/home' })
   private pagePath!: string;
 
   clickLeft() {

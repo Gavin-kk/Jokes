@@ -15,5 +15,6 @@ export const actions = {
   async [MomentStoreActionType.GET_ALL_TOPICS](context: ActionContext<IMomentState, unknown>, pageNum: number) {
     const result: AxiosResponse<IResponse<ITopic[]>> = await getAllTopicsRequest(pageNum);
     context.commit(MomentStoreActionType.CHANGE_ALL_TOPICS, result.data.data);
+    return result.data.data;
   },
 };

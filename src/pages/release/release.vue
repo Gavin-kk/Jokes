@@ -39,7 +39,7 @@
       <template v-else>
         <!-- 上传图片 -->
         <view class="select-img">
-          <upload-img @imageListChange="imageListChange"></upload-img>
+          <upload-img @imageListChange="imageListChange" :cache.sync="imageCache"></upload-img>
         </view>
       </template>
     </view>
@@ -101,17 +101,12 @@ export const enum ArticleTypeEnum {
 
 export interface PublishDto {
   // @ApiProperty({ description: '文章内容' })
-  // @IsNotEmpty({ message: '内容不可为空' })
   content: string;
   // @ApiProperty({ description: '文章的图片', required: false })
   contentImg?: string[];
   // @ApiProperty({ description: '隐私状态 0所有人可见 1 仅自己可见' })
-  // @IsNumber({ allowNaN: false }, { message: '不是number类型' })
-  // @IsIn([0, 1], { message: '参数错误' })
   privacyStatus: 0 | 1;
   // @ApiProperty({ description: '文章的类型 0 代表图文 1代表纯文字 2代表分享 3视频' })
-  // @IsNumber({ allowNaN: false }, { message: '不是number类型' })
-  // @IsIn([0, 1, 2, 3], { message: '参数错误' })
   type: ArticleType;
   // @ApiProperty({ description: '当type等于3时 此项必填 视频的url' })
   videoUrl?: string;
@@ -176,7 +171,8 @@ export default class Release extends Vue {
   private selectedClassify: IClassify | Record<string, unknown> = {};
   // 选中的话题数据
   private selectedTopicData: ITopic | Record<string, unknown> = {};
-
+  // 图片缓存
+  private imageCache: string[] = [];
   get animationSlider() {
     return this.position ? '100%' : '0';
   }
@@ -191,7 +187,6 @@ export default class Release extends Vue {
   get articleOrTopic(): boolean {
     return this.articleType === ArticleTypeEnum.article;
   }
-
   get selectedTopicDataTitle(): string {
     return (this.selectedTopicData.title as string) || '选择话题分类';
   }
@@ -200,6 +195,12 @@ export default class Release extends Vue {
   }
 
   created() {
+    const cache: Record<string, any> = uni.getStorageSync('release');
+    // 读取并设置缓存
+    Object.keys(cache).forEach((item) => {
+      (this as any)[item] = cache[item];
+    });
+
     this.getLocation();
     this.getPage();
   }
@@ -253,6 +254,8 @@ export default class Release extends Vue {
       await postArticleRequest(publishDto);
       uni.showToast({ title: '发布成功' });
       this.isReturns = false;
+      // 清除缓存
+      uni.removeStorage({ key: 'release' });
       uni.navigateBack({ delta: 1 });
     } catch ({ response }) {
       console.log(response);
@@ -300,9 +303,13 @@ export default class Release extends Vue {
     uni.getLocation({
       success: async ({ latitude, longitude }) => {
         const result: any = await getAddressByLatitudeAndLongitudeRequest({ latitude, longitude });
-        this.geographicLocation = `${result.data.addressComponent.city}-${result.data.addressComponent.district}`;
         this.loading = false;
         clearInterval(timer);
+        if (!result.data.addressComponent.city.length || !result.data.addressComponent.district.length) {
+          this.geographicLocation = '地址获取失败';
+          return;
+        }
+        this.geographicLocation = `${result.data.addressComponent.city}-${result.data.addressComponent.district}`;
       },
     });
   }
@@ -435,15 +442,28 @@ export default class Release extends Vue {
 
     if (this.isReturns) {
       uni.showModal({
-        content: '是否保存为草稿',
+        content: '是否保存为草稿, 注意图片视频都不能保存哦',
         confirmText: '保存',
         cancelText: '不保存',
         success: (res) => {
           this.isReturns = false;
           if (res.confirm) {
-            uni.showToast({ title: '保存' });
+            uni.setStorage({
+              key: 'release',
+              data: {
+                currentSelectedIndex: this.currentSelectedIndex,
+                inputValue: this.inputValue,
+                imageUrl: this.imageUrl,
+                imageCache: this.imageUrl,
+                videoUrl: this.videoUrl,
+                videoPic: this.videoPic,
+                isVideo: this.isVideo,
+                selectedClassify: this.selectedClassify,
+                selectedTopicData: this.selectedTopicData,
+              },
+            });
           } else {
-            uni.showToast({ title: '不保存' });
+            uni.removeStorage({ key: 'release' });
           }
           uni.navigateBack({
             delta: 1,

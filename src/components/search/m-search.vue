@@ -37,6 +37,7 @@ export default class MSearch extends Vue {
   clearSearchInput() {
     this.searchValue = '';
     this.searchIsFocus = false;
+    this.$emit('clear');
   }
 
   // 提交搜索

@@ -20,7 +20,7 @@
         <slot name="time"></slot>
       </view>
       <text class="content" @tap="openMomentDetail">{{ data.content }}</text>
-      <view class="image" v-if="imageShow" @tap="openMomentDetail">
+      <view class="image" v-if="imageShow">
         <swiper style="width: 100%; height: 100%" indicator-dots>
           <block v-for="(item, index) in data.contentImg" :key="index">
             <swiper-item>
@@ -33,7 +33,7 @@
         <!--当内容是视频时显示-->
         <video class="video" :src="data.video.videoUrl" :poster="data.video.pic" loop @play="videoPlay"></video>
         <view class="tag" v-if="data.video">
-          <view class="play-count" v-if="!isTheEnd">{{ data.video.playCount }}</view>
+          <view class="play-count" v-if="!isTheEnd">{{ data.video.playCount }}次播放</view>
         </view>
       </view>
       <view v-if="shareShow" class="share-dynamic-box" @tap="openShare">
@@ -234,11 +234,30 @@ export default class MomentList extends Vue {
       color: #bbbbbb;
     }
     .video-box {
+      position: relative;
       width: 600rpx;
       height: 400rpx;
       .video {
         width: 100%;
         height: 100%;
+      }
+      .tag {
+        @include centered;
+        position: absolute;
+        right: 10rpx;
+        bottom: 10rpx;
+        z-index: 1;
+        font-size: 14rpx;
+        //max-width: 150rpx;
+        box-sizing: border-box;
+        padding: 10rpx;
+        border-radius: 5px;
+        overflow: hidden;
+        background: rgba(0, 0, 0, 0.5);
+
+        .play-count {
+          color: #dde4d2;
+        }
       }
     }
 
@@ -298,6 +317,7 @@ export default class MomentList extends Vue {
         color: #dde4d2;
 
         .play-count {
+          font-size: 28rpx;
           margin-right: 10rpx;
         }
       }

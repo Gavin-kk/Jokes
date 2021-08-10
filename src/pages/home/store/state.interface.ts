@@ -30,11 +30,11 @@ export interface IVideo {
 export interface IArticle {
   id: number;
   title: string;
-  pic: string;
+  pic: string | null;
   content: string;
   contentImg: string[];
   privacyStatus: number;
-  address: string;
+  address: string | null;
   type: ArticleType;
   shareCount: number;
   shareId: number | null;
@@ -46,7 +46,7 @@ export interface IArticle {
   createAt: string;
   updateAt: string;
   user: IUser;
-  share: IArticle;
+  share: IArticle | null;
   userArticlesLikes: IUserArticlesLikes[];
   commentCount: number;
   likeCount: number;

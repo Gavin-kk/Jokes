@@ -2,6 +2,8 @@ import { ActionContext } from 'vuex';
 import { AxiosResponse } from 'axios';
 import { getAllTopicsRequest, getTopicClassifyListRequest } from '@services/topic.request';
 import { IResponse } from '@services/interface/response.interface';
+import { getUserArticlesFollowedByUsersRequest } from '@services/moment.request';
+import { IArticle } from '@pages/home/store';
 import { IMomentState, ITopic, ITopicClassify } from './state.interface';
 import { MomentStoreActionType } from './constant';
 
@@ -16,5 +18,17 @@ export const actions = {
     const result: AxiosResponse<IResponse<ITopic[]>> = await getAllTopicsRequest(pageNum);
     context.commit(MomentStoreActionType.CHANGE_ALL_TOPICS, result.data.data);
     return result.data.data;
+  },
+  //  TODO 获取所有用户关注的用户发布的文章 按时间排序
+  async [MomentStoreActionType.GET_USER_ARTICLES_FOLLOWED_BY_USERS](
+    context: ActionContext<IMomentState, unknown>,
+    pageNum: number,
+  ) {
+    const result: AxiosResponse<IResponse<IArticle[]>> = await getUserArticlesFollowedByUsersRequest(pageNum);
+    if (result.data.data.length === 0) {
+      return false;
+    }
+    context.commit(`${MomentStoreActionType.CHANGE_USER_ARTICLES_FOLLOWED_BY_USERS}`, result.data.data);
+    return true;
   },
 };

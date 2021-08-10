@@ -41,7 +41,6 @@ import { Component, Vue } from 'vue-property-decorator';
 import HomeTopbar from '@components/home-topbar/home-topbar.vue';
 import { LoadingStatus } from '@components/sliding-list/loading-status';
 import MomentList from '@components/moment-list/moment-list.vue';
-import { IMomentList } from '@components/moment-list/moment-list';
 import PullUpLoading from '@components/pull-up-loading/pull-up-loading.vue';
 
 @Component({
@@ -56,7 +55,7 @@ export default class TopicDetail extends Vue {
 
   private list: {
     loading: LoadingStatus;
-    list: IMomentList[];
+    list: any[];
   }[] = [
     {
       loading: LoadingStatus.load,

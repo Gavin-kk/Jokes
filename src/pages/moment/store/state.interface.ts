@@ -1,3 +1,5 @@
+import { IArticle } from '@pages/home/store';
+
 export interface ITopicClassify {
   id: number;
   title: string;
@@ -20,5 +22,5 @@ export interface ITopic {
 export interface IMomentState {
   topicClassifyList: ITopicClassify[];
   topicList: ITopic[];
-  [key: string]: any;
+  followArticleList: IArticle[];
 }

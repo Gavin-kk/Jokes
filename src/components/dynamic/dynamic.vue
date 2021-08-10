@@ -115,7 +115,9 @@ export default class Dynamic extends Vue {
     return this.momentData?.type === ArticleType.PlainText;
   }
   get shareShow(): boolean {
-    return this.momentData?.type === ArticleType.Share && (!!this.momentData.share.pic || !!this.momentData.video?.pic);
+    return (
+      this.momentData?.type === ArticleType.Share && (!!this.momentData?.share?.pic || !!this.momentData.video?.pic)
+    );
   }
 
   created() {
@@ -325,16 +327,15 @@ export default class Dynamic extends Vue {
       @include centered;
       position: absolute;
       right: 10rpx;
-      bottom: 10rpx;
+      bottom: 20rpx;
       background: rgba(0, 0, 0, 0.5);
       border-radius: 5px;
       box-sizing: border-box;
-      padding: 10rpx;
+      padding: 15rpx;
       color: #dde4d2;
-      font-size: 15rpx;
 
       .play-count {
-        margin-right: 10rpx;
+        font-size: 15rpx;
       }
     }
   }

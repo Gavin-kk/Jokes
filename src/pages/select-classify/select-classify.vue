@@ -1,7 +1,7 @@
 <template>
   <view>
     <nav-bar :title="title" page-path="/pages/release/release"></nav-bar>
-    <view class="search-box">
+    <view class="search-box" v-if="!currentShowArticleOrTopic">
       <m-search @confirm="searchConfirm" @clear="clearSearchInput" />
     </view>
     <template v-if="currentShowArticleOrTopic">

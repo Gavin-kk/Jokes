@@ -470,6 +470,8 @@ export default class Release extends Vue {
           });
         },
       });
+    } else {
+      uni.removeStorage({ key: 'release' });
     }
     return this.isReturns;
   }

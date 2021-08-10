@@ -7,3 +7,6 @@ export const getClassifyAllArticleRequest = (pageNum: number, classifyId: number
 // 点赞文章
 export const likeArticleRequest = (payload: { articleId: number; type: number }) =>
   request.post('/article/like', payload);
+// 搜索文章
+export const searchArticlesRequest = (content: string, pageNum: number) =>
+  request.get('/article/search', { params: { content, pageNum } });

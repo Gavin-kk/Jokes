@@ -131,7 +131,8 @@
               "backgroundColor": "#f9f6f9",
               "borderRadius": "4px",
               "placeholder": "搜索新鲜事",
-              "placeholderColor": "#ccc"
+              "placeholderColor": "#ccc",
+              "autoFocus": true
             },
             "buttons": [
               {
@@ -139,7 +140,7 @@
                 "colorPressed": "#BBBBBB",
                 "float": "right",
                 "fontSize": "16px",
-                "text": "取消"
+                "text": "返回"
               }
             ]
           }

@@ -83,7 +83,6 @@ import HomeTopBar from '@components/home-topbar/home-topbar.vue';
 import moment from 'moment';
 import { getHoroscope } from '@src/utils/date-to-constellation';
 import MomentList from '@components/moment-list/moment-list.vue';
-import { IMomentList } from '@src/components/moment-list/moment-list';
 import PullUpLoading from '@components/pull-up-loading/pull-up-loading.vue';
 import { LoadingStatus } from '@components/sliding-list/loading-status';
 import DropDownMenu from '@components/drop-down-menu/drop-down-menu.vue';
@@ -124,90 +123,6 @@ export default class PersonalSpace extends Vue {
       this.$store.dispatch(`${ModuleConstant.userModule}/${UserStoreActionType.GET_USER_INFO}`);
     }
   }
-
-  // 内容页面的列表数据
-  private momentList: IMomentList[] = [
-    // 文字数据
-    {
-      id: +(Math.random() * 1000 + 1).toFixed(),
-      username: '名字',
-      gender: 1,
-      avatar: '/static/demo/userpic/8.jpg',
-      age: 22,
-      content:
-        '六道快手家常菜，11111111好吃又下4444444444444442让服务器额发去我服媳妇请问发撒地方去玩啊水电费为服装消费我去二商店下啊发顺丰 我温柔风去啊速度发送服务费饭，是覅额温暖危机让佛文件佛额我I今日份为节日哦就你发',
-      momentPic: null,
-      video: null,
-      share: null,
-      address: '上海',
-      forwardCount: 30,
-      commentCount: 30,
-      likeCount: 20,
-      isLike: 0, // 0未点赞 1点赞
-      isFollow: 0, // 是否关注
-    },
-    // 图片数据
-    {
-      id: +(Math.random() * 1000 + 1).toFixed(),
-      username: '4321dsafqwfeasdfqwtqwefsdagwqerewq ',
-      gender: 0,
-      avatar: '/static/demo/userpic/8.jpg',
-      age: 22,
-      content:
-        '六道快手家常菜，111111111让服务器而且我2222222222222222222222222222222222222222222222222222222222好吃又下饭，是覅额温暖危机让佛文件佛额我I今日份为节日哦就你发',
-      momentPic: '/static/demo/datapic/2.jpg',
-      video: null,
-      share: null,
-      address: '上海',
-      forwardCount: 30,
-      commentCount: 30,
-      likeCount: 20,
-      isLike: 0, // 0未点赞 1点赞
-      isFollow: 0, // 是否关注
-    },
-    // 视频数据
-    {
-      id: +(Math.random() * 1000 + 1).toFixed(),
-      username: '名字',
-      age: 32,
-      gender: 0,
-      avatar: '/static/demo/userpic/8.jpg',
-      content: '六道快手家常菜，11111111好吃又下饭，是覅额温暖危机让佛文件佛额我I今日份为节日哦就你发',
-      momentPic: '/static/demo/datapic/2.jpg',
-      video: {
-        playCount: 200000,
-        totalTime: '2:40',
-      },
-      share: null,
-      address: '上海',
-      forwardCount: 30,
-      commentCount: 30,
-      likeCount: 20,
-      isLike: 0, // 0未点赞 1点赞
-      isFollow: 0, // 是否关注
-    },
-    // 分享数据
-    {
-      id: +(Math.random() * 1000 + 1).toFixed(),
-      gender: 0,
-      age: 42,
-      username: '名字',
-      avatar: '/static/demo/userpic/8.jpg',
-      content: '六道快手家常菜，11111111好吃又下饭，是覅额温暖危机让佛文件佛额我I今日份为节日哦就你发',
-      video: null,
-      momentPic: null,
-      share: {
-        content: '我是标题',
-        momentPic: '/static/demo/datapic/2.jpg',
-      },
-      address: '上海',
-      forwardCount: 30,
-      commentCount: 30,
-      likeCount: 20,
-      isLike: 1, // 0未点赞 1点赞
-      isFollow: 0, // 是否关注
-    },
-  ];
 
   //  tab导航的title
   private tabBarList: { id: number; title: string }[] = [
@@ -358,7 +273,7 @@ export default class PersonalSpace extends Vue {
           isFollow: 0, // 是否关注
         };
         setTimeout(() => {
-          this.momentList.push(obj);
+          // this.momentList.push(obj);
 
           // 获取内容的数据
           this.$nextTick(() => {

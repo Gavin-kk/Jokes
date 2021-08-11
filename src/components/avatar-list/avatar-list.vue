@@ -6,12 +6,17 @@
       </view>
     </template>
     <view class="content">
-      <view class="title">{{ titleC }}</view>
-      <view class="bottom">
-        <view class="desc">{{ descC }}</view>
-        <view class="count"> 帖子 {{ countC }}</view>
+      <view class="content-child">
+        <view class="title">
+          {{ titleC }}
+        </view>
+        <view class="bottom">
+          <view class="desc" :style="{ height: !countC ? '100%' : '' }">{{ descC }}</view>
+          <view class="count" v-if="countC"> 帖子 {{ countC }}</view>
+        </view>
       </view>
     </view>
+    <view class="create-new-topic" v-if="isCreate" @tap="openCreateTopic"> 创建话题 </view>
   </view>
 </template>
 
@@ -20,7 +25,7 @@ import { Vue, Component, PropSync, Prop } from 'vue-property-decorator';
 
 @Component({})
 export default class AvatarList extends Vue {
-  @PropSync('title', { type: String, default: '1234' })
+  @PropSync('title', { type: String, default: '' })
   private titleC!: { title: string; count: number; pic: string };
   @PropSync('pic', { type: String, default: '' })
   private picC!: string;
@@ -28,8 +33,10 @@ export default class AvatarList extends Vue {
   private countC!: string;
   @PropSync('desc', { type: String, default: '' })
   private descC!: string;
-  @Prop({ type: Number, required: true })
+  @Prop({ type: Number, required: false })
   private index!: number;
+  @Prop({ type: Boolean, default: false })
+  private isCreate!: boolean;
 
   get picIsExists(): boolean {
     return this.picC !== '';
@@ -38,6 +45,10 @@ export default class AvatarList extends Vue {
   clickItem() {
     this.$emit('clickItem', this.index);
   }
+
+  openCreateTopic() {
+    this.$emit('openCreateTopic', this.titleC);
+  }
 }
 </script>
 
@@ -45,7 +56,7 @@ export default class AvatarList extends Vue {
 .box {
   display: flex;
   align-items: center;
-  height: 140rpx;
+  height: 160rpx;
   box-sizing: border-box;
   margin: 20rpx;
   border-bottom: 1px solid #e9e8e8;
@@ -54,8 +65,8 @@ export default class AvatarList extends Vue {
     display: flex;
     justify-content: center;
     align-items: center;
-    width: 100rpx;
-    height: 100rpx;
+    width: 120rpx;
+    height: 120rpx;
     border-radius: 10rpx;
     overflow: hidden;
     margin-right: 30rpx;
@@ -68,26 +79,49 @@ export default class AvatarList extends Vue {
   }
 
   .content {
+    display: flex;
+    align-items: center;
     flex-grow: 1;
     height: 120rpx;
 
-    .title {
-      display: flex;
-      align-items: center;
-      font-size: 32rpx;
-      font-weight: 500;
-      height: 45rpx;
-    }
-    .bottom {
-      height: 50rpx;
-      color: #bbbbbb;
-      font-size: 20rpx;
-      .desc {
-        @include ellipsis(550rpx);
-        height: 30rpx;
-        flex-shrink: 0;
+    .content-child {
+      height: 100%;
+      width: 300rpx;
+      .title {
+        @include ellipsis(300rpx);
+        font-size: 32rpx;
+        font-weight: 500;
+        height: 50rpx;
+        line-height: 50rpx;
+
+        &:after,
+        &:before {
+          content: '#';
+          font-size: 20rpx;
+          box-sizing: border-box;
+          padding: 5rpx;
+        }
+      }
+      .bottom {
+        height: 50rpx;
+        color: #bbbbbb;
+        font-size: 20rpx;
+        .desc {
+          display: flex;
+          align-items: center;
+          @include ellipsis(350rpx);
+          height: 30rpx;
+          flex-shrink: 0;
+        }
       }
     }
+  }
+
+  .create-new-topic {
+    font-size: 30rpx;
+    padding: 10rpx 15rpx 10rpx 15rpx;
+    background: #fae651;
+    border-radius: 10rpx;
   }
 }
 </style>

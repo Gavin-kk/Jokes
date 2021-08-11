@@ -14,6 +14,8 @@ export interface ITopic {
   pic: string;
   desc: string;
   topicClassifyId: number;
+  articleCount: number; // 该话题总文章数
+  todayCount: number; // 该话题今日文章数
   status: number;
   createAt: string;
   updateAt: string;

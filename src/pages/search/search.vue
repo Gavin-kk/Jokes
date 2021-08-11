@@ -82,7 +82,6 @@ export default class Search extends Vue {
     }
     try {
       const result: AxiosResponse<IResponse<IArticle[]>> = await searchArticlesRequest(this.value, pageNum);
-      console.log(result);
       if (result.data.data.length === 0) {
         // eslint-disable-next-line consistent-return
         return false;

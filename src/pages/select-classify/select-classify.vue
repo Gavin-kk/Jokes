@@ -136,20 +136,12 @@ export default class SelectClassify extends Vue {
       this.pullMsg = LoadingStatus.loading;
       this.pageNum++;
       await this.getData();
-      if (this.isBottom) {
-        this.pullMsg = LoadingStatus.air;
-      } else {
-        this.pullMsg = LoadingStatus.load;
-      }
+      this.isBottom ? (this.pullMsg = LoadingStatus.air) : (this.pullMsg = LoadingStatus.load);
     } else {
       this.pullMsg = LoadingStatus.loading;
       this.searchPageNum++;
       await this.getSearchData(this.searchContent, this.searchPageNum);
-      if (this.isBottom) {
-        this.pullMsg = LoadingStatus.air;
-      } else {
-        this.pullMsg = LoadingStatus.load;
-      }
+      this.isBottom ? (this.pullMsg = LoadingStatus.air) : (this.pullMsg = LoadingStatus.load);
     }
   }
 

@@ -161,6 +161,17 @@
           "titleNView": false
         }
       }
+    },    {
+      "path": "pages/create-topic/create-topic",
+      "style": {
+        "navigationStyle": "custom",
+        "app-plus": {
+          "animationType": "slide-in-bottom",
+          "animationDuration": 200,
+          "scrollIndicator": "none",
+          "titleNView": false
+        }
+      }
     },
     {
       "path": "pages/topic-classify/topic-classify",

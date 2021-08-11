@@ -66,6 +66,7 @@ export default class Moment extends Vue {
         this.totalHeight = info.windowHeight;
       },
     });
+    // 获取用户关注的文章
     this.$store.dispatch(
       `${ModuleConstant.momentModule}/${MomentStoreActionType.GET_USER_ARTICLES_FOLLOWED_BY_USERS}`,
       this.followPageNum,

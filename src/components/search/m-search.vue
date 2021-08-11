@@ -60,7 +60,6 @@ export default class MSearch extends Vue {
   display: flex;
   height: 100%;
   box-sizing: border-box;
-  border-radius: 10rpx;
   overflow: hidden;
 
   .topic-search {
@@ -69,10 +68,15 @@ export default class MSearch extends Vue {
     height: 65rpx;
     background: #f4f4f4;
     padding: 0 10rpx;
+    border-radius: 20rpx;
 
     .icon-sousuo {
+      font-size: 30rpx;
       text-align: center;
     }
+  }
+  .placeholder {
+    font-size: 10rpx;
   }
 
   .icon-guanbi {

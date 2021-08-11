@@ -9,9 +9,9 @@
         class="list-item"
         v-for="item in classifyTagListLimit"
         :key="item.id"
-        @tap="classifyTagClick(item.id, item.text)"
+        @tap="classifyTagClick(item.id, item.title)"
       >
-        {{ item.text }}
+        {{ item.title }}
       </view>
     </view>
   </view>
@@ -19,22 +19,27 @@
 
 <script lang="ts">
 import { Vue, Component, Prop } from 'vue-property-decorator';
+import { ITopicClassify } from '@pages/moment/store';
+import { namespace } from 'vuex-class';
+
+const MomentModule = namespace('momentModule');
 
 @Component({})
 export default class PopularCategories extends Vue {
-  @Prop(Array)
-  private classifyTagList!: { id: number; text: string }[];
-  // 限制 classifyTagList 长度为6
-  private classifyTagListLimit: { id: number; text: string }[] | null = null;
+  @MomentModule.State('topicClassifyList')
+  private topicClassifyList!: ITopicClassify[];
 
-  created() {
-    if (this.classifyTagList.length > 6) {
+  // 限制 classifyTagList 长度为6
+  // private classifyTagListLimit: ITopicClassify[] | null = null;
+  get classifyTagListLimit() {
+    if (this.topicClassifyList.length > 6) {
       // 只要前六个
-      this.classifyTagListLimit = this.classifyTagList.filter((_, index) => index < 6);
-    } else {
-      this.classifyTagListLimit = this.classifyTagList;
+      console.log(this.topicClassifyList.slice(0, 6));
+      return this.topicClassifyList.slice(0, 6);
     }
+    return this.topicClassifyList;
   }
+  created() {}
 
   classifyTagClick(id: number, text: string) {
     this.$emit('classifyTagClick', id, text);

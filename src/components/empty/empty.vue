@@ -20,8 +20,8 @@ export default class Empty extends Vue {}
   height: 600rpx;
 
   .empty-state-img {
-    width: 500rpx;
-    height: 500rpx;
+    width: 400rpx;
+    height: 400rpx;
   }
   .empty-state-text {
     font-size: 40rpx;

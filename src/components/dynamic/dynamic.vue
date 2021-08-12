@@ -12,7 +12,7 @@
         <view class="close-icon iconfont icon-guanbi" />
       </view>
     </view>
-    <view class="text-box" @tap="openDetail(momentData.id)">{{ momentData.content }}</view>
+    <view class="text-box" @tap="openDetail(momentData.id)">{{ momentData.title }}</view>
     <view class="img-box">
       <template v-if="videoShow">
         <video

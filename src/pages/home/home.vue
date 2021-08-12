@@ -27,7 +27,6 @@ import { LoadingStatus } from '@components/sliding-list/loading-status';
 import { getClassifyAllArticleRequest } from '@services/home.request';
 import { AxiosResponse } from 'axios';
 import { IResponse } from '@services/interface/response.interface';
-import lodash from 'lodash';
 import { ArticleTypeEnum } from '@pages/release/release.vue';
 import { HomeStoreActionType } from './store/constant';
 import { IArticle, IClassify } from './store';
@@ -55,18 +54,6 @@ export default class Home extends Vue {
     return !!this.classifyArticleList.length;
   }
 
-  @Watch('currentSwiperIndex')
-  async watchCurrentSwiperIndex(newIndex: number) {
-    if (lodash.isEmpty(this.classifyArticleList[newIndex].articleList)) {
-      //  请求相应页面数据
-      const result: AxiosResponse<IResponse<IArticle[]>> = await getClassifyAllArticleRequest(
-        this.classifyArticleList[newIndex].pageNum,
-        this.classifyList[newIndex].id,
-      );
-      this.classifyArticleList[newIndex].articleList = result.data.data;
-    }
-  }
-
   @Watch('classifyList')
   async watchClassifyList(classifyList: IClassify[]) {
     this.classifyArticleList = classifyList.map((item) => ({
@@ -76,6 +63,7 @@ export default class Home extends Vue {
       pageNum: 1,
     }));
     await this.getData();
+    await this.getData(this.currentSwiperIndex + 1);
   }
 
   created() {
@@ -84,11 +72,14 @@ export default class Home extends Vue {
 
   // 请求数据
   async getData(index: number = 0): Promise<boolean> {
+    if (!this.classifyArticleList[index]) return false;
     const result: AxiosResponse<IResponse<IArticle[]>> = await getClassifyAllArticleRequest(
       this.classifyArticleList[index].pageNum,
       this.classifyArticleList[index].id,
     );
-    if (!result.data.data.length) return false;
+    if (!result.data.data.length) {
+      return false;
+    }
     this.classifyArticleList[index].articleList.push(...result.data.data);
     return true;
   }
@@ -126,8 +117,15 @@ export default class Home extends Vue {
     }
   }
 
-  swiperIndexChange(index: number) {
+  async swiperIndexChange(index: number) {
     this.currentSwiperIndex = index;
+    if (this.classifyArticleList[index].articleList.length === 0) {
+      //  请求相应页面数据
+      this.getData(index);
+    }
+    if (this.classifyArticleList[index + 1] && this.classifyArticleList[index + 1].articleList.length === 0) {
+      this.getData(index + 1);
+    }
   }
 }
 </script>

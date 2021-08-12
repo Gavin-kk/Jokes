@@ -76,6 +76,7 @@ export default class TopicClassify extends Vue {
   }
 
   async created() {
+    this.getCurrentPagesIndex();
     uni.getSystemInfo({
       success: (data) => {
         this.windowHeight = data.windowHeight;
@@ -83,7 +84,18 @@ export default class TopicClassify extends Vue {
     });
     await this.getTopicClassifyList();
     this.classifyList = this.topicClassifyList.map(() => ({ loading: LoadingStatus.load, list: [], pageNum: 1 }));
-    await this.getTopicList();
+    await this.getTopicList(1, this.activeIndex);
+  }
+
+  // 获取上个页面传来的index
+  getCurrentPagesIndex() {
+    const pages: any = getCurrentPages();
+    const {
+      options: { index },
+    } = pages[pages.length - 1];
+    if (typeof index !== 'undefined') {
+      this.activeIndex = +index;
+    }
   }
 
   mounted() {
@@ -120,18 +132,15 @@ export default class TopicClassify extends Vue {
   }
 
   // 所在话题索引更改触发
-  async currentSwiperIndexChange(index: number) {
+  currentSwiperIndexChange(index: number) {
     this.activeIndex = index;
-    if (this.classifyList![index].list.length === 0) {
-      await this.getTopicList(this.classifyList![index].pageNum, index);
-    }
   }
 
   //   swiper 当前索引改变触发
   async swiperChange({ detail: { current } }: { detail: { current: number } }) {
     this.activeIndex = current;
-    if (this.classifyList![this.activeIndex].list.length === 0) {
-      await this.getTopicList(this.classifyList![this.activeIndex].pageNum, this.activeIndex);
+    if (this.classifyList![current].list.length === 0) {
+      await this.getTopicList(this.classifyList![current].pageNum, current);
     }
   }
 

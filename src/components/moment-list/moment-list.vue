@@ -76,7 +76,7 @@ const UserModule = namespace('userModule');
 export default class MomentList extends Vue {
   @UserModule.State('userInfo')
   private readonly userInfo!: IUser;
-  @Prop(Object)
+  @Prop({ type: Object, default: {} })
   private readonly data!: IArticle;
   @Prop({ type: Boolean, default: false })
   private readonly isTheEnd!: boolean;

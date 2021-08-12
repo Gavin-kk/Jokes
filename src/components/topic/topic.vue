@@ -20,8 +20,8 @@
     <template v-if="!isShowSearch">
       <!--    最近更新-->
       <view class="box">
-        <view class="title">最近更新</view>
-        <block v-for="item in recentlyUpdatedData" :key="item.id">
+        <view class="title">热门话题</view>
+        <block v-for="item in popularTopicList" :key="item.id">
           <topic-list :data="item" />
         </block>
       </view>
@@ -75,32 +75,24 @@ import { searchTopicRequest } from '@services/moment.request';
 import { AxiosResponse } from 'axios';
 import { IResponse } from '@services/interface/response.interface';
 import Empty from '@components/empty/empty.vue';
+import { getHotTopicsRequest } from '@services/topic.request';
 
 const MomentModule = namespace('momentModule');
 @Component({
   components: { Empty, AvatarList, PullUpLoading, topicList, PopularCategories, Banner, MSearch },
 })
 export default class Topic extends Vue {
-  private loading: LoadingStatus = LoadingStatus.load;
-  // 搜索的话题列表 如果该项有值 则只显示该项数据
-  // private topicList: ITopic[] = [];
   // 搜索的内容
   private searchContent: string = '';
+  // 搜索的话题列表 如果该项有值 则只显示该项数据
   private searchList: ITopic[] = [];
   // 搜索的页码
   private searchPageNum: number = 1;
   // 在搜索中是否没有匹配的话题
   private isMatching: boolean = false;
+  // 最热的话题
+  private popularTopicList: ITopic[] = [];
 
-  // 热门分类列表
-  // private classifyTagList: { id: number; text: string }[] = [
-  //   { id: +(Math.random() * 1000 + 1).toFixed(), text: '最新' },
-  //   { id: +(Math.random() * 1000 + 1).toFixed(), text: '游戏' },
-  //   { id: +(Math.random() * 1000 + 1).toFixed(), text: '情感' },
-  //   { id: +(Math.random() * 1000 + 1).toFixed(), text: '打卡' },
-  //   { id: +(Math.random() * 1000 + 1).toFixed(), text: '故事' },
-  //   { id: +(Math.random() * 1000 + 1).toFixed(), text: '喜爱' },
-  // ];
   // 轮播图数据
   private bannerList: { id: number; pic: string }[] = [
     { id: +(Math.random() * 1000 + 1).toFixed(), pic: '/static/demo/datapic/1.jpg' },
@@ -114,11 +106,10 @@ export default class Topic extends Vue {
 
   created() {
     this.getTopIcClassifyList();
+    //   获取热门话题
+    this.getHotTopics();
   }
-  // 获取话题分类列表
-  async getTopIcClassifyList() {
-    await this.$store.dispatch(`${ModuleConstant.momentModule}/${MomentStoreActionType.GET_ALL_TOPIC_CATEGORIES}`);
-  }
+
   // 点击搜索到的话题 触发
   clickTopicItem(index: number) {}
 
@@ -127,6 +118,16 @@ export default class Topic extends Vue {
     uni.navigateTo({
       url: `/pages/create-topic/create-topic?title=${title}`,
     });
+  }
+
+  // 获取热门话题
+  async getHotTopics() {
+    const result: AxiosResponse<IResponse<ITopic[]>> = await getHotTopicsRequest();
+    this.popularTopicList = result.data.data;
+  }
+  // 获取话题分类列表
+  async getTopIcClassifyList() {
+    await this.$store.dispatch(`${ModuleConstant.momentModule}/${MomentStoreActionType.GET_ALL_TOPIC_CATEGORIES}`);
   }
 
   // 当手机键盘按下搜索 或 确认时触发
@@ -152,117 +153,17 @@ export default class Topic extends Vue {
     uni.showToast({ title: `跳转到id为${id}` });
   }
   //   点击热门分类 tag 事件
-  classifyTagClick(id: number, text: string) {
-    uni.showToast({ title: `跳转到为${text}id:${id}` });
+  classifyTagClick(index: number) {
+    uni.navigateTo({
+      url: `/pages/topic-classify/topic-classify?index=${index}`,
+    });
   }
   //   点击跳转更多热门分类
   clickMoreCategories() {
     uni.navigateTo({
       url: '/pages/topic-classify/topic-classify',
-      fail(err) {
-        console.log(err);
-      },
     });
     uni.showToast({ title: '跳转到更多热门分类' });
-  }
-  // 最近更新版块数据
-  private recentlyUpdatedData: {
-    id: number;
-    pic: string;
-    title: string;
-    content: string;
-    dynamicCount: number;
-    todayCount: number;
-  }[] = [
-    {
-      id: +(Math.random() * 1000 + 1).toFixed(),
-      pic: '/static/demo/topicpic/1.jpeg',
-      title: '话题记录本',
-      content:
-        '面试官:在电梯里巧遇马云你会做什么? 9' +
-        '0后人气我父亲为热惹我喂喂呃呃呃呃呃呃呃呃呃呃呃呃呃呃呃呃呃呃呃呃呃呃呃温温热文瑞文服的我女孩的回答当场被录用',
-      dynamicCount: 545,
-      todayCount: 200,
-    },
-    {
-      id: +(Math.random() * 1000 + 1).toFixed(),
-      pic: '/static/demo/topicpic/2.jpeg',
-      title: '话题记录本',
-      content:
-        '面试官:在电梯里巧遇马云你会做什么? 9' +
-        '0后人气我父亲为热惹我喂喂呃呃呃呃呃呃呃呃呃呃呃呃呃呃呃呃呃呃呃呃呃呃呃温温热文瑞文服的我女孩的回答当场被录用',
-      dynamicCount: 545,
-      todayCount: 200,
-    },
-    {
-      id: +(Math.random() * 1000 + 1).toFixed(),
-      pic: '/static/demo/topicpic/1.jpeg',
-      title: '话题记录本',
-      content:
-        '面试官:在电梯里巧遇马云你会做什么? 9' +
-        '0后人气我父亲为热惹我喂喂呃呃呃呃呃呃呃呃呃呃呃呃呃呃呃呃呃呃呃呃呃呃呃温温热文瑞文服的我女孩的回答当场被录用',
-      dynamicCount: 545,
-      todayCount: 200,
-    },
-    {
-      id: +(Math.random() * 1000 + 1).toFixed(),
-      pic: '/static/demo/topicpic/1.jpeg',
-      title: '话题记录本',
-      content:
-        '面试官:在电梯里巧遇马云你会做什么? 9' +
-        '0后人气我父亲为热惹我喂喂呃呃呃呃呃呃呃呃呃呃呃呃呃呃呃呃呃呃呃呃呃呃呃温温热文瑞文服的我女孩的回答当场被录用',
-      dynamicCount: 545,
-      todayCount: 200,
-    },
-    {
-      id: +(Math.random() * 1000 + 1).toFixed(),
-      pic: '/static/demo/topicpic/1.jpeg',
-      title: '话题记录本',
-      content:
-        '面试官:在电梯里巧遇马云你会做什么? 9' +
-        '0后人气我父亲为热惹我喂喂呃呃呃呃呃呃呃呃呃呃呃呃呃呃呃呃呃呃呃呃呃呃呃温温热文瑞文服的我女孩的回答当场被录用',
-      dynamicCount: 545,
-      todayCount: 200,
-    },
-    {
-      id: +(Math.random() * 1000 + 1).toFixed(),
-      pic: '/static/demo/topicpic/1.jpeg',
-      title: '话题记录本',
-      content:
-        '面试官:在电梯里巧遇马云你会做什么? 9' +
-        '0后人气我父亲为热惹我喂喂呃呃呃呃呃呃呃呃呃呃呃呃呃呃呃呃呃呃呃呃呃呃呃温温热文瑞文服的我女孩的回答当场被录用',
-      dynamicCount: 545,
-      todayCount: 200,
-    },
-    {
-      id: +(Math.random() * 1000 + 1).toFixed(),
-      pic: '/static/demo/topicpic/1.jpeg',
-      title: '话题记录本',
-      content:
-        '面试官:在电梯里巧遇马云你会做什么? 9' +
-        '0后人气我父亲为热惹我喂喂呃呃呃呃呃呃呃呃呃呃呃呃呃呃呃呃呃呃呃呃呃呃呃温温热文瑞文服的我女孩的回答当场被录用',
-      dynamicCount: 545,
-      todayCount: 200,
-    },
-  ];
-
-  // 页面触底事件
-  onReachBottom() {
-    console.log('触底');
-    this.dropDownLoading();
-  }
-
-  dropDownLoading() {
-    this.recentlyUpdatedData.push({
-      id: +(Math.random() * 1000 + 1).toFixed(),
-      pic: '/static/demo/topicpic/1.jpeg',
-      title: '新的',
-      content:
-        '面试官:在电梯里巧遇马云你会做什么? 9' +
-        '0后人气我父亲为热惹我喂喂呃呃呃呃呃呃呃呃呃呃呃呃呃呃呃呃呃呃呃呃呃呃呃温温热文瑞文服的我女孩的回答当场被录用',
-      dynamicCount: 545,
-      todayCount: 200,
-    });
   }
 }
 </script>

@@ -27,7 +27,7 @@ export default class topicList extends Vue {
 
   intoTheTopic() {
     uni.navigateTo({
-      url: `/pages/topic-detail/topic-detail?id=${this.data.id}`,
+      url: `/pages/topic-detail/topic-detail?data=${JSON.stringify(this.data)}`,
     });
   }
 }

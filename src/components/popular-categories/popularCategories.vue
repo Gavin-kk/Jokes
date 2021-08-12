@@ -7,9 +7,9 @@
     <view class="classify-list">
       <view
         class="list-item"
-        v-for="item in classifyTagListLimit"
+        v-for="(item, index) in classifyTagListLimit"
         :key="item.id"
-        @tap="classifyTagClick(item.id, item.title)"
+        @tap="classifyTagClick(index)"
       >
         {{ item.title }}
       </view>
@@ -39,10 +39,9 @@ export default class PopularCategories extends Vue {
     }
     return this.topicClassifyList;
   }
-  created() {}
 
-  classifyTagClick(id: number, text: string) {
-    this.$emit('classifyTagClick', id, text);
+  classifyTagClick(index: number) {
+    this.$emit('classifyTagClick', index);
   }
 
   clickForMore() {

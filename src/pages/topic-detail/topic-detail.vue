@@ -1,37 +1,43 @@
 <template>
   <view>
-    <!--    背景模糊-->
-    <view class="fuzzy">
-      <image class="image" src="/static/demo/topicpic/3.jpeg" mode="aspectFill"></image>
-    </view>
-    <!--    个人版块-->
-    <view class="topic-info">
-      <view class="title">
-        <view class="title-image-box">
-          <image class="title-image" src="/static/demo/topicpic/3.jpeg" mode="aspectFill"></image>
-        </view>
-        <view class="title-name">#忆往事,在电梯里巧遇马云你会做什么 尽余生#</view>
+    <view id="min-height">
+      <!--    背景模糊-->
+      <view class="fuzzy">
+        <image class="image" :src="topic.pic" mode="aspectFill"></image>
       </view>
-      <view class="topic-count">动态 793 今日 641</view>
-      <view class="desc">面试官:在电梯里巧遇马云你会做什么? 90后女孩的回答当场被录用</view>
-    </view>
+      <!--    个人版块-->
+      <view class="topic-info">
+        <view class="title">
+          <view class="title-image-box">
+            <image class="title-image" :src="topic.pic" mode="aspectFill"></image>
+          </view>
+          <view class="title-name">{{ topic.title }}</view>
+        </view>
+        <view class="topic-count">动态 {{ topic.articleCount }} 今日 {{ topic.todayCount }}</view>
+        <view class="desc">{{ topic.desc }}</view>
+      </view>
 
-    <!--    tab切换-->
-    <view>
+      <!--    tab切换-->
       <home-topbar
         :list="titleNavList"
         :activeIndex="activeIndex"
         itemStyle="width:50%;"
         @currentSwiperIndexChange="currentSwiperIndexChange"
       />
-      <block v-for="(item, index) in list" :key="index">
-        <template v-if="index === activeIndex">
-          <block v-for="itex in item.list" :key="itex.id">
-            <moment-list :data="itex" />
-          </block>
-          <pull-up-loading :text="item.loading" />
-        </template>
-      </block>
+    </view>
+    <view>
+      <swiper :style="{ height: `${swiperHeight}px` }" @change="swiperChange" :current="activeIndex">
+        <block v-for="(item, index) in list" :key="index">
+          <swiper-item>
+            <view :id="idArr[index]">
+              <block v-for="(itex, itexIndex) in item.list" :key="itexIndex">
+                <moment-list :data="itex" />
+              </block>
+              <pull-up-loading :text="item.loading" v-if="!isShowLoadingText"></pull-up-loading>
+            </view>
+          </swiper-item>
+        </block>
+      </swiper>
     </view>
   </view>
 </template>
@@ -42,194 +48,114 @@ import HomeTopbar from '@components/home-topbar/home-topbar.vue';
 import { LoadingStatus } from '@components/sliding-list/loading-status';
 import MomentList from '@components/moment-list/moment-list.vue';
 import PullUpLoading from '@components/pull-up-loading/pull-up-loading.vue';
+import { ITopic } from '@pages/moment/store';
+import { IArticle } from '@pages/home/store';
+import { getTopicArticleListRequest } from '@services/topic.request';
+import { AxiosResponse } from 'axios';
+import { IResponse } from '@services/interface/response.interface';
+
+export enum GetTopIcType {
+  default,
+  latest,
+}
 
 @Component({
   components: { PullUpLoading, MomentList, HomeTopbar },
 })
 export default class TopicDetail extends Vue {
+  private topic: ITopic | Record<string, any> = {};
   private activeIndex: number = 0;
   private titleNavList: { id: number; title: string }[] = [
-    { id: +(Math.random() * 1000 + 1).toFixed(), title: '默认' },
-    { id: +(Math.random() * 1000 + 1).toFixed(), title: '最新' },
+    { id: 1, title: '默认' },
+    { id: 2, title: '最新' },
   ];
-
+  // swiper每个的高度
+  private swiperHeight: number = 0;
+  // swiper每个页面的id
+  private idArr: string[] = ['default', 'latest'];
+  // 相对于窗口的swiper可用高度 用于设置最小高度
+  private minHeight: number = 0;
   private list: {
     loading: LoadingStatus;
-    list: any[];
-  }[] = [
-    {
-      loading: LoadingStatus.load,
-      list: [
-        // 文字数据
-        {
-          id: +(Math.random() * 1000 + 1).toFixed(),
-          username: '名字',
-          gender: 1,
-          avatar: '/static/demo/userpic/8.jpg',
-          age: 22,
-          content:
-            '六道快手家常菜，11111111好吃又下4444444444444442让服务器额发去我服媳妇请问发撒地方去玩啊水电费为服装消费我去二商店下啊发顺丰 我温柔风去啊速度发送服务费饭，是覅额温暖危机让佛文件佛额我I今日份为节日哦就你发',
-          momentPic: null,
-          video: null,
-          share: null,
-          address: '上海',
-          forwardCount: 30,
-          commentCount: 30,
-          likeCount: 20,
-          isLike: 0, // 0未点赞 1点赞
-          isFollow: 0, // 是否关注
-        },
-        // 图片数据
-        {
-          id: +(Math.random() * 1000 + 1).toFixed(),
-          username: '4321dsafqwfeasdfqwtqwefsdagwqerewq ',
-          gender: 0,
-          avatar: '/static/demo/userpic/8.jpg',
-          age: 22,
-          content:
-            '六道快手家常菜，111111111让服务器而且我2222222222222222222222222222222222222222222222222222222222好吃又下饭，是覅额温暖危机让佛文件佛额我I今日份为节日哦就你发',
-          momentPic: '/static/demo/datapic/2.jpg',
-          video: null,
-          share: null,
-          address: '上海',
-          forwardCount: 30,
-          commentCount: 30,
-          likeCount: 20,
-          isLike: 0, // 0未点赞 1点赞
-          isFollow: 0, // 是否关注
-        },
-        // 视频数据
-        {
-          id: +(Math.random() * 1000 + 1).toFixed(),
-          username: '名字',
-          age: 32,
-          gender: 0,
-          avatar: '/static/demo/userpic/8.jpg',
-          content: '六道快手家常菜，11111111好吃又下饭，是覅额温暖危机让佛文件佛额我I今日份为节日哦就你发',
-          momentPic: '/static/demo/datapic/2.jpg',
-          video: {
-            playCount: 200000,
-            totalTime: '2:40',
-          },
-          share: null,
-          address: '上海',
-          forwardCount: 30,
-          commentCount: 30,
-          likeCount: 20,
-          isLike: 0, // 0未点赞 1点赞
-          isFollow: 0, // 是否关注
-        },
-        // 分享数据
-        {
-          id: +(Math.random() * 1000 + 1).toFixed(),
-          gender: 0,
-          age: 42,
-          username: '名字',
-          avatar: '/static/demo/userpic/8.jpg',
-          content: '六道快手家常菜，11111111好吃又下饭，是覅额温暖危机让佛文件佛额我I今日份为节日哦就你发',
-          video: null,
-          momentPic: null,
-          share: {
-            content: '我是标题',
-            momentPic: '/static/demo/datapic/2.jpg',
-          },
-          address: '上海',
-          forwardCount: 30,
-          commentCount: 30,
-          likeCount: 20,
-          isLike: 1, // 0未点赞 1点赞
-          isFollow: 0, // 是否关注
-        },
-      ],
-    },
-    {
-      loading: LoadingStatus.load,
-      list: [
-        // 文字数据
-        {
-          id: +(Math.random() * 1000 + 1).toFixed(),
-          username: '名字',
-          gender: 1,
-          avatar: '/static/demo/userpic/8.jpg',
-          age: 22,
-          content:
-            '六道快手家常菜，11111111好吃又下4444444444444442让服务器额发去我服媳妇请问发撒地方去玩啊水电费为服装消费我去二商店下啊发顺丰 我温柔风去啊速度发送服务费饭，是覅额温暖危机让佛文件佛额我I今日份为节日哦就你发',
-          momentPic: null,
-          video: null,
-          share: null,
-          address: '上海',
-          forwardCount: 30,
-          commentCount: 30,
-          likeCount: 20,
-          isLike: 0, // 0未点赞 1点赞
-          isFollow: 0, // 是否关注
-        },
-        // 图片数据
-        {
-          id: +(Math.random() * 1000 + 1).toFixed(),
-          username: '4321dsafqwfeasdfqwtqwefsdagwqerewq ',
-          gender: 0,
-          avatar: '/static/demo/userpic/8.jpg',
-          age: 22,
-          content:
-            '六道快手家常菜，111111111让服务器而且我2222222222222222222222222222222222222222222222222222222222好吃又下饭，是覅额温暖危机让佛文件佛额我I今日份为节日哦就你发',
-          momentPic: '/static/demo/datapic/2.jpg',
-          video: null,
-          share: null,
-          address: '上海',
-          forwardCount: 30,
-          commentCount: 30,
-          likeCount: 20,
-          isLike: 0, // 0未点赞 1点赞
-          isFollow: 0, // 是否关注
-        },
-        // 视频数据
-        {
-          id: +(Math.random() * 1000 + 1).toFixed(),
-          username: '名字',
-          age: 32,
-          gender: 0,
-          avatar: '/static/demo/userpic/8.jpg',
-          content: '六道快手家常菜，11111111好吃又下饭，是覅额温暖危机让佛文件佛额我I今日份为节日哦就你发',
-          momentPic: '/static/demo/datapic/2.jpg',
-          video: {
-            playCount: 200000,
-            totalTime: '2:40',
-          },
-          share: null,
-          address: '上海',
-          forwardCount: 30,
-          commentCount: 30,
-          likeCount: 20,
-          isLike: 0, // 0未点赞 1点赞
-          isFollow: 0, // 是否关注
-        },
-        // 分享数据
-        {
-          id: +(Math.random() * 1000 + 1).toFixed(),
-          gender: 0,
-          age: 42,
-          username: '名字',
-          avatar: '/static/demo/userpic/8.jpg',
-          content: '六道快手家常菜，11111111好吃又下饭，是覅额温暖危机让佛文件佛额我I今日份为节日哦就你发',
-          video: null,
-          momentPic: null,
-          share: {
-            content: '我是标题',
-            momentPic: '/static/demo/datapic/2.jpg',
-          },
-          address: '上海',
-          forwardCount: 30,
-          commentCount: 30,
-          likeCount: 20,
-          isLike: 1, // 0未点赞 1点赞
-          isFollow: 0, // 是否关注
-        },
-      ],
-    },
-  ];
+    list: IArticle[];
+    pageNum: number;
+  }[] = [];
 
-  // 监听页面滚动到底部
+  get isShowLoadingText(): boolean {
+    return this.list[this.activeIndex].list.length < 10;
+  }
+
+  created() {
+    const pages: any = getCurrentPages();
+    const {
+      options: { data },
+    } = pages[pages.length - 1];
+    this.topic = JSON.parse(data);
+    this.list = this.titleNavList.map(() => ({ loading: LoadingStatus.load, list: [], pageNum: 1 }));
+    //  请求该话题下的文章
+    this.getTopicList();
+    this.getTopicList(this.activeIndex + 1);
+  }
+
+  mounted() {
+    this.getMinHeight();
+  }
+
+  // 请求该话题下的文章
+  async getTopicList(index: number = 0) {
+    const result: AxiosResponse<IResponse<any>> = await getTopicArticleListRequest(
+      this.list[index].pageNum,
+      this.topic.id,
+      index,
+    );
+    if (!result.data.data) {
+      this.list[index].loading = LoadingStatus.air;
+      return;
+    }
+    this.list[index].list.push(...result.data.data.articles);
+    this.$nextTick(() => {
+      this.getHeight(this.idArr[index]);
+    });
+    this.list[index].loading = LoadingStatus.load;
+  }
+
+  // 获取每个容器的高度
+  getHeight(id: string) {
+    const query = uni.createSelectorQuery().in(this);
+    query
+      .select(`#${id}`)
+      .boundingClientRect((res?) => {
+        if (res?.height) {
+          if (res.height < this.minHeight) {
+            this.swiperHeight = this.minHeight;
+          } else {
+            this.swiperHeight = res.height;
+          }
+        }
+      })
+      .exec();
+  }
+  // 获取swiper最低高度
+  getMinHeight() {
+    return new Promise((resolve) => {
+      const query = uni.createSelectorQuery().in(this);
+      query
+        .select('#min-height')
+        .boundingClientRect((res?) => {
+          uni.getSystemInfo({
+            success: (ress) => {
+              if (res?.height) {
+                this.minHeight = ress.windowHeight - res.height;
+                resolve(this.minHeight);
+              }
+            },
+          });
+        })
+        .exec();
+    });
+  }
+
+  // 监听上拉加载
   onReachBottom() {
     this.bottomOut();
   }
@@ -239,72 +165,28 @@ export default class TopicDetail extends Vue {
     this.pullUpToRefresh();
   }
 
-  // 上拉刷新处理函数
-  pullUpToRefresh() {
-    setTimeout(() => {
-      // 获取数据
-      // 赋值
-      this.list[this.activeIndex].list = [
-        {
-          id: +(Math.random() * 1000 + 1).toFixed(),
-          username: '新的',
-          gender: 1,
-          avatar: '/static/demo/userpic/8.jpg',
-          age: 22,
-          content:
-            '六道快手家常菜，11111111好吃又下4444444444444442让服务器额发去我服媳妇请问发撒地方去玩啊水电费为服装消费我去二商店下啊发顺丰 我温柔风去啊速度发送服务费饭，是覅额温暖危机让佛文件佛额我I今日份为节日哦就你发',
-          momentPic: null,
-          video: null,
-          share: null,
-          address: '上海',
-          forwardCount: 30,
-          commentCount: 30,
-          likeCount: 20,
-          isLike: 0, // 0未点赞 1点赞
-          isFollow: 0, // 是否关注
-        },
-      ];
-      // 取消下拉刷新
-      uni.stopPullDownRefresh();
-    }, 2000);
+  // 下拉刷新处理函数
+  async pullUpToRefresh() {
+    this.list = this.titleNavList.map(() => ({ loading: LoadingStatus.load, list: [], pageNum: 1 }));
+    await this.getTopicList(this.activeIndex);
+    // 取消下拉刷新
+    uni.stopPullDownRefresh();
   }
 
-  // 下拉加载处理函数
-  bottomOut() {
-    if (this.list[this.activeIndex].loading !== LoadingStatus.load) return;
+  // 上拉加载处理函数
+  async bottomOut() {
+    // if (this.list[this.activeIndex].loading !== LoadingStatus.load) return;
+    this.list[this.activeIndex].pageNum++;
     this.list[this.activeIndex].loading = LoadingStatus.loading;
-
-    setTimeout(() => {
-      this.list[this.activeIndex].list.push(
-        // 文字数据
-        {
-          id: +(Math.random() * 1000 + 1).toFixed(),
-          username: '新的',
-          gender: 1,
-          avatar: '/static/demo/userpic/8.jpg',
-          age: 22,
-          content:
-            '六道快手家常菜，11111111好吃又下4444444444444442让服务器额发去我服媳妇请问发撒地方去玩啊水电费为服装消费我去二商店下啊发顺丰 我温柔风去啊速度发送服务费饭，是覅额温暖危机让佛文件佛额我I今日份为节日哦就你发',
-          momentPic: null,
-          video: null,
-          share: null,
-          address: '上海',
-          forwardCount: 30,
-          commentCount: 30,
-          likeCount: 20,
-          isLike: 0, // 0未点赞 1点赞
-          isFollow: 0, // 是否关注
-        },
-      );
-      this.list[this.activeIndex].loading = LoadingStatus.load;
-    }, 1500);
+    await this.getTopicList(this.activeIndex);
   }
 
   currentSwiperIndexChange(index: number) {
     this.activeIndex = index;
   }
-  swiperChange({ detail }: { detail: { current: number } }) {
+  async swiperChange({ detail }: { detail: { current: number } }) {
     this.activeIndex = detail.current;
+    this.getHeight(this.idArr[detail.current]);
   }
 }
 </script>

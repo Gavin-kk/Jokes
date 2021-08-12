@@ -21,12 +21,11 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop, Watch, PropSync } from 'vue-property-decorator';
+import { Vue, Component, Prop, PropSync } from 'vue-property-decorator';
 import Dynamic from '@components/dynamic/dynamic.vue';
 import PullUpLoading from '@components/pull-up-loading/pull-up-loading.vue';
 import Empty from '@components/empty/empty.vue';
 import { IClassifyArticleList } from '@pages/home/home.vue';
-import lodash from 'lodash';
 
 import { LoadingStatus } from './loading-status';
 

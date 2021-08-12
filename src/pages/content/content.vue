@@ -107,8 +107,8 @@ export default class Content extends Vue {
     uni.showToast({ title: `我要回复${payload.commentId}下的${payload.id}` });
   }
   // 点击评论的用户名或头像 进入他的个人主页
-  userClick(username: string) {
-    uni.showToast({ title: `进入${username}` });
+  userClick(id: number) {
+    uni.navigateTo({ url: `/pages/personal-space/personal-space?userId=${id}` });
   }
 
   // 发送评论内容

@@ -106,7 +106,7 @@ export default class Comment extends Vue {
     this.$emit('replyClick', payload);
   }
   userClick() {
-    this.$emit('userClick', this.data?.user.username);
+    this.$emit('userClick', this.data?.user.id);
   }
 }
 </script>

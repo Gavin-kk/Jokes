@@ -50,9 +50,9 @@ export const actions = {
     }
   },
   // 获取用户详情
-  async [UserStoreActionType.GET_USER_INFO](context: ActionContext<IUserState, unknown>): Promise<void> {
+  async [UserStoreActionType.GET_USER_INFO](context: ActionContext<IUserState, unknown>, id: number): Promise<void> {
     try {
-      const result: AxiosResponse<IResponse<IUser>> = await getUserInfoRequest();
+      const result: AxiosResponse<IResponse<IUser>> = await getUserInfoRequest(id);
       // 在这里发送登录请求 把user提交上去 token 存到locastorage
       context.commit(UserStoreActionType.CHANGE_USER_INFO, result.data.data);
       // 更改登录状态

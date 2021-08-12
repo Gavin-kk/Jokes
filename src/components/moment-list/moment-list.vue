@@ -1,13 +1,13 @@
 <template>
   <view :class="['moment', 'animate__animated', { animate__slideInUp: !isTheEnd }]" style="animation-duration: 300ms">
     <view class="left">
-      <view class="avatar-box">
+      <view class="avatar-box" @tap="openUserDetail">
         <image class="avatar" :src="data.user.avatar" mode="scaleToFill"></image>
       </view>
     </view>
     <view class="right">
       <view class="title">
-        <view class="title-left">
+        <view class="title-left" @tap="openUserDetail">
           <view class="username">{{ data.user.username }}</view>
           <gender-tag :age="data.user.userinfo[0].age" :gender="data.user.userinfo[0].gender"></gender-tag>
         </view>
@@ -101,6 +101,10 @@ export default class MomentList extends Vue {
     this.likeCount = this.data?.likeCount || 0;
     this.isFollow =
       !!(this.data?.user.followed && this.data.user.followed[0]) || this.data?.user.username === this.userInfo.username;
+  }
+  // 进入用户详情
+  openUserDetail() {
+    uni.navigateTo({ url: `/pages/personal-space/personal-space?userId=${this.data.user.id}` });
   }
 
   videoPlay() {

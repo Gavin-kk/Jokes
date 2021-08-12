@@ -1,7 +1,7 @@
 <template>
   <view class="dynamic animate__animated animate__slideInUp" style="animation-duration: 300ms">
     <view class="title-box">
-      <view class="title-left">
+      <view class="title-left" @tap="openUserDetail">
         <view class="img-box">
           <image :src="momentData.user.avatar" mode="widthFix" class="img" lazy-load></image>
         </view>
@@ -141,6 +141,10 @@ export default class Dynamic extends Vue {
     uni.navigateTo({
       url: `/pages/content/content?id=${id}`,
     });
+  }
+  // 打开用户详情页面
+  openUserDetail() {
+    uni.navigateTo({ url: `/pages/personal-space/personal-space?userId=${this.momentData.user.id}` });
   }
 
   // 关注用户事件

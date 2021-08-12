@@ -1,7 +1,7 @@
 import { IEditMaterialSubmit } from '@pages/edit-material/edit-material.vue';
 import { request } from './service';
 // 获取用户详情
-export const getUserInfoRequest = () => request.get('/user/info');
+export const getUserInfoRequest = (id?: number) => request.get('/user/info', { params: { id } });
 // 修改密码
 export const editPasswordRequest = (payload: { newPassword: string; VCode: number }) =>
   request.put('/user/edit/password', payload);

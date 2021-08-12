@@ -1,18 +1,16 @@
 <template>
   <view class="box">
     <!--背景图-->
-    <user-page-head class="height" />
-    <!--信息-->
-    <view class="information-box height">
-      <view class="section-list-box">
-        <section-list class="information" :sectionList="sectionList" />
-      </view>
-      <view class="segmentation" />
-    </view>
+    <user-page-head
+      class="height"
+      :user.sync="userInfo"
+      :constellation="calculateTheConstellation"
+      :sectionList="sectionList"
+    />
     <!--tab导航-->
     <view class="tab">
       <home-top-bar
-        class="height"
+        class="height home-top-bar"
         :list="tabBarList"
         itemStyle="width:33%"
         :activeIndex="currentTabBarIndex"
@@ -39,19 +37,16 @@
         <!--内容页-->
         <swiper-item>
           <view class="content" :id="idArr[1]">
-            <block v-for="item in momentList" :key="item.id">
+            <block v-for="item in articleList" :key="item.id">
               <moment-list :data="item"></moment-list>
             </block>
           </view>
         </swiper-item>
         <swiper-item>
           <view class="content" :id="idArr[2]">
-            <view class="content-item">
-              <view class="row title">账号信息</view>
-              <view class="row">嘻龄: 1年零8个月6天</view>
-              <view class="row">嘻ID: 10390</view>
-            </view>
-            <view> 底部</view>
+            <block v-for="item in topicArticleList" :key="item.id">
+              <moment-list :data="item"></moment-list>
+            </block>
           </view>
         </swiper-item>
       </swiper>
@@ -90,6 +85,11 @@ import { IUser, IUserinfo } from '@store/module/user';
 import { namespace } from 'vuex-class';
 import { ModuleConstant } from '@store/module.constant';
 import { UserStoreActionType } from '@store/module/user/constant';
+import { AxiosResponse } from 'axios';
+import { IResponse } from '@services/interface/response.interface';
+import { getUserInfoRequest } from '@services/user.request';
+import { IArticle } from '@pages/home/store';
+import { getTopicArticleListRequest, getUserArticlesRequest } from '@services/article.request';
 
 moment.locale('zh-cn');
 
@@ -98,37 +98,39 @@ enum CurrentPage {
   contentPage,
   dynamicPage,
 }
+enum RequestTypeEnum {
+  article,
+  topic,
+}
 const UserModule = namespace('userModule');
 
 @Component({
   components: { PullUpLoading, MomentList, SectionList, UserPageHead, HomeTopBar, DropDownMenu },
 })
 export default class PersonalSpace extends Vue {
-  @UserModule.State('userInfo')
-  private readonly userInfo!: IUser;
+  // @UserModule.State('userInfo')
+  private userInfo: IUser | Record<string, any> = {};
   private ifNullText: string = '快去填写吧';
+  // 是不是自己
+  private isMe: boolean = false;
+  // 用户的文章列表
+  private articleList: IArticle[] = [];
+  private articlePageNum: number = 1;
+  // 用户的话题列表
+  private topicArticleList: IArticle[] = [];
+  private topicArticlePageNum: number = 1;
+  // 当前用户的id
+  private currentUserId: number = 0;
 
-  private info: IUserinfo | Record<string, unknown> = {};
-
-  @Watch('userInfo')
-  watchUserInfo() {
-    // eslint-disable-next-line no-unused-expressions
-    this.userInfo?.userinfo && !this.info.id ? (this.info = this.userInfo.userinfo[0]) : {};
-  }
-
-  created() {
-    // eslint-disable-next-line no-unused-expressions
-    this.userInfo?.userinfo && !this.info.id ? (this.info = this.userInfo.userinfo[0]) : {};
-    if (!this.userInfo.userinfo) {
-      this.$store.dispatch(`${ModuleConstant.userModule}/${UserStoreActionType.GET_USER_INFO}`);
-    }
+  get info(): IUserinfo | Record<string, any> {
+    return (this.userInfo.userinfo && this.userInfo.userinfo[0]) || {};
   }
 
   //  tab导航的title
   private tabBarList: { id: number; title: string }[] = [
     { id: 1, title: '主页' },
-    { id: 2, title: '内容' },
-    { id: 3, title: '动态' },
+    { id: 2, title: '文章' },
+    { id: 3, title: '话题' },
   ];
 
   // 可用窗口的高度
@@ -170,12 +172,16 @@ export default class PersonalSpace extends Vue {
     return this.ifNullText;
   }
 
-  get sectionList(): { count: number | undefined; text: string }[] {
+  get sectionList(): { text: string; count: undefined | number }[] {
     return [
       { count: this.userInfo.likeCount, text: '获赞' },
       { count: this.userInfo.followCount, text: '关注' },
       { count: this.userInfo.fansCount, text: '粉丝' },
     ];
+  }
+
+  created() {
+    this.getPagesData();
   }
 
   async mounted() {
@@ -185,6 +191,44 @@ export default class PersonalSpace extends Vue {
     await this.getWindowHeight();
     // 获取swiper最小可用高度 解决屏幕左右滑动断层
     this.getMinWindowHeight();
+  }
+
+  // 获取上个页面带来的参数
+  async getPagesData() {
+    const pages: any = getCurrentPages();
+    const {
+      options: { userId },
+    } = pages[pages.length - 1];
+    if (userId) {
+      this.currentUserId = +userId;
+      const result: AxiosResponse<IResponse<IUser>> = await getUserInfoRequest(+userId);
+      this.userInfo = result.data.data;
+      await this.getData(userId, RequestTypeEnum.article);
+      await this.getData(userId, RequestTypeEnum.topic);
+      if (result.data.data.isMe) {
+        this.isMe = true;
+      }
+    }
+  }
+
+  async getData(userId: number, type: RequestTypeEnum) {
+    if (type === RequestTypeEnum.article) {
+      const articles = await getUserArticlesRequest(userId, this.articlePageNum);
+      if (!articles.data.data || articles.data.data.length === 0) {
+        this.$set(this.loadingText, this.currentTabBarIndex, LoadingStatus.air);
+      } else {
+        this.$set(this.loadingText, this.currentTabBarIndex, LoadingStatus.load);
+      }
+      this.articleList.push(...articles.data.data);
+    } else {
+      const topicArticles = await getTopicArticleListRequest(this.topicArticlePageNum, userId);
+      if (!topicArticles.data.data || topicArticles.data.data.length === 0) {
+        this.$set(this.loadingText, this.currentTabBarIndex, LoadingStatus.air);
+      } else {
+        this.$set(this.loadingText, this.currentTabBarIndex, LoadingStatus.load);
+      }
+      this.topicArticleList.push(...topicArticles.data.data);
+    }
   }
 
   // 监听页面滚动到底部
@@ -238,57 +282,27 @@ export default class PersonalSpace extends Vue {
   }
 
   // 动态加载数据
-  downloadData() {
+  async downloadData() {
     if (!this.isShowLoadingText) return;
     if (this.loadingText[this.currentTabBarIndex] !== LoadingStatus.load) return;
     // 必须使用set方法 否则由于vue数据劫持原理问题导致不能对数组里的基本数据类型进行响应式
     this.$set(this.loadingText, this.currentTabBarIndex, LoadingStatus.loading);
 
     switch (this.currentTabBarIndex) {
-      case CurrentPage.homePage:
-        //  获取home的数据
-        this.$set(this.loadingText, this.currentTabBarIndex, LoadingStatus.load);
-        // 获取内容的数据
-        this.$nextTick(() => {
-          this.getHeight(this.idArr[CurrentPage.homePage]);
-        });
-        break;
       case CurrentPage.contentPage:
-        // eslint-disable-next-line no-case-declarations
-        const obj = {
-          id: +(Math.random() * 1000 + 1).toFixed(),
-          username: '新的',
-          gender: 0,
-          avatar: '/static/demo/userpic/8.jpg',
-          age: 22,
-          content: '六道快手家常菜，爱你 1234，1234',
-          momentPic: null,
-          video: null,
-          share: null,
-          address: '上海',
-          forwardCount: 30,
-          commentCount: 30,
-          likeCount: 20,
-          isLike: 0, // 0未点赞 1点赞
-          isFollow: 0, // 是否关注
-        };
-        setTimeout(() => {
-          // this.momentList.push(obj);
-
-          // 获取内容的数据
-          this.$nextTick(() => {
-            this.getHeight(this.idArr[CurrentPage.contentPage]);
-          });
-
-          this.$set(this.loadingText, this.currentTabBarIndex, LoadingStatus.load);
-          // this.loadingText[this.currentTabBarIndex] = LoadingStatus.load;
-        }, 1000);
+        this.articlePageNum++;
+        await this.getData(this.userInfo.id, RequestTypeEnum.article);
         break;
       case CurrentPage.dynamicPage:
+        this.topicArticlePageNum++;
         // 获取动态的数据
+        await this.getData(this.userInfo.id, RequestTypeEnum.topic);
         break;
       default:
     }
+    this.$nextTick(() => {
+      this.getHeight(this.idArr[this.currentTabBarIndex]);
+    });
   }
 
   // 获取swiper最小可用高度 解决屏幕左右滑动断层
@@ -325,28 +339,15 @@ export default class PersonalSpace extends Vue {
 
 <style lang="scss" scoped>
 .box {
-  .information-box {
-    position: relative;
-
-    .section-list-box {
-      transform: translateY(-25rpx);
-      border-top-right-radius: 30rpx;
-      border-top-left-radius: 30rpx;
-      overflow: hidden;
-      background: #ffffff;
-    }
-
-    .segmentation {
-      position: absolute;
-      bottom: 0;
-      height: 20rpx;
-      width: 100%;
-      background: #f4f4f4;
-      margin-top: -30rpx;
-    }
-  }
-
   .tab {
+    width: 100%;
+
+    .home-top-bar {
+      background: #ffffff;
+      border-top-right-radius: 20rpx;
+      border-top-left-radius: 20rpx;
+      transform: translateY(-30%);
+    }
     .content {
       width: 100%;
 

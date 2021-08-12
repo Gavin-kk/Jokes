@@ -43,6 +43,7 @@ export interface IUser {
   likeCount?: number; // 给我所有文章点赞的数量
   followCount?: number; // 我关注的数量
   fansCount?: number; // 关注我的数量
+  isMe: boolean;
 }
 
 export interface IUserState {

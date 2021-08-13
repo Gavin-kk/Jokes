@@ -312,15 +312,15 @@
       "style": {
         "navigationStyle": "custom",
         "app-plus": {
-          "titleNView": {
-            "scrollIndicator": "none",
-            "type": "transparent", // 渐变
-            "buttons": [
-              {
-                "type": "menu" // 按钮样式
-              }
-            ]
-          },
+//          "titleNView": {
+//            "scrollIndicator": "none",
+//            "type": "transparent", // 渐变
+//            "buttons": [
+//              {
+//                "type": "menu" // 按钮样式
+//              }
+//            ]
+//          },
           "scrollIndicator": "none",
           "bounce": "none" // 关闭反弹效果
         }

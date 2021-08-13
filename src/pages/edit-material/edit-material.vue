@@ -1,7 +1,7 @@
 <template>
   <view>
     <!--    导航栏-->
-    <nav-bar title="资料编辑" page-path="/pages/settings/settings" />
+    <nav-bar title="资料编辑" :page-path="comeBackPath" />
     <view class="list">
       <edit-material-item :avatar="formData.avatar" title="头像" @clickRight="changeAvatar" />
       <edit-material-item :options="userInfo.nickname" is-input title="昵称" @blur="editNicknameBlur" />
@@ -68,6 +68,9 @@ export default class EditMaterial extends Mixins(CheckLoginMixin) {
   @UserModule.State('userInfo')
   private readonly userInfo!: IUser;
 
+  // 页面点击返回返回的页面
+  private comeBackPath: string = '/pages/settings/settings';
+
   // 要提交的表单集合
   private formData: IEditMaterialSubmit = {
     avatar: '',
@@ -89,6 +92,12 @@ export default class EditMaterial extends Mixins(CheckLoginMixin) {
   }
 
   created() {
+    this.formatUserInfo();
+    this.getPageOptions();
+  }
+
+  // 格式化个人的信息 赋值给表单数据
+  formatUserInfo() {
     if (!lodash.isEmpty(this.userInfo.userinfo)) {
       const data: IEditMaterialSubmit = {
         ...this.userInfo.userinfo![0],
@@ -100,6 +109,18 @@ export default class EditMaterial extends Mixins(CheckLoginMixin) {
       this.formData = data;
     }
   }
+
+  //  判断上个页面是否有带来跳转的路由 如果有则赋值给 comeBackPath
+  getPageOptions() {
+    const pages: any = getCurrentPages();
+    const {
+      options: { path },
+    } = pages[pages.length - 1];
+    if (typeof path !== 'undefined') {
+      this.comeBackPath = path;
+    }
+  }
+
   // 提交更改
   async submit() {
     // 按钮loading

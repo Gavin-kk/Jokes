@@ -67,6 +67,8 @@ import { ArticleType, IArticle } from '@pages/home/store';
 import { likeArticleRequest } from '@services/home.request';
 import { namespace } from 'vuex-class';
 import { IUser } from '@store/module/user';
+import { followUsersRequest } from '@services/user.request';
+import { IFollowEventPayload } from '@components/dynamic/dynamic.vue';
 
 const UserModule = namespace('userModule');
 
@@ -96,12 +98,36 @@ export default class MomentList extends Vue {
   get shareShow(): boolean {
     return this.data?.type === ArticleType.Share && (!!this.data.share?.pic || !!this.data.video?.pic);
   }
+
   created() {
+    this.countInit();
+    this.onFollow();
+  }
+
+  countInit() {
     this.isLike = (this.data?.userArticlesLikes && this.data.userArticlesLikes[0]?.isLike) || 0;
     this.likeCount = this.data?.likeCount || 0;
     this.isFollow =
-      !!(this.data?.user.followed && this.data.user.followed[0]) || this.data?.user.username === this.userInfo.username;
+      !!(this.data?.user.followed && this.data.user.followed.length) || this.data?.user.id === this.userInfo.id;
   }
+
+  // 监听关注事件
+  onFollow() {
+    uni.$on('follow', (payload: IFollowEventPayload) => {
+      if (payload.userId === this.data.userId && this.isFollow !== payload.isFollow) {
+        this.isFollow = payload.isFollow;
+      }
+    });
+  }
+  // 关注事件
+  async attention() {
+    // 发送关注请求或取关
+    const followRes = await followUsersRequest(this.data.userId);
+    const isFollow: boolean = followRes.data.data === '关注成功';
+    uni.showToast({ title: followRes.data.data, icon: 'none' });
+    uni.$emit('follow', { isFollow, userId: this.data.userId } as IFollowEventPayload);
+  }
+
   // 进入用户详情
   openUserDetail() {
     uni.navigateTo({ url: `/pages/personal-space/personal-space?userId=${this.data.user.id}` });
@@ -115,11 +141,6 @@ export default class MomentList extends Vue {
     uni.previewImage({
       urls: this.data?.contentImg || [''],
     });
-  }
-
-  attention() {
-    uni.showToast({ title: '关注成功' });
-    this.isFollow = true;
   }
 
   openCommentsList() {

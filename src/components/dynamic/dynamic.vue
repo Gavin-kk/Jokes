@@ -79,8 +79,14 @@ import { ArticleType, IArticle } from '@pages/home/store';
 import { namespace } from 'vuex-class';
 import { IUser } from '@store/module/user';
 import { likeArticleRequest } from '@services/home.request';
+import { followUsersRequest } from '@services/user.request';
 
 const UserModule = namespace('userModule');
+
+export interface IFollowEventPayload {
+  userId: number;
+  isFollow: boolean;
+}
 
 @Component({
   filters: { handleNumber },
@@ -121,11 +127,33 @@ export default class Dynamic extends Vue {
   }
 
   created() {
+    this.countInit();
+    this.onFollow();
+  }
+
+  // 监听关注事件
+  onFollow() {
+    uni.$on('follow', (payload: IFollowEventPayload) => {
+      if (payload.userId === this.momentData.userId && this.whetherFollow !== payload.isFollow) {
+        this.whetherFollow = payload.isFollow;
+      }
+    });
+  }
+  // 关注用户事件
+  async followUsers() {
+    // 发送关注请求或取关
+    const followRes = await followUsersRequest(this.momentData.userId);
+    const isFollow: boolean = followRes.data.data === '关注成功';
+    uni.showToast({ title: followRes.data.data, icon: 'none' });
+    uni.$emit('follow', { isFollow, userId: this.momentData.userId } as IFollowEventPayload);
+  }
+
+  countInit() {
     this.likeCount = this.momentData.likeCount;
     this.dontLikeCount = this.momentData.disLikeCount;
     this.whetherFollow =
       this.isShowFollow ||
-      !!(this.momentData.user.followed && this.momentData.user.followed[0]) ||
+      !!(this.momentData.user.followed && this.momentData.user.followed.length) ||
       this.userInfo.id === this.momentData.user.id;
     this.isLike = (this.momentData.userArticlesLikes && this.momentData.userArticlesLikes[0]?.isLike) || 0;
     this.dislike = this.momentData.userArticlesLikes && this.momentData.userArticlesLikes[0]?.isLike === 0 ? 1 : 0;
@@ -145,17 +173,6 @@ export default class Dynamic extends Vue {
   // 打开用户详情页面
   openUserDetail() {
     uni.navigateTo({ url: `/pages/personal-space/personal-space?userId=${this.momentData.user.id}` });
-  }
-
-  // 关注用户事件
-  followUsers(): void {
-    // 发送关注请求
-    this.whetherFollow = true;
-    // 显示关注成功提示框
-    uni.showToast({
-      title: '关注成功',
-      icon: 'success',
-    });
   }
 
   // 预览图片

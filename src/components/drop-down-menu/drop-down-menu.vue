@@ -6,8 +6,12 @@
       :class="['menu', 'animate__animated', 'animate__backInDown']"
       :style="{ 'animation-duration': '200ms', top: statusBarIsExists }"
     >
-      <view :class="['iconfont', firstIconfontClass]" hover-class="hover" @tap="clickOnTheFirst">{{ firstText }}</view>
-      <view :class="['iconfont', lastIconfontClass]" hover-class="hover" @tap="clickTheLastOne">{{ lastText }}</view>
+      <view :class="['iconfont', firstIconfontClass]" hover-class="hover" @tap="clickOnTheFirst" v-show="firstText">{{
+        firstText
+      }}</view>
+      <view :class="['iconfont', lastIconfontClass]" hover-class="hover" @tap="clickTheLastOne" v-show="lastText">{{
+        lastText
+      }}</view>
     </view>
   </view>
 </template>
@@ -62,6 +66,7 @@ export default class DropDownMenu extends Vue {
   bottom: 0;
   right: 0;
   opacity: 0;
+  z-index: 10;
 }
 .menu {
   width: 300rpx;

@@ -1,7 +1,7 @@
 <template>
   <view class="top">
     <view class="bg-box">
-      <image class="bg-img" @tap="clickBg" :src="bgImageUrls[currentBgIndex]" mode="aspectFill"></image>
+      <image class="bg-img" :src="bgImageUrls[currentBgIndex]" mode="aspectFill"></image>
     </view>
     <view class="box">
       <view class="user-info">
@@ -20,7 +20,7 @@
           </block>
         </view>
       </view>
-      <view class="follow-box">
+      <view class="follow-box" v-show="!isMe">
         <view class="attention-btn">
           <view class="follow-text to-chat-with" @tap="toChatWith">
             <image src="/static/to-chat-with.png" class="to-chat-with-icon"></image>
@@ -34,57 +34,37 @@
           </view>
         </view>
       </view>
+      <view class="me" v-show="isMe">
+        <view class="edit-data iconfont icon-bianji" @tap="editData">编辑资料</view>
+        <view class="edit-data" @tap="clickBg">
+          <image src="/static/fingerprint.png" class="image-icon"></image>
+          <text>修改背景</text>
+        </view>
+      </view>
     </view>
   </view>
 </template>
 
 <script lang="ts">
-import { Vue, Component, Watch, PropSync } from 'vue-property-decorator';
-import { namespace } from 'vuex-class';
+import { Vue, Component, Watch, PropSync, Prop } from 'vue-property-decorator';
 import GenderTag from '@components/gender-tag/gender-tag.vue';
-import { IUser, IUserinfo } from '@store/module/user';
-import {} from '@pages/edit-material/edit-material.vue';
+import { IUser } from '@store/module/user';
 import { countFilter } from '@common/filters/count.filter';
-
-const UserModule = namespace('userModule');
+import { followUsersRequest } from '@services/user.request';
+import { IFollowEventPayload } from '@components/dynamic/dynamic.vue';
 
 @Component({ components: { GenderTag }, filters: { countFilter } })
 export default class UserPageHead extends Vue {
-  // @UserModule.State('userInfo')
-  // private readonly userInfo!: IUser;
   @PropSync('constellation', { type: String, default: '' })
   private constellationC!: string;
   @PropSync('sectionList', { type: Array, default: [] })
   private sectionListC!: { text: string; count: undefined | number }[];
   @PropSync('user', { type: Object, default: {} })
   private userInfoC!: IUser;
-  // private info: IUserinfo | Record<string, unknown> = {};
-
-  get info(): { gender: number; age: number } {
-    return {
-      gender: (this.userInfoC.userinfo && this.userInfoC.userinfo[0].gender) || 0,
-      age: (this.userInfoC.userinfo && this.userInfoC.userinfo[0].age) || 0,
-    };
-  }
-  // @Watch('userInfo')
-  // watchUserInfo() {
-  //   if (this.userInfo?.userinfo && !this.info.id) {
-  //     this.info = this.userInfo.userinfo[0];
-  //   }
-  // }
-  //
-  // mounted() {
-  //   console.log(this.userInfo.username);
-  //
-  //   if (this.userInfo?.userinfo && !this.info.id) {
-  //     this.info = this.userInfo.userinfo[0];
-  //   }
-  // }
-
+  @Prop({ type: Boolean, default: false })
+  private isMe!: boolean;
   // 是否关注
   private isFollow: boolean = false;
-  // 判断是不是自己
-  private isMe: boolean = true;
 
   private bgImageUrls: string[] = [
     '/static/demo/topicpic/2.jpeg',
@@ -92,9 +72,50 @@ export default class UserPageHead extends Vue {
     '/static/demo/topicpic/1.jpeg',
   ];
   private currentBgIndex: number = 0;
+
+  @Watch('userInfoC')
+  watchUserInfoC() {
+    this.isFollow = !!(this.userInfoC?.followed && this.userInfoC.followed.length);
+  }
+
+  get attentionText(): string {
+    return this.isFollow ? '已关注' : '关注';
+  }
+
+  get info(): { gender: number; age: number } {
+    return {
+      gender: (this.userInfoC.userinfo && this.userInfoC.userinfo[0].gender) || 0,
+      age: (this.userInfoC.userinfo && this.userInfoC.userinfo[0].age) || 0,
+    };
+  }
+
+  created() {
+    this.onFollow();
+  }
+
   // 点击关注
-  attention() {
-    this.isFollow = !this.isFollow;
+  async attention() {
+    // 发送关注请求或取关
+    const followRes = await followUsersRequest(this.userInfoC.id);
+    const isFollow: boolean = followRes.data.data === '关注成功';
+    uni.showToast({ title: followRes.data.data, icon: 'none' });
+    uni.$emit('follow', { isFollow, userId: this.userInfoC.id } as IFollowEventPayload);
+  }
+
+  // 监听关注事件
+  onFollow() {
+    uni.$on('follow', (payload: IFollowEventPayload) => {
+      if (payload.userId === this.userInfoC.id && this.isFollow !== payload.isFollow) {
+        this.isFollow = payload.isFollow;
+      }
+    });
+  }
+
+  // 点击编辑资料
+  editData() {
+    uni.navigateTo({
+      url: '/pages/edit-material/edit-material?path=/pages/personal-space/personal-space',
+    });
   }
 
   clickBg() {
@@ -113,10 +134,6 @@ export default class UserPageHead extends Vue {
         }
       },
     });
-  }
-
-  get attentionText(): string {
-    return this.isFollow ? '已关注' : '关注';
   }
 }
 </script>
@@ -257,6 +274,38 @@ $height: 555rpx;
           border: 1px solid #ffffff;
           color: #ffffff;
           font-size: 30rpx;
+        }
+      }
+    }
+
+    .me {
+      position: absolute;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100%;
+      width: 300rpx;
+      flex-direction: column;
+      right: 0;
+
+      .edit-data {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(255, 255, 255, 0.4);
+        box-sizing: border-box;
+        color: #ffffff;
+        padding: 20rpx;
+        border-radius: 30rpx;
+        margin: 15rpx;
+        font-size: 28rpx;
+        .image-icon {
+          margin-right: 5rpx;
+          width: 30rpx;
+          height: 30rpx;
+        }
+        &:before {
+          margin-right: 5rpx;
         }
       }
     }

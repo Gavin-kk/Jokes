@@ -1,11 +1,22 @@
 <template>
   <view class="box">
+    <nav-bar-s
+      class="title-bar"
+      bg-color="#00000000"
+      :border="false"
+      color="#fff"
+      :right-show="!isMe"
+      @leftClick="topbarLeftClick"
+      @rightClick="topbarrightClick"
+    ></nav-bar-s>
+    <!--    <view class="title-bar"></view>-->
     <!--背景图-->
     <user-page-head
       class="height"
       :user.sync="userInfo"
       :constellation="calculateTheConstellation"
       :sectionList="sectionList"
+      :isMe="isMe"
     />
     <!--tab导航-->
     <view class="tab">
@@ -55,10 +66,10 @@
     </view>
     <!--右上角点击更多弹出层-->
     <view class="top-menu">
+      <!--      last-text="备注"-->
       <drop-down-menu
         :is-show-menu="isShowMenu"
         first-text="拉黑"
-        last-text="备注"
         first-iconfont-class="icon-guanbi"
         last-iconfont-class="icon-bianji"
         :nav-bar-height="navigationBarHeight"
@@ -90,6 +101,9 @@ import { IResponse } from '@services/interface/response.interface';
 import { getUserInfoRequest } from '@services/user.request';
 import { IArticle } from '@pages/home/store';
 import { getTopicArticleListRequest, getUserArticlesRequest } from '@services/article.request';
+import NavBarB from '@components/nav-bar/nav-bar.vue';
+import NavBarS from '@pages/content/components/nav-bar/nav-bar.vue';
+import { IFollowEventPayload } from '@components/dynamic/dynamic.vue';
 
 moment.locale('zh-cn');
 
@@ -105,10 +119,11 @@ enum RequestTypeEnum {
 const UserModule = namespace('userModule');
 
 @Component({
-  components: { PullUpLoading, MomentList, SectionList, UserPageHead, HomeTopBar, DropDownMenu },
+  components: { NavBarS, NavBarB, PullUpLoading, MomentList, SectionList, UserPageHead, HomeTopBar, DropDownMenu },
 })
 export default class PersonalSpace extends Vue {
-  // @UserModule.State('userInfo')
+  @UserModule.State('userInfo')
+  private user!: IUser;
   private userInfo: IUser | Record<string, any> = {};
   private ifNullText: string = '快去填写吧';
   // 是不是自己
@@ -199,6 +214,10 @@ export default class PersonalSpace extends Vue {
     const {
       options: { userId },
     } = pages[pages.length - 1];
+    if (+userId === this.user.id) {
+      this.isMe = true;
+    }
+
     if (userId) {
       this.currentUserId = +userId;
       const result: AxiosResponse<IResponse<IUser>> = await getUserInfoRequest(+userId);
@@ -208,6 +227,11 @@ export default class PersonalSpace extends Vue {
       if (result.data.data.isMe) {
         this.isMe = true;
       }
+    } else {
+      this.isMe = true;
+      this.userInfo = this.user;
+      await this.getData(this.user.id, RequestTypeEnum.article);
+      await this.getData(this.user.id, RequestTypeEnum.topic);
     }
   }
 
@@ -234,12 +258,6 @@ export default class PersonalSpace extends Vue {
   // 监听页面滚动到底部
   onReachBottom() {
     this.downloadData();
-  }
-  // 监听原生导航栏点击事件
-  onNavigationBarButtonTap(detail: { index: number }) {
-    if (detail.index === 0) {
-      this.isShowMenu = true;
-    }
   }
 
   // 关闭右上角菜单
@@ -334,10 +352,32 @@ export default class PersonalSpace extends Vue {
       });
     });
   }
+  // 导航栏点击返回
+  topbarLeftClick() {
+    const pages: any = getCurrentPages();
+    const prePages = pages[pages.length - 2];
+    if (typeof prePages !== 'undefined') {
+      uni.navigateBack({ delta: 1 });
+    } else {
+      uni.switchTab({ url: '/pages/home/home' });
+    }
+  }
+  // 导航栏点击菜单
+  topbarrightClick() {
+    this.isShowMenu = true;
+  }
 }
 </script>
 
 <style lang="scss" scoped>
+.title-bar {
+  position: absolute;
+  top: 0;
+  z-index: 100;
+  width: 100%;
+  background: #00000000;
+  height: 100rpx;
+}
 .box {
   .tab {
     width: 100%;

@@ -36,53 +36,59 @@ import NewsList from '@pages/news/components/news-list/news-list.vue';
 import UniSwipeAction from '@dcloudio/uni-ui/lib/uni-swipe-action/uni-swipe-action.vue';
 import uniSwipeActionItem from '@dcloudio/uni-ui/lib/uni-swipe-action-item/uni-swipe-action-item.vue';
 import DropDownMenu from '@components/drop-down-menu/drop-down-menu.vue';
+import { NEWS_LIST } from '@common/constant/storage.constant';
+import { namespace } from 'vuex-class';
+import { IUser } from '@store/module/user';
+
+export interface INews {
+  id: number;
+  username: string;
+  content: string | null;
+  time: number;
+  unreadCount: number;
+  avatar: string;
+}
+
+const UserModule = namespace('userModule');
 
 @Component({ components: { DropDownMenu, NewsList, UniSwipeAction, uniSwipeActionItem } })
 export default class News extends Vue {
-  private dataList: {
-    id: number;
-    username: string;
-    content: string;
-    time: string;
-    unreadCount: number;
-    avatar: string;
-  }[] = [
-    {
-      id: +(Math.random() * 1000 + 1).toFixed(),
-      username: '低头看云',
-      content: '你干嘛呢, 嗯嗯嗯?',
-      time: '13.50',
-      unreadCount: 0,
-      avatar: '/static/demo/userpic/8.jpg',
-    },
-    {
-      id: +(Math.random() * 1000 + 1).toFixed(),
-      username: '低头看云',
-      content: '你干嘛呢, 嗯嗯嗯?',
-      time: '13.50',
-      unreadCount: 1,
-      avatar: '/static/demo/userpic/8.jpg',
-    },
-    {
-      id: +(Math.random() * 1000 + 1).toFixed(),
-      username: '低头看云',
-      content: '你干嘛呢, 嗯嗯嗯?',
-      time: '13.50',
-      unreadCount: 22,
-      avatar: '/static/demo/userpic/8.jpg',
-    },
-  ];
+  @UserModule.State('userInfo')
+  private readonly userInfo!: IUser;
+  private dataList: INews[] = [];
 
   private isShowMenu: boolean = false;
 
+  onShow() {
+    this.getStorage();
+    this.dataList.forEach((item) => {
+      item.time++;
+    });
+  }
+
+  async getStorage() {
+    await new Promise((resolve) => {
+      const getStorageTimer: number = setInterval(() => {
+        if (this.userInfo.id) {
+          clearInterval(getStorageTimer);
+          resolve('');
+        }
+      }, 100);
+    });
+
+    const data: INews[] = uni.getStorageSync(NEWS_LIST(this.userInfo.id));
+    if (data) {
+      this.dataList = data;
+    }
+  }
   // 改变加好友弹框的显示状态
   changeIsShow() {
     this.isShowMenu = false;
   }
   // 点击聊天列表的某一项 进入聊天列表
-  openChat() {
+  openChat(id: number) {
     uni.navigateTo({
-      url: '/pages/chat/chat',
+      url: `/pages/chat/chat?id=${id}`,
     });
   }
 
@@ -112,16 +118,16 @@ export default class News extends Vue {
   // 下拉刷新
   pullDownToRefresh() {
     setTimeout(() => {
-      this.dataList = [
-        {
-          id: +(Math.random() * 1000 + 1).toFixed(),
-          username: '低头看云',
-          content: '你干嘛呢, 嗯嗯嗯?',
-          time: '13.50',
-          unreadCount: 23,
-          avatar: '/static/demo/userpic/8.jpg',
-        },
-      ];
+      // this.dataList = [
+      //   {
+      //     id: +(Math.random() * 1000 + 1).toFixed(),
+      //     username: '低头看云',
+      //     content: '你干嘛呢, 嗯嗯嗯?',
+      //     time: '13.50',
+      //     unreadCount: 23,
+      //     avatar: '/static/demo/userpic/8.jpg',
+      //   },
+      // ];
       uni.stopPullDownRefresh();
     }, 2000);
   }

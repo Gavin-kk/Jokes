@@ -5,11 +5,11 @@
     </view>
     <view class="center">
       <view class="username">{{ data.username }}</view>
-      <view class="news-content">{{ data.content }}</view>
+      <view class="news-content" v-if="data.content">{{ data.content }}</view>
     </view>
     <view class="right">
       <!--      {{ slide }}-->
-      <view class="time">{{ data.time }}</view>
+      <view class="time">{{ data.time | timeFilter }}</view>
       <view class="unread-count" v-show="data.unreadCount">
         <uni-badge :text="data.unreadCount" type="error"></uni-badge>
       </view>
@@ -20,11 +20,13 @@
 <script lang="ts">
 import { Vue, Component, Prop } from 'vue-property-decorator';
 import UniBadge from '@dcloudio/uni-ui/lib/uni-badge/uni-badge.vue';
+import { INews } from '@pages/news/news.vue';
+import { timeFilter } from '@common/filters/time.filter';
 
-@Component({ components: { UniBadge } })
+@Component({ components: { UniBadge }, filters: { timeFilter } })
 export default class NewsList extends Vue {
   @Prop(Object)
-  private data!: { id: number; username: string; content: string; time: string; unreadCount: number; avatar: string };
+  private data!: INews;
   // 打开聊天
   openChat() {
     this.$emit('openChat', this.data.id);
@@ -69,21 +71,21 @@ export default class NewsList extends Vue {
   .right {
     display: flex;
     flex-direction: column;
-    align-items: center;
+    justify-content: center;
+    align-items: flex-end;
     width: 100rpx;
-    flex-shrink: 0;
+    flex-grow: 1;
 
     .time,
     .unread-count {
       display: flex;
-      justify-content: center;
+      width: 150rpx;
+      justify-content: flex-end;
     }
     .time {
       color: #bdbdbd;
       font-size: 30rpx;
       margin-bottom: 10rpx;
-    }
-    .unread-count {
     }
   }
 }

@@ -12,16 +12,18 @@
     <!--    :scroll-with-animation="true"-->
     <scroll-view
       id="scroll-view-chat"
-      scroll-with-animation
+      :scroll-with-animation="true"
       :scroll-top="scrollTop"
       :scroll-y="true"
       :style="{ height: scrollHeight }"
     >
-      <block v-for="(item, index) in chatDataArr" :key="index">
-        <chat-list class="chat-list-chat" :data="item" :pre-time="chatDataPreTime(index)"></chat-list>
-      </block>
-      <button @tap="a">连接a用户</button>
-      <button @tap="b">连接b用户</button>
+      <view class="chat-list-chat">
+        <!--        finishedRendering是为了判断这个循环是否渲染完毕 如果渲染完毕就获取他的高度 并返回 索引-->
+        <block v-for="(item, index) in chatDataList" :key="index">
+          <chat-list :data="item" :pre-time="chatDataPreTime(index)"></chat-list>
+        </block>
+        <view @tap="test">haha</view>
+      </view>
     </scroll-view>
     <!-- 输入框-->
     <chat-input-btn class="input-box" @confirm="confirm"></chat-input-btn>
@@ -29,42 +31,34 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Mixins, Watch } from 'vue-property-decorator';
+import { Component, Mixins, Watch, Emit } from 'vue-property-decorator';
 import UniNavBar from '@dcloudio/uni-ui/lib/uni-nav-bar/uni-nav-bar.vue';
 import ChatInputBtn from '@components/chat-input-btn/chat-input-btn.vue';
-import ChatList from '@pages/news/components/chat-list/chat-list.vue';
+import ChatList, { ContentType } from '@pages/news/components/chat-list/chat-list.vue';
 import WebsocketMixin, { IReadState, ISocketMessage } from '@src/mixins/websocket.mixin';
+import { namespace } from 'vuex-class';
+import { IUser } from '@store/module/user';
+import { CHAT_LIST, NEWS_LIST, TOKEN_KEY } from '@common/constant/storage.constant';
+import { BASE_URL } from '@config/service.config';
+import { INews } from '@pages/news/news.vue';
 
+export interface IChat {
+  isMe: boolean;
+  avatar: string;
+  type: ContentType; // 发送内容的类型
+  content: string; // 如果是文字内容那么内容就是文字 如果是图片内容 内容就是url
+  time: number; // 时间戳
+  user?: IUser;
+}
+
+const UserModule = namespace('userModule');
+let timer: number | undefined;
+let timer2: number | undefined;
+// let height: number | undefined;
 @Component({ components: { ChatList, ChatInputBtn, UniNavBar } })
 export default class Chat extends Mixins(WebsocketMixin) {
-  a() {
-    this.targetUserId = 7;
-
-    // const timer = setInterval(() => {
-    if (this.readState?.key === 1) {
-      this.sendMessage({
-        event: 'auth',
-        data: {
-          token:
-            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6OCwicGFzc3dvcmQiOiIkMmEkMTAkWWhFTzZ0ektrZFBIeVJUeFdRQ1NvT2lKZmhtQWN6cUN1UFNBUXgvNFdPVS5ud0xlNmxSSE8iLCJpYXQiOjE2Mjc2MjM3ODQsImV4cCI6MTYyNzcxMDE4NH0.w5e11y5nj8jIKA4ppoApbdL_EhfCCac4HjnxXq1f9QE',
-        },
-      });
-    }
-  }
-  b() {
-    this.targetUserId = 8;
-
-    // const timer = setInterval(() => {
-    if (this.readState?.key === 1) {
-      this.sendMessage({
-        event: 'auth',
-        data: {
-          token:
-            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NywicGFzc3dvcmQiOiIkMmEkMTAkMlRST2V5YUIzclo2QlhIamxDeGwyT2tXNjNtMHJYMEx6YUVZR2pzLmJEQnM3WjlBMWdNLksiLCJpYXQiOjE2Mjc2MjkwNDQsImV4cCI6MTYyNzcxNTQ0NH0.73g9zy49SBFG0rw8ous6n7NYO3uX5vahLOqXxaDdEOg',
-        },
-      });
-    }
-  }
+  @UserModule.State('userInfo')
+  private readonly userInfo!: IUser;
   // 所有可视区域高度
   private windowHeight: number = 0;
   // navBar的高度
@@ -74,117 +68,41 @@ export default class Chat extends Mixins(WebsocketMixin) {
   // 聊天框的上方卷曲的高度
   private scrollTop: number = 0;
   // 聊天的数据
-  private chatDataArr = [
-    {
-      isMe: false,
-      avatar: '/static/demo/userpic/8.jpg',
-      type: 'text', // 发送内容的类型
-      content: '在干嘛', // 如果是文字内容那么内容就是文字 如果是图片内容 内容就url
-      // time: new Date().getTime() - 1000 * 60 * 60, // 时间戳
-      time: new Date().getTime() - 1000 * 60 * 20, // 时间戳
-    },
-    {
-      isMe: true,
-      avatar: '/static/demo/userpic/1.jpg',
-      type: 'image', // 发送内容的类型
-      content: '/static/demo/datapic/1.jpg', // 如果是文字内容那么内容就是文字 如果是图片内容 内容就url
-      time: new Date().getTime() - 1000 * 60 * 60 * 40, // 时间戳
-    },
-    {
-      isMe: true,
-      avatar: '/static/demo/userpic/1.jpg',
-      type: 'image', // 发送内容的类型
-      content: '/static/demo/datapic/1.jpg', // 如果是文字内容那么内容就是文字 如果是图片内容 内容就url
-      time: new Date().getTime() - 1000 * 60 * 60 * 24 * 35, // 时间戳
-    },
-    {
-      isMe: true,
-      avatar: '/static/demo/userpic/1.jpg',
-      type: 'image', // 发送内容的类型
-      content: '/static/demo/datapic/1.jpg', // 如果是文字内容那么内容就是文字 如果是图片内容 内容就url
-      time: new Date().getTime() - 1000 * 60 * 60 * 24 * 30 * 24, // 时间戳
-    },
-    {
-      isMe: true,
-      avatar: '/static/demo/userpic/1.jpg',
-      type: 'image', // 发送内容的类型
-      content: '/static/demo/datapic/1.jpg', // 如果是文字内容那么内容就是文字 如果是图片内容 内容就url
-      time: new Date().getTime() - 1000 * 60 * 60 * 24 * 30 * 24, // 时间戳
-    },
-    {
-      isMe: true,
-      avatar: '/static/demo/userpic/1.jpg',
-      type: 'image', // 发送内容的类型
-      content: '/static/demo/datapic/1.jpg', // 如果是文字内容那么内容就是文字 如果是图片内容 内容就url
-      time: new Date().getTime() - 1000 * 60 * 60 * 24 * 30 * 24, // 时间戳
-    },
-    {
-      isMe: true,
-      avatar: '/static/demo/userpic/1.jpg',
-      type: 'image', // 发送内容的类型
-      content: '/static/demo/datapic/1.jpg', // 如果是文字内容那么内容就是文字 如果是图片内容 内容就url
-      time: new Date().getTime() - 1000 * 60 * 60 * 24 * 30 * 24, // 时间戳
-    },
-    {
-      isMe: true,
-      avatar: '/static/demo/userpic/1.jpg',
-      type: 'image', // 发送内容的类型
-      content: '/static/demo/datapic/1.jpg', // 如果是文字内容那么内容就是文字 如果是图片内容 内容就url
-      time: new Date().getTime() - 1000 * 60 * 60 * 24 * 30 * 24, // 时间戳
-    },
-    {
-      isMe: true,
-      avatar: '/static/demo/userpic/1.jpg',
-      type: 'image', // 发送内容的类型
-      content: '/static/demo/datapic/1.jpg', // 如果是文字内容那么内容就是文字 如果是图片内容 内容就url
-      time: new Date().getTime() - 1000 * 60 * 60 * 24 * 30 * 24, // 时间戳
-    },
-    {
-      isMe: true,
-      avatar: '/static/demo/userpic/1.jpg',
-      type: 'image', // 发送内容的类型
-      content: '/static/demo/datapic/1.jpg', // 如果是文字内容那么内容就是文字 如果是图片内容 内容就url
-      time: new Date().getTime() - 1000 * 60 * 60 * 24 * 30 * 24, // 时间戳
-    },
-    {
-      isMe: true,
-      avatar: '/static/demo/userpic/1.jpg',
-      type: 'image', // 发送内容的类型
-      content: '/static/demo/datapic/1.jpg', // 如果是文字内容那么内容就是文字 如果是图片内容 内容就url
-      time: new Date().getTime() - 1000 * 60 * 60 * 24 * 30 * 24, // 时间戳
-    },
-  ];
-
-  created() {
-    // this.webSocketTest();
-    uni.getSystemInfo({
-      success: (res) => {
-        this.windowHeight = res.windowHeight;
-      },
-    });
-  }
+  private chatDataList: IChat[] = [];
+  private targetId: number = 0;
 
   @Watch('readState')
-  watchReadState(newState: IReadState) {
-    console.log(newState);
+  watchReadte(newState: IReadState) {
+    // console.log(newState);
   }
 
   @Watch('message')
-  watchMessage(msg: ISocketMessage) {
+  watchMessages(msg: ISocketMessage) {
     switch (msg.event) {
       case 'auth':
         break;
       case 'chatMessage':
-        this.chatDataArr.push({
+        // eslint-disable-next-line no-case-declarations
+        const data: IChat = {
           isMe: false,
-          avatar: '/static/demo/userpic/1.jpg',
-          type: 'text', // 发送内容的类型
+          avatar: msg.data.avatar,
+          type: msg.data.type, // 发送内容的类型
           content: msg.data.content, // 如果是文字内容那么内容就是文字 如果是图片内容 内容就url
           time: msg.data.time, // 时间戳
-        });
-        this.$nextTick(() => {
+          user: msg.data.user,
+        };
+        this.chatDataList.push(data);
+        this.saveCache(data);
+        if (typeof timer !== 'undefined') {
+          clearTimeout(timer);
+          timer = setTimeout(() => {
+            this.getChatListHeight();
+          }, 500);
+          return;
+        }
+        timer = setTimeout(() => {
           this.getChatListHeight();
-        });
+        }, 500);
         break;
       case 'error':
         console.log(msg, 'error');
@@ -193,38 +111,176 @@ export default class Chat extends Mixins(WebsocketMixin) {
     }
   }
 
-  mounted() {
-    setTimeout(() => {
-      this.getHeight().then(() => {
-        this.getChatListHeight(true);
-      });
-    }, 50);
+  created() {
+    uni.$emit('chat', true);
+    uni.getSystemInfo({
+      success: (res) => {
+        this.windowHeight = res.windowHeight;
+      },
+    });
+    this.getPageData();
+    //  获取本地缓存
+    this.getCache();
   }
 
-  // 获取每一个信息组件的高度 然后赋值给 scrollTop
-  getChatListHeight(isFirst: boolean = false) {
-    const query = uni.createSelectorQuery().in(this);
-    // eslint-disable-next-line @typescript-eslint/no-empty-function
-    query.selectAll('.chat-list-chat').boundingClientRect(() => {});
-    query.exec((res?: [{ height: number }[]]) => {
-      if (res) {
-        if (isFirst) {
-          let sumHeight: number = 0;
-          res[0].forEach((item) => {
-            sumHeight += item.height;
-          });
-          if (sumHeight > parseInt(this.scrollHeight.replace('px', ''), 10)) {
-            this.scrollTop = sumHeight;
-          }
-        } else {
-          this.scrollTop += res[0][res[0].length - 1].height;
-        }
-      }
+  destroyed() {
+    uni.$emit('chat', false);
+  }
+
+  mounted() {
+    this.getHeight();
+    setTimeout(() => {
+      this.getChatListHeight();
+    }, 200);
+  }
+
+  onUnload() {
+    this.close();
+  }
+
+  // 获取上个页面携带的id
+  getPageData() {
+    const pages: any = getCurrentPages();
+    const {
+      options: { id },
+    } = pages[pages.length - 1];
+    this.targetId = +id;
+  }
+
+  test() {
+    uni.chooseImage({
+      success: (res) => {
+        uni.showLoading({});
+        this.chatDataList.push({
+          isMe: true,
+          avatar: this.userInfo.avatar,
+          type: ContentType.image, // 发送内容的类型
+          content: res.tempFilePaths[res.tempFilePaths.length - 1], // 如果是文字内容那么内容就是文字 如果是图片内容 内容就url
+          time: new Date().getTime(), // 时间戳
+        });
+        uni.uploadFile({
+          name: 'files',
+          url: `${BASE_URL}/api/v1/upload/images`,
+          header: {
+            Authorization: `Bearer ${uni.getStorageSync(TOKEN_KEY)}`,
+          },
+          filePath: res.tempFilePaths[res.tempFilePaths.length - 1],
+          success: (res) => {
+            const uploadRes = JSON.parse(res.data);
+            const data: IChat = {
+              isMe: true,
+              avatar: this.userInfo.avatar,
+              content: uploadRes.data.success[0],
+              time: new Date().getTime(),
+              type: ContentType.image,
+            };
+            this.sendMessage({
+              event: 'chatMessage',
+              data,
+            });
+            //  存入缓存
+            this.saveCache(data);
+            this.$nextTick(() => {
+              this.getChatListHeight();
+            });
+            uni.hideLoading();
+          },
+          fail: () => {
+            uni.showToast({ title: '发送失败', icon: 'none' });
+            uni.hideLoading();
+          },
+        });
+      },
     });
   }
 
+  // 搜索点击提交或手机键盘点击发送触发
+  confirm(value: string) {
+    if (this.targetId === 0) return;
+    const time = new Date().getTime();
+    this.sendMessage({
+      event: 'chatMessage',
+      data: { content: value, type: ContentType.text, avatar: this.userInfo.avatar, time, targetUserId: this.targetId },
+    });
+    const data: IChat = {
+      isMe: true,
+      avatar: this.userInfo.avatar,
+      type: ContentType.text, // 发送内容的类型
+      content: value, // 如果是文字内容那么内容就是文字 如果是图片内容 内容就url
+      time, // 时间戳
+    };
+    this.chatDataList.push(data);
+    // 防抖获取高度
+    this.throttling();
+    //  存入缓存
+    this.saveCache(data);
+  }
+
+  throttling() {
+    if (typeof timer2 !== 'undefined') {
+      clearTimeout(timer2);
+      timer2 = setTimeout(() => {
+        this.getChatListHeight();
+      }, 200);
+    }
+    timer2 = setTimeout(() => {
+      this.getChatListHeight();
+    }, 200);
+  }
+
+  // 存入本地缓存
+  saveCache(data: IChat) {
+    // 更新news列表的内容和时间
+    const d: INews[] = uni.getStorageSync(NEWS_LIST(this.userInfo.id));
+    const findIndex: number = d.findIndex((item) => item.id === this.targetId);
+    d[findIndex].content = data.content;
+    d[findIndex].time = data.time;
+    uni.setStorage({ key: NEWS_LIST(this.userInfo.id), data: d });
+
+    // 判断本地缓存中是否存在当前聊天会话
+    const chatList = uni.getStorageSync(CHAT_LIST(this.userInfo.id, this.targetId));
+    if (!chatList) {
+      uni.setStorageSync(CHAT_LIST(this.userInfo.id, this.targetId), [data]);
+    } else {
+      chatList.push(data);
+      uni.setStorageSync(CHAT_LIST(this.userInfo.id, this.targetId), chatList);
+    }
+  }
+  // 获取本地缓存
+  async getCache() {
+    await new Promise((resolve) => {
+      const getStorageTimer: number = setInterval(() => {
+        if (this.userInfo?.id) {
+          clearInterval(getStorageTimer);
+          resolve('');
+        }
+      }, 100);
+    });
+    const chatList: IChat[] | '' = uni.getStorageSync(CHAT_LIST(this.userInfo.id, this.targetId));
+    if (chatList) {
+      this.chatDataList = chatList;
+    }
+  }
+  // 获取每一个信息组件的高度 然后赋值给 scrollTop
+  getChatListHeight() {
+    this.$nextTick(() => {
+      const query = uni.createSelectorQuery().in(this).select('.chat-list-chat');
+      query
+        .boundingClientRect((res) => {
+          if (res?.height) {
+            if (res.height > parseInt(this.scrollHeight.replace('px', ''), 10)) {
+              this.scrollTop = res.height;
+            }
+          }
+        })
+        .exec();
+    });
+
+    // this.scrollTop = height as number;
+  }
+
   chatDataPreTime(index: number) {
-    return index > 0 ? this.chatDataArr[index - 1].time : 0;
+    return index > 0 ? this.chatDataList[index - 1].time : 0;
   }
 
   comeBack() {
@@ -235,41 +291,17 @@ export default class Chat extends Mixins(WebsocketMixin) {
     uni.showToast({ title: '进入个人页' });
   }
 
-  private targetUserId: number = 0;
-
-  // 搜索点击提交或手机键盘点击发送触发
-  confirm(value: string) {
-    const time = new Date().getTime();
-    this.sendMessage({
-      event: 'chatMessage',
-      data: { content: value, time, targetUserId: this.targetUserId },
-    });
-    this.chatDataArr.push({
-      isMe: true,
-      avatar: '/static/demo/userpic/1.jpg',
-      type: 'text', // 发送内容的类型
-      content: value, // 如果是文字内容那么内容就是文字 如果是图片内容 内容就url
-      time, // 时间戳
-    });
-    this.$nextTick(() => {
-      this.getChatListHeight();
-    });
-  }
-
   getHeight() {
-    return new Promise((resolve) => {
-      const query = uni.createSelectorQuery();
-      // eslint-disable-next-line @typescript-eslint/no-empty-function
-      query.select('.nav-bar-height').boundingClientRect(() => {});
-      // eslint-disable-next-line @typescript-eslint/no-empty-function
-      query.select('.input-box').boundingClientRect(() => {});
-      query.exec((result?: { height: number }[]) => {
-        if (result) {
-          this.navBarHeight = result[0]?.height;
-          this.inputBoxHeight = result[1]?.height;
-          resolve({});
-        }
-      });
+    const query = uni.createSelectorQuery();
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
+    query.select('.nav-bar-height').boundingClientRect(() => {});
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
+    query.select('.input-box').boundingClientRect(() => {});
+    query.exec((result?: { height: number }[]) => {
+      if (result) {
+        this.navBarHeight = result[0]?.height;
+        this.inputBoxHeight = result[1]?.height;
+      }
     });
   }
 

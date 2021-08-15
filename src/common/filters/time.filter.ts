@@ -6,9 +6,15 @@ const hour: number = minute * 60;
 const day: number = hour * 24;
 const month: number = day * 30;
 const areaHour: number = hour * 8;
-
-export const timeFilter = (time: string): string => {
-  const newTime: number = moment(time).valueOf() - areaHour;
+// 客户端时间处理
+export function timeFilter(time: number): string;
+// 服务端时间
+export function timeFilter(time: string): string;
+export function timeFilter(time: any): string {
+  let newTime: number = moment(time).valueOf();
+  if (typeof time === 'string') {
+    newTime -= areaHour;
+  }
   const currentTime: number = new Date().getTime();
   const timeDifference: number = currentTime - moment(newTime).valueOf();
 
@@ -30,4 +36,4 @@ export const timeFilter = (time: string): string => {
     default:
       return moment(newTime).format('YYYY-MM-DD hh:mm');
   }
-};
+}

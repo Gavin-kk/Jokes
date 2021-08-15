@@ -21,8 +21,8 @@
         </view>
       </view>
       <view class="follow-box" v-show="!isMe">
-        <view class="attention-btn">
-          <view class="follow-text to-chat-with" @tap="toChatWith">
+        <view class="attention-btn" @tap="toChatWith">
+          <view class="follow-text to-chat-with">
             <image src="/static/to-chat-with.png" class="to-chat-with-icon"></image>
             {{ '聊天' }}
           </view>
@@ -52,6 +52,8 @@ import { IUser } from '@store/module/user';
 import { countFilter } from '@common/filters/count.filter';
 import { followUsersRequest } from '@services/user.request';
 import { IFollowEventPayload } from '@components/dynamic/dynamic.vue';
+import { INews } from '@pages/news/news.vue';
+import { NEWS_LIST } from '@common/constant/storage.constant';
 
 @Component({ components: { GenderTag }, filters: { countFilter } })
 export default class UserPageHead extends Vue {
@@ -73,11 +75,6 @@ export default class UserPageHead extends Vue {
   ];
   private currentBgIndex: number = 0;
 
-  @Watch('userInfoC')
-  watchUserInfoC() {
-    this.isFollow = !!(this.userInfoC?.followed && this.userInfoC.followed.length);
-  }
-
   get attentionText(): string {
     return this.isFollow ? '已关注' : '关注';
   }
@@ -87,6 +84,11 @@ export default class UserPageHead extends Vue {
       gender: (this.userInfoC.userinfo && this.userInfoC.userinfo[0].gender) || 0,
       age: (this.userInfoC.userinfo && this.userInfoC.userinfo[0].age) || 0,
     };
+  }
+
+  @Watch('userInfoC')
+  watchUserInfoC() {
+    this.isFollow = !!(this.userInfoC?.followed && this.userInfoC.followed.length);
   }
 
   created() {
@@ -109,6 +111,47 @@ export default class UserPageHead extends Vue {
         this.isFollow = payload.isFollow;
       }
     });
+  }
+  // 点击聊天
+  async toChatWith() {
+    await new Promise((resolve) => {
+      uni.getStorage({
+        key: NEWS_LIST(this.$store.state.userModule.userInfo.id),
+        success: (res) => {
+          const data: INews[] = res.data;
+          const isExists: number = data.findIndex((item) => item.id === this.userInfoC.id);
+          if (isExists === -1) {
+            data.unshift({
+              id: this.userInfoC.id,
+              username: this.userInfoC.username,
+              content: '',
+              time: Date.now(),
+              unreadCount: 0,
+              avatar: this.userInfoC.avatar,
+            });
+          } else {
+            const news = data.splice(isExists, 1);
+            data.unshift(news[0]);
+          }
+          uni.setStorageSync(NEWS_LIST(this.$store.state.userModule.userInfo.id), data);
+          resolve('');
+        },
+        fail: () => {
+          uni.setStorageSync(NEWS_LIST(this.$store.state.userModule.userInfo.id), [
+            {
+              id: this.userInfoC.id,
+              username: this.userInfoC.username,
+              content: '',
+              time: Date.now(),
+              unreadCount: 0,
+              avatar: this.userInfoC.avatar,
+            },
+          ]);
+          resolve('');
+        },
+      });
+    });
+    uni.navigateTo({ url: `/pages/chat/chat?id=${this.userInfoC.id}` });
   }
 
   // 点击编辑资料

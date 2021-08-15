@@ -1,4 +1,5 @@
-import { Vue, Component, Mixins, Watch } from 'vue-property-decorator';
+import { Vue, Component, Watch } from 'vue-property-decorator';
+import { TOKEN_KEY } from '@common/constant/storage.constant';
 
 export interface IReadState {
   key: number;
@@ -8,18 +9,18 @@ export interface ISocketMessage {
   event: string;
   data: any;
 }
-
+const readyStateArr: IReadState[] = [
+  { key: 0, value: '正在连接中' },
+  { key: 1, value: '已连接' },
+  { key: 2, value: '连接已关闭' },
+  { key: 3, value: '连接已关闭或未连接成功' },
+];
 @Component({})
 export default class WebsocketMixin extends Vue {
-  public readyStateArr: IReadState[] = [
-    { key: 0, value: '正在连接中' },
-    { key: 1, value: '已连接' },
-    { key: 2, value: '连接已关闭' },
-    { key: 3, value: '连接已关闭或未连接成功' },
-  ];
   public socket: UniApp.SocketTask | null = null;
   public message: ISocketMessage | null = null;
   public readState: IReadState | null = null;
+  public currentIsChatPage: boolean = false;
 
   created() {
     this.initWebsocket();
@@ -41,31 +42,36 @@ export default class WebsocketMixin extends Vue {
       this.socket = uni.connectSocket({
         url: 'ws://127.0.0.1:5001',
         success: () => {
-          this.readState = this.readyStateArr[0];
+          this.readState = readyStateArr[0];
         },
       });
-
       this.socket.onOpen(() => {
-        this.readState = this.readyStateArr[1];
+        this.readState = readyStateArr[1];
+        this.authSocket();
       });
       this.socket.onClose(() => {
-        this.readState = this.readyStateArr[2];
+        this.readState = readyStateArr[2];
       });
       this.socket.onError(() => {
-        this.readState = this.readyStateArr[3];
+        this.readState = readyStateArr[3];
       });
       this.socket.onMessage((res) => {
-        this.message = JSON.parse(typeof res.data === 'string' ? res.data : '');
+        const msg: ISocketMessage = JSON.parse(typeof res.data === 'string' ? res.data : '');
+        this.message = msg;
+        this.watchMessage(msg);
       });
     } catch (err) {
       console.log(err);
     }
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
+  watchMessage(msg: ISocketMessage) {}
+
   close() {
     this.socket?.close({
       success: () => {
-        this.readState = this.readyStateArr[2];
+        this.readState = readyStateArr[2];
       },
     });
   }
@@ -73,11 +79,19 @@ export default class WebsocketMixin extends Vue {
   reconnect() {
     this.close();
     this.socket = null;
-    this.readState = this.readyStateArr[2];
+    this.readState = readyStateArr[2];
     this.createSocket();
   }
-
-  sendMessage(data: { event: string; data: any }) {
+  // 鉴权
+  authSocket() {
+    this.sendMessage({
+      event: 'auth',
+      data: {
+        token: uni.getStorageSync(TOKEN_KEY),
+      },
+    });
+  }
+  sendMessage(data: ISocketMessage) {
     this.socket?.send({
       data: JSON.stringify(data),
     });

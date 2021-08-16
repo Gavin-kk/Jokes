@@ -1,0 +1,6 @@
+// 当前用户聊天列表的storage缓存key
+export const NEWS_LIST = (id: number) => `newsList-${id}`;
+// 当前用户聊天和某个用户聊天的数据 currentUserId: 当前登录的用户的id targetUserId:当前用户聊天的目标用户
+export const CHAT_LIST = (currentUserId: number, targetUserId: number) => `chatList-${currentUserId}-${targetUserId}`;
+// 用户tokne的storage缓存key
+export const TOKEN_KEY = '_token';

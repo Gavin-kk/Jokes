@@ -17,9 +17,22 @@ export const mutations = {
     state.userInfo = payload;
   },
   [UserStoreActionType.CHANGE_LOGIN_STATUS](state: IUserState, payload: boolean) {
+    if (payload) {
+      uni.$emit('initSocket');
+    }
     state.isLogin = payload;
   },
   [UserStoreActionType.CHANGE_COUNT](state: IUserState, payload: ICount) {
     state.count = payload;
+  },
+  [UserStoreActionType.INIT](state: IUserState) {
+    state.count = {
+      articleCount: 0,
+      topicArticleCount: 0,
+      commentCount: 0,
+      likeCount: 0,
+    };
+    state.isLogin = false;
+    state.userInfo = {};
   },
 };

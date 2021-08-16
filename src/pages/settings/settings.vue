@@ -20,6 +20,7 @@ import NavBar from '@components/nav-bar/nav-bar.vue';
 import { signOutRequest } from '@src/services/common.request';
 import { ModuleConstant } from '@store/module.constant';
 import { UserStoreActionType } from '@store/module/user/constant';
+import { TOKEN_KEY } from '@common/constant/storage.constant';
 
 @Component({ components: { NavBar, ItemList } })
 export default class Settings extends Vue {
@@ -64,19 +65,11 @@ export default class Settings extends Vue {
             await signOutRequest();
             // eslint-disable-next-line no-empty
           } catch (e) {}
-
-          // 删除本地token
-          uni.removeStorageSync('_token');
-          // 改变登录状态
-          await this.$store.commit(`${ModuleConstant.userModule}/${UserStoreActionType.CHANGE_LOGIN_STATUS}`, false);
-          // 清除vuex中的数据
-          await this.$store.commit(`${ModuleConstant.userModule}/${UserStoreActionType.CHANGE_USER_INFO}`, {});
-          await this.$store.commit(`${ModuleConstant.userModule}/${UserStoreActionType.CHANGE_COUNT}`, {
-            articleCount: 0,
-            topicArticleCount: 0,
-            commentCount: 0,
-            likeCount: 0,
-          });
+          uni.removeStorageSync(TOKEN_KEY);
+          // 初始化vuex中的数据
+          await this.$store.commit(`${ModuleConstant.userModule}/${UserStoreActionType.INIT}`);
+          // 关闭websocket连接
+          uni.$emit('closeSocket');
           // 导航到用户主页
           uni.switchTab({ url: '/pages/mine/mine' });
         }

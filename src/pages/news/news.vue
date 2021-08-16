@@ -59,7 +59,12 @@ export default class News extends Vue {
 
   private isShowMenu: boolean = false;
 
+  created() {
+    uni.$on('refresh-news', this.getStorage);
+  }
+
   onShow() {
+    uni.hideTabBarRedDot({ index: 2 });
     this.getStorage();
     this.dataList.forEach((item) => {
       item.time++;
@@ -67,19 +72,40 @@ export default class News extends Vue {
   }
 
   async getStorage() {
-    await new Promise((resolve) => {
+    try {
+      await this.determineId();
+      this.getCache();
+    } catch (err) {
+      this.dataList = [];
+      uni.showToast({ title: err.message, icon: 'none' });
+    }
+  }
+  // 从缓存中读取数据
+  getCache() {
+    const data: INews[] = uni.getStorageSync(NEWS_LIST(this.userInfo.id));
+    if (data) {
+      this.dataList = data;
+    } else {
+      this.dataList = [];
+    }
+  }
+
+  // 确定userinfo的id存在 如果不存在则等到存在在执行
+  async determineId() {
+    await new Promise((resolve, reject) => {
+      let num: number = 0;
       const getStorageTimer: number = setInterval(() => {
+        num++;
+        if (num === 10) {
+          clearInterval(getStorageTimer);
+          reject(new Error('未登录'));
+        }
         if (this.userInfo.id) {
           clearInterval(getStorageTimer);
           resolve('');
         }
       }, 100);
     });
-
-    const data: INews[] = uni.getStorageSync(NEWS_LIST(this.userInfo.id));
-    if (data) {
-      this.dataList = data;
-    }
   }
   // 改变加好友弹框的显示状态
   changeIsShow() {

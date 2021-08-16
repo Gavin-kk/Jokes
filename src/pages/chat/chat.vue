@@ -18,7 +18,6 @@
       :style="{ height: scrollHeight }"
     >
       <view class="chat-list-chat">
-        <!--        finishedRendering是为了判断这个循环是否渲染完毕 如果渲染完毕就获取他的高度 并返回 索引-->
         <block v-for="(item, index) in chatDataList" :key="index">
           <chat-list :data="item" :pre-time="chatDataPreTime(index)"></chat-list>
         </block>
@@ -31,7 +30,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Mixins, Watch, Emit } from 'vue-property-decorator';
+import { Component, Mixins, Watch, Emit, Vue } from 'vue-property-decorator';
 import UniNavBar from '@dcloudio/uni-ui/lib/uni-nav-bar/uni-nav-bar.vue';
 import ChatInputBtn from '@components/chat-input-btn/chat-input-btn.vue';
 import ChatList, { ContentType } from '@pages/news/components/chat-list/chat-list.vue';
@@ -56,7 +55,8 @@ let timer: number | undefined;
 let timer2: number | undefined;
 // let height: number | undefined;
 @Component({ components: { ChatList, ChatInputBtn, UniNavBar } })
-export default class Chat extends Mixins(WebsocketMixin) {
+// export default class Chat extends Mixins(WebsocketMixin) {
+export default class Chat extends Vue {
   @UserModule.State('userInfo')
   private readonly userInfo!: IUser;
   // 所有可视区域高度
@@ -71,48 +71,8 @@ export default class Chat extends Mixins(WebsocketMixin) {
   private chatDataList: IChat[] = [];
   private targetId: number = 0;
 
-  @Watch('readState')
-  watchReadte(newState: IReadState) {
-    // console.log(newState);
-  }
-
-  @Watch('message')
-  watchMessages(msg: ISocketMessage) {
-    switch (msg.event) {
-      case 'auth':
-        break;
-      case 'chatMessage':
-        // eslint-disable-next-line no-case-declarations
-        const data: IChat = {
-          isMe: false,
-          avatar: msg.data.avatar,
-          type: msg.data.type, // 发送内容的类型
-          content: msg.data.content, // 如果是文字内容那么内容就是文字 如果是图片内容 内容就url
-          time: msg.data.time, // 时间戳
-          user: msg.data.user,
-        };
-        this.chatDataList.push(data);
-        this.saveCache(data);
-        if (typeof timer !== 'undefined') {
-          clearTimeout(timer);
-          timer = setTimeout(() => {
-            this.getChatListHeight();
-          }, 500);
-          return;
-        }
-        timer = setTimeout(() => {
-          this.getChatListHeight();
-        }, 500);
-        break;
-      case 'error':
-        console.log(msg, 'error');
-        break;
-      default:
-    }
-  }
-
   created() {
-    uni.$emit('chat', true);
+    this.acceptEvent();
     uni.getSystemInfo({
       success: (res) => {
         this.windowHeight = res.windowHeight;
@@ -123,8 +83,21 @@ export default class Chat extends Mixins(WebsocketMixin) {
     this.getCache();
   }
 
-  destroyed() {
-    uni.$emit('chat', false);
+  // 接受app页面的事件刷新本页面
+  acceptEvent() {
+    uni.$on('newChat', () => {
+      this.getCache();
+      if (typeof timer !== 'undefined') {
+        clearTimeout(timer);
+        timer = setTimeout(() => {
+          this.getChatListHeight();
+        }, 500);
+        return;
+      }
+      timer = setTimeout(() => {
+        this.getChatListHeight();
+      }, 500);
+    });
   }
 
   mounted() {
@@ -132,10 +105,6 @@ export default class Chat extends Mixins(WebsocketMixin) {
     setTimeout(() => {
       this.getChatListHeight();
     }, 200);
-  }
-
-  onUnload() {
-    this.close();
   }
 
   // 获取上个页面携带的id
@@ -174,10 +143,11 @@ export default class Chat extends Mixins(WebsocketMixin) {
               time: new Date().getTime(),
               type: ContentType.image,
             };
-            this.sendMessage({
+            uni.$emit('sendMsg', {
               event: 'chatMessage',
               data,
             });
+            // this.sendMessage();
             //  存入缓存
             this.saveCache(data);
             this.$nextTick(() => {
@@ -198,10 +168,11 @@ export default class Chat extends Mixins(WebsocketMixin) {
   confirm(value: string) {
     if (this.targetId === 0) return;
     const time = new Date().getTime();
-    this.sendMessage({
+    uni.$emit('sendMsg', {
       event: 'chatMessage',
       data: { content: value, type: ContentType.text, avatar: this.userInfo.avatar, time, targetUserId: this.targetId },
     });
+    // this.sendMessage();
     const data: IChat = {
       isMe: true,
       avatar: this.userInfo.avatar,
@@ -235,6 +206,7 @@ export default class Chat extends Mixins(WebsocketMixin) {
     const findIndex: number = d.findIndex((item) => item.id === this.targetId);
     d[findIndex].content = data.content;
     d[findIndex].time = data.time;
+
     uni.setStorage({ key: NEWS_LIST(this.userInfo.id), data: d });
 
     // 判断本地缓存中是否存在当前聊天会话
@@ -256,6 +228,10 @@ export default class Chat extends Mixins(WebsocketMixin) {
         }
       }, 100);
     });
+    const d: INews[] = uni.getStorageSync(NEWS_LIST(this.userInfo.id));
+    const findIndex: number = d.findIndex((item) => item.id === this.targetId);
+    d[findIndex].unreadCount = 0;
+    uni.setStorage({ key: NEWS_LIST(this.userInfo.id), data: d });
     const chatList: IChat[] | '' = uni.getStorageSync(CHAT_LIST(this.userInfo.id, this.targetId));
     if (chatList) {
       this.chatDataList = chatList;

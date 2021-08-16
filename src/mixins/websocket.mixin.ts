@@ -88,7 +88,6 @@ export default class WebsocketMixin extends Vue {
   }
 
   close() {
-    this.readState = readyStateArr[2];
     this.isConnected = false;
     this.isExit = true;
     this.socket?.close({
@@ -126,7 +125,11 @@ export default class WebsocketMixin extends Vue {
         clearInterval(reconnectTimer);
         return;
       }
-      this.close();
+      this.socket?.close({
+        success: () => {
+          this.readState = readyStateArr[2];
+        },
+      });
       this.socket = null;
       this.readState = readyStateArr[2];
       this.createSocket();

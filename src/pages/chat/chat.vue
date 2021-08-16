@@ -182,12 +182,12 @@ export default class Chat extends Vue {
     };
     this.chatDataList.push(data);
     // 防抖获取高度
-    this.throttling();
+    this.preventJitter();
     //  存入缓存
     this.saveCache(data);
   }
 
-  throttling() {
+  preventJitter() {
     if (typeof timer2 !== 'undefined') {
       clearTimeout(timer2);
       timer2 = setTimeout(() => {
@@ -203,7 +203,7 @@ export default class Chat extends Vue {
   saveCache(data: IChat) {
     // 更新news列表的内容和时间
     const d: INews[] = uni.getStorageSync(NEWS_LIST(this.userInfo.id));
-    const findIndex: number = d.findIndex((item) => item.id === this.targetId);
+    const findIndex: number = d.findIndex((item) => item.userId === this.targetId);
     d[findIndex].content = data.content;
     d[findIndex].time = data.time;
 
@@ -229,9 +229,10 @@ export default class Chat extends Vue {
       }, 100);
     });
     const d: INews[] = uni.getStorageSync(NEWS_LIST(this.userInfo.id));
-    const findIndex: number = d.findIndex((item) => item.id === this.targetId);
+    const findIndex: number = d.findIndex((item) => item.userId === this.targetId);
     d[findIndex].unreadCount = 0;
     uni.setStorage({ key: NEWS_LIST(this.userInfo.id), data: d });
+
     const chatList: IChat[] | '' = uni.getStorageSync(CHAT_LIST(this.userInfo.id, this.targetId));
     if (chatList) {
       this.chatDataList = chatList;

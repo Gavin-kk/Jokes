@@ -18,8 +18,13 @@ const readyStateArr: IReadState[] = [
 
 let clientTimer: number | undefined;
 let serverTimer: number | undefined;
+// 重连定时器
+let reconnectTimer: number | undefined;
+// 重连次数
+const reconnectCount: number = 10;
 // 心跳检测超时时间
-const timeout: number = 5000;
+const timeout: number = 3000;
+
 @Component({})
 export default class WebsocketMixin extends Vue {
   public socket: UniApp.SocketTask | null = null;
@@ -28,21 +33,9 @@ export default class WebsocketMixin extends Vue {
   public isConnected: boolean = false;
   public isExit: boolean = false;
 
-  // created() {
-  //   this.initWebsocket();
-  // }
-
   initWebsocket() {
     this.createSocket();
   }
-
-  // @Watch('readState')
-  // watchReadState(newState: IReadState) {
-  //   console.log(newState);
-  //   if (newState.key === 3) {
-  //     this.reconnect();
-  //   }
-  // }
 
   createSocket() {
     if (this.isConnected) return;
@@ -120,16 +113,24 @@ export default class WebsocketMixin extends Vue {
     if (this.isExit) return;
     clearTimeout(clientTimer);
     clearTimeout(serverTimer);
+    clearInterval(reconnectTimer);
     this.heartbeatDetection();
   }
 
   // 重连
   reconnect() {
-    this.close();
-    this.socket = null;
-    this.readState = readyStateArr[2];
-    this.isConnected = false;
-    this.createSocket();
+    let count: number = 0;
+    reconnectTimer = setInterval(() => {
+      count++;
+      if (count === reconnectCount || this.isConnected || this.isExit) {
+        clearInterval(reconnectTimer);
+        return;
+      }
+      this.close();
+      this.socket = null;
+      this.readState = readyStateArr[2];
+      this.createSocket();
+    }, timeout);
   }
 
   // 鉴权

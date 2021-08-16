@@ -11,7 +11,7 @@
       @clickTheLastOne="clearUnread"
     />
     <view class="list-box">
-      <block v-for="(item, index) in dataList" :key="item.id">
+      <block v-for="(item, index) in dataList" :key="item.userId">
         <uni-swipe-action>
           <uni-swipe-action-item>
             <view>
@@ -36,12 +36,12 @@ import NewsList from '@pages/news/components/news-list/news-list.vue';
 import UniSwipeAction from '@dcloudio/uni-ui/lib/uni-swipe-action/uni-swipe-action.vue';
 import uniSwipeActionItem from '@dcloudio/uni-ui/lib/uni-swipe-action-item/uni-swipe-action-item.vue';
 import DropDownMenu from '@components/drop-down-menu/drop-down-menu.vue';
-import { NEWS_LIST } from '@common/constant/storage.constant';
+import { CHAT_LIST, NEWS_LIST } from '@common/constant/storage.constant';
 import { namespace } from 'vuex-class';
 import { IUser } from '@store/module/user';
 
 export interface INews {
-  id: number;
+  userId: number;
   username: string;
   content: string | null;
   time: number;
@@ -96,7 +96,7 @@ export default class News extends Vue {
       let num: number = 0;
       const getStorageTimer: number = setInterval(() => {
         num++;
-        if (num === 10) {
+        if (num === 5) {
           clearInterval(getStorageTimer);
           reject(new Error('未登录'));
         }
@@ -136,6 +136,8 @@ export default class News extends Vue {
   // 点击拉取出来的删除按钮触发
   clickDelete(index: number) {
     this.dataList.splice(index, 1);
+    uni.setStorage({ key: NEWS_LIST(this.userInfo.id), data: this.dataList });
+    uni.removeStorage({ key: CHAT_LIST(this.userInfo.id, this.dataList[index].userId) });
   }
   // 监听下拉
   onPullDownRefresh() {

@@ -54,17 +54,25 @@ import { followUsersRequest } from '@services/user.request';
 import { IFollowEventPayload } from '@components/dynamic/dynamic.vue';
 import { INews } from '@pages/news/news.vue';
 import { NEWS_LIST } from '@common/constant/storage.constant';
+import { checkIsFollowEachOtherRequest } from '@services/common.request';
+import { namespace } from 'vuex-class';
+import { AxiosResponse } from 'axios';
+import { IResponse } from '@services/interface/response.interface';
+
+const UserModule = namespace('userModule');
 
 @Component({ components: { GenderTag }, filters: { countFilter } })
 export default class UserPageHead extends Vue {
+  @UserModule.State('userInfo')
+  private readonly IuserInfo!: IUser;
   @PropSync('constellation', { type: String, default: '' })
-  private constellationC!: string;
+  private readonly constellationC!: string;
   @PropSync('sectionList', { type: Array, default: [] })
-  private sectionListC!: { text: string; count: undefined | number }[];
+  private readonly sectionListC!: { text: string; count: undefined | number }[];
   @PropSync('user', { type: Object, default: {} })
-  private userInfoC!: IUser;
+  private readonly userInfoC!: IUser;
   @Prop({ type: Boolean, default: false })
-  private isMe!: boolean;
+  private readonly isMe!: boolean;
   // 是否关注
   private isFollow: boolean = false;
 
@@ -114,15 +122,23 @@ export default class UserPageHead extends Vue {
   }
   // 点击聊天
   async toChatWith() {
+    const result: AxiosResponse<IResponse<boolean>> = await checkIsFollowEachOtherRequest(
+      this.IuserInfo.id,
+      this.userInfoC.id,
+    );
+    if (!result.data.data) {
+      uni.showToast({ title: '没有互相关注呦，需要互相关注才能发送消息呦', icon: 'none', duration: 2500 });
+      return;
+    }
     await new Promise((resolve) => {
       uni.getStorage({
-        key: NEWS_LIST(this.$store.state.userModule.userInfo.id),
+        key: NEWS_LIST(this.IuserInfo.id),
         success: (res) => {
           const data: INews[] = res.data;
-          const isExists: number = data.findIndex((item) => item.id === this.userInfoC.id);
+          const isExists: number = data.findIndex((item) => item.userId === this.userInfoC.id);
           if (isExists === -1) {
             data.unshift({
-              id: this.userInfoC.id,
+              userId: this.userInfoC.id,
               username: this.userInfoC.username,
               content: '',
               time: Date.now(),
@@ -139,7 +155,7 @@ export default class UserPageHead extends Vue {
         fail: () => {
           uni.setStorageSync(NEWS_LIST(this.$store.state.userModule.userInfo.id), [
             {
-              id: this.userInfoC.id,
+              userId: this.userInfoC.id,
               username: this.userInfoC.username,
               content: '',
               time: Date.now(),

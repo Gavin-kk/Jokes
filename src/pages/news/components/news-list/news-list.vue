@@ -10,7 +10,7 @@
     <view class="right">
       <!--      {{ slide }}-->
       <view class="time">{{ data.time | timeFilter }}</view>
-      <view class="unread-count" v-show="data.unreadCount">
+      <view class="unread-count" v-show="isShowTag">
         <uni-badge :text="data.unreadCount" type="error"></uni-badge>
       </view>
     </view>
@@ -27,9 +27,13 @@ import { timeFilter } from '@common/filters/time.filter';
 export default class NewsList extends Vue {
   @Prop(Object)
   private data!: INews;
+
+  get isShowTag(): boolean {
+    return this.data.unreadCount > 0;
+  }
   // 打开聊天
   openChat() {
-    this.$emit('openChat', this.data.id);
+    this.$emit('openChat', this.data.userId);
   }
 }
 </script>

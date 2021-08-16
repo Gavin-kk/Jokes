@@ -44,81 +44,20 @@ export default class extends Mixins(WebsocketMixin) {
     switch (msg.event) {
       // 离线消息
       case 'offlineMsg':
-        msg.data.forEach((item) => {
+        msg.data.forEach((item: IChat[]) => {
           this.saveChatMessage(item);
         });
-        console.log(msg.data, '2');
         break;
-
       //  消息
       case 'chatMessage':
-        console.log(msg.data, '1');
         this.saveChatMessage(msg.data);
-        /* // 判断缓存中是否存在聊天列表
-        const newsList: INews[] | '' = uni.getStorageSync(NEWS_LIST(this.userInfo.id));
-        const news: INews = {
-          id: msg.data.user.id,
-          username: msg.data.user.username,
-          content: msg.data.content,
-          time: msg.data.time,
-          unreadCount: 1,
-          avatar: msg.data.user.avatar,
-        };
-        if (msg.data.type === 'images') {
-          news.content = '图片';
-        }
-
-        if (newsList) {
-          // 判断聊天列表中是否存在和当前用户的聊天记录
-          const findIndex: number = newsList.findIndex((item) => item.id === msg.data.user.id);
-          if (findIndex !== -1) {
-            // 存在聊天记录 把聊天列表中的数据提出
-            const newss: INews[] = newsList.splice(findIndex, 1);
-            // 未读消息++
-            news.unreadCount = ++newss[0].unreadCount;
-            // 把新数据放到最前面
-            newsList.unshift(news);
-            // 保存
-            uni.setStorageSync(NEWS_LIST(this.userInfo.id), newsList);
-          } else {
-            // 不存在 直接把当前聊天记录放最前面
-            newsList.unshift(news);
-            uni.setStorageSync(NEWS_LIST(this.userInfo.id), newsList);
-          }
-
-          let count: number = 0;
-          newsList.forEach((item) => {
-            count += item.unreadCount;
-          });
-          this.showMsgCount(count);
-        } else {
-          this.showMsgCount(1);
-          uni.setStorageSync(NEWS_LIST(this.userInfo.id), [news]);
-        }
-
-        const data: IChat = {
-          isMe: false,
-          avatar: msg.data.avatar,
-          type: msg.data.type, // 发送内容的类型
-          content: msg.data.content, // 如果是文字内容那么内容就是文字 如果是图片内容 内容就url
-          time: msg.data.time, // 时间戳
-          user: msg.data.user,
-        };
-
-        const chatList: IChat[] = uni.getStorageSync(CHAT_LIST(this.userInfo.id, msg.data.user.id));
-        if (!chatList) {
-          uni.setStorageSync(CHAT_LIST(this.userInfo.id, msg.data.user.id), [data]);
-        } else {
-          chatList.push(data);
-          uni.setStorageSync(CHAT_LIST(this.userInfo.id, msg.data.user.id), chatList);
-        } */
         // 更新news页面的tabbar角标和消息列表 让其读取缓存
         uni.$emit('refresh-news');
         // 通知chat页面有新消息 让其读取缓存
         uni.$emit('newChat');
         break;
       case 'error':
-        this.close();
+        uni.showToast({ title: msg.data.msg, icon: 'none' });
         break;
       default:
     }
@@ -132,7 +71,7 @@ export default class extends Mixins(WebsocketMixin) {
     // 判断缓存中是否存在聊天列表
     const newsList: INews[] | '' = uni.getStorageSync(NEWS_LIST(this.userInfo.id));
     const news: INews = {
-      id: data.user.id,
+      userId: data.user.id,
       username: data.user.username,
       content: data.content,
       time: data.time,
@@ -145,7 +84,7 @@ export default class extends Mixins(WebsocketMixin) {
 
     if (newsList) {
       // 判断聊天列表中是否存在和当前用户的聊天记录
-      const findIndex: number = newsList.findIndex((item) => item.id === data.user.id);
+      const findIndex: number = newsList.findIndex((item) => item.userId === data.user.id);
       if (findIndex !== -1) {
         // 存在聊天记录 把聊天列表中的数据提出
         const newss: INews[] = newsList.splice(findIndex, 1);

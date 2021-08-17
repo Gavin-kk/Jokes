@@ -21,8 +21,10 @@ export function timeFilter(time: any): string {
   switch (true) {
     case timeDifference > month:
       return moment(newTime).format('YYYY-MM-DD');
-    case timeDifference > day:
+    case timeDifference > day * 7:
       return moment(newTime).format('YYYY-MM-DD');
+    case timeDifference > day && timeDifference < day * 7:
+      return `${moment.duration(moment(currentTime).diff(newTime)).asDays().toFixed(0)}天前`;
     case timeDifference > hour:
       return `${moment.duration(moment(currentTime).diff(newTime)).asHours().toFixed(0)}小时前`;
     case timeDifference > minute:

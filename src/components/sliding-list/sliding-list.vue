@@ -3,7 +3,7 @@
     <view class="top-bar-height"></view>
     <view class="my-uni-tab-bar" v-if="listIsShow">
       <swiper class="my-swiper-box" :current="activeIndex" :style="{ height: windowHeight }" @change="swiperChange">
-        <swiper-item v-for="(items, index) in newList" :key="items.id">
+        <swiper-item v-for="(items, index) in newList" :key="index">
           <view v-if="isShowArticleList(items)" :style="{ height: windowHeight, width: '100%' }">
             <scroll-view scroll-y class="my-list" @scrolltolower="scrolltolowerEvent(index)">
               <view v-for="item in items.articleList" :key="item.id">

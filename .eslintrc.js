@@ -36,6 +36,7 @@ module.exports = {
     'no-undef': 0,
     'no-unused-expressions': 0,
     'no-case-declarations': 0,
+    'no-empty': 0,
     indent: 0,
     eqeqeq: 0,
     '@typescript-eslint/no-non-null-assertion': 0,

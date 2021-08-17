@@ -10,6 +10,19 @@
       @clickOnTheFirst="addFriend"
       @clickTheLastOne="clearUnread"
     />
+
+    <view class="bar">
+      <view class="item">
+        <image class="image" src="/static/like.png"></image>
+        <view>点赞</view>
+        <view class="new-attention-count" v-show="isShowLeftTopRedDot">{{ leftTopCount }}</view>
+      </view>
+      <view class="item" @tap="openNewAttention">
+        <image class="image" src="/static/follow.png"></image>
+        <view>新增关注</view>
+        <view class="new-attention-count" v-show="isShowRightTopRedDot">{{ rightTopCount }}</view>
+      </view>
+    </view>
     <view class="list-box">
       <block v-for="(item, index) in dataList" :key="item.userId">
         <uni-swipe-action>
@@ -36,14 +49,14 @@ import NewsList from '@pages/news/components/news-list/news-list.vue';
 import UniSwipeAction from '@dcloudio/uni-ui/lib/uni-swipe-action/uni-swipe-action.vue';
 import uniSwipeActionItem from '@dcloudio/uni-ui/lib/uni-swipe-action-item/uni-swipe-action-item.vue';
 import DropDownMenu from '@components/drop-down-menu/drop-down-menu.vue';
-import { CHAT_LIST, NEWS_LIST } from '@common/constant/storage.constant';
+import { CHAT_LIST, NEWS_LIST, USER_NEW_ATTENTION_COUNT } from '@common/constant/storage.constant';
 import { namespace } from 'vuex-class';
 import { IUser } from '@store/module/user';
 
 export interface INews {
   userId: number;
   username: string;
-  content: string | null;
+  content?: string | null;
   time: number;
   unreadCount: number;
   avatar: string;
@@ -58,6 +71,18 @@ export default class News extends Vue {
   private dataList: INews[] = [];
 
   private isShowMenu: boolean = false;
+  // 新增关注右上方红点的数量
+  private rightTopCount: number = 0;
+  // 点赞左上方红点的数量
+  private leftTopCount: number = 0;
+  // 是否显示新增关注的右上方红点
+  get isShowRightTopRedDot(): boolean {
+    return this.rightTopCount > 0;
+  }
+  // 是否显示点赞左上方红点
+  get isShowLeftTopRedDot(): boolean {
+    return this.leftTopCount > 0;
+  }
 
   created() {
     uni.$on('refresh-news', this.getStorage);
@@ -65,6 +90,7 @@ export default class News extends Vue {
 
   onShow() {
     uni.hideTabBarRedDot({ index: 2 });
+    uni.$emit('reset_count');
     this.getStorage();
     this.dataList.forEach((item) => {
       item.time++;
@@ -80,9 +106,17 @@ export default class News extends Vue {
       uni.showToast({ title: err.message, icon: 'none' });
     }
   }
+
   // 从缓存中读取数据
   getCache() {
     const data: INews[] = uni.getStorageSync(NEWS_LIST(this.userInfo.id));
+    const rightTopCount: number | '' = uni.getStorageSync(USER_NEW_ATTENTION_COUNT);
+
+    if (typeof rightTopCount !== 'string') {
+      this.rightTopCount = rightTopCount;
+    } else {
+      this.rightTopCount = 0;
+    }
     if (data) {
       this.dataList = data;
     } else {
@@ -124,6 +158,11 @@ export default class News extends Vue {
     uni.showToast({ title: '添加好友' });
   }
 
+  // 打开新增关注页面
+  openNewAttention() {
+    uni.navigateTo({ url: '/pages/new-attention/new-attention' });
+  }
+
   // 清除未读
   clearUnread() {
     this.dataList.forEach((item) => {
@@ -139,26 +178,19 @@ export default class News extends Vue {
     uni.setStorage({ key: NEWS_LIST(this.userInfo.id), data: this.dataList });
     uni.removeStorage({ key: CHAT_LIST(this.userInfo.id, this.dataList[index].userId) });
   }
+
   // 监听下拉
   onPullDownRefresh() {
     this.pullDownToRefresh();
   }
+
   // 下拉刷新
   pullDownToRefresh() {
     setTimeout(() => {
-      // this.dataList = [
-      //   {
-      //     id: +(Math.random() * 1000 + 1).toFixed(),
-      //     username: '低头看云',
-      //     content: '你干嘛呢, 嗯嗯嗯?',
-      //     time: '13.50',
-      //     unreadCount: 23,
-      //     avatar: '/static/demo/userpic/8.jpg',
-      //   },
-      // ];
       uni.stopPullDownRefresh();
     }, 2000);
   }
+
   //   原生导航栏点击监听
   onNavigationBarButtonTap(d: { index: number }) {
     if (d.index === 0) {
@@ -172,6 +204,40 @@ export default class News extends Vue {
 </script>
 
 <style lang="scss" scoped>
+.bar {
+  display: flex;
+  align-items: center;
+
+  .item {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    flex: 1;
+    font-size: 30rpx;
+
+    .new-attention-count {
+      @include centered;
+      position: absolute;
+      right: 50%;
+      top: 50%;
+      transform: translate(160%, -135%);
+      background: #dd524d;
+      width: 40rpx;
+      height: 40rpx;
+      border-radius: 50%;
+      color: #ffffff;
+      font-size: 28rpx;
+    }
+
+    .image {
+      width: 60rpx;
+      height: 60rpx;
+      margin-bottom: 10rpx;
+    }
+  }
+}
 .list-box {
   padding: 10rpx 20rpx;
 }

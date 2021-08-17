@@ -25,6 +25,10 @@ const reconnectCount: number = 10;
 // 心跳检测超时时间
 const timeout: number = 3000;
 
+export abstract class WebsocketMixinAbstract {
+  abstract watchMessage: (msg: ISocketMessage) => void;
+}
+
 @Component({})
 export default class WebsocketMixin extends Vue {
   public socket: UniApp.SocketTask | null = null;

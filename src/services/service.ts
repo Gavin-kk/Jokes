@@ -1,5 +1,8 @@
-import axios, { AxiosRequestConfig } from 'axios';
+import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
 import { BASE_URL } from '@config/service.config';
+import store from '@src/store';
+import { ModuleConstant } from '@store/module.constant';
+import { UserStoreActionType } from '@store/module/user/constant';
 
 type Method = 'OPTIONS' | 'GET' | 'HEAD' | 'POST' | 'PUT' | 'DELETE' | 'TRACE' | 'CONNECT';
 
@@ -23,6 +26,17 @@ request.interceptors.request.use((config: AxiosRequestConfig) => {
   }
   return config;
 });
+
+request.interceptors.response.use(
+  (res: AxiosResponse) => res,
+  (err) => {
+    if (err.response.data.statusCode == 401) {
+      uni.redirectTo({ url: '/pages/login/login' });
+    }
+    store.commit(`${ModuleConstant.userModule}/${UserStoreActionType.INIT}`);
+    return err;
+  },
+);
 
 request.defaults.adapter = (config: AxiosRequestConfig) =>
   // 自己定义个适配器，用来适配uniapp的语法

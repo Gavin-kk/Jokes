@@ -4,3 +4,5 @@ export const NEWS_LIST = (id: number) => `newsList-${id}`;
 export const CHAT_LIST = (currentUserId: number, targetUserId: number) => `chatList-${currentUserId}-${targetUserId}`;
 // 用户tokne的storage缓存key
 export const TOKEN_KEY = '_token';
+// 用户的未读关注角标数量
+export const USER_NEW_ATTENTION_COUNT = 'userNewAttentionCount';

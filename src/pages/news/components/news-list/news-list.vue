@@ -8,11 +8,15 @@
       <view class="news-content" v-if="data.content">{{ data.content }}</view>
     </view>
     <view class="right">
-      <!--      {{ slide }}-->
-      <view class="time">{{ data.time | timeFilter }}</view>
-      <view class="unread-count" v-show="isShowTag">
-        <uni-badge :text="data.unreadCount" type="error"></uni-badge>
-      </view>
+      <template v-if="!isUseSlot">
+        <view class="time">{{ data.time | timeFilter }}</view>
+        <view class="unread-count" v-show="isShowTag">
+          <uni-badge :text="data.unreadCount" type="error"></uni-badge>
+        </view>
+      </template>
+      <template v-else>
+        <slot name="right"></slot>
+      </template>
     </view>
   </view>
 </template>
@@ -22,18 +26,22 @@ import { Vue, Component, Prop } from 'vue-property-decorator';
 import UniBadge from '@dcloudio/uni-ui/lib/uni-badge/uni-badge.vue';
 import { INews } from '@pages/news/news.vue';
 import { timeFilter } from '@common/filters/time.filter';
+import { IFans } from '@pages/new-attention/new-attention.vue';
 
 @Component({ components: { UniBadge }, filters: { timeFilter } })
 export default class NewsList extends Vue {
   @Prop(Object)
-  private data!: INews;
+  private data!: INews | IFans;
+  // 是否使用slot
+  @Prop({ type: Boolean, default: false })
+  private isUseSlot!: boolean;
 
   get isShowTag(): boolean {
-    return this.data.unreadCount > 0;
+    return (this.data as INews).unreadCount > 0;
   }
   // 打开聊天
   openChat() {
-    this.$emit('openChat', this.data.userId);
+    this.$emit('openChat', (this.data as INews).userId || (this.data as IFans).id);
   }
 }
 </script>
@@ -61,12 +69,13 @@ export default class NewsList extends Vue {
 
   .center {
     padding-left: 20rpx;
+    max-width: 400rpx;
 
     .username {
       font-size: 32rpx;
     }
     .news-content {
-      @include ellipsis(490rpx);
+      @include ellipsis(400rpx);
       font-size: 30rpx;
       color: #bdbdbd;
     }
@@ -90,6 +99,7 @@ export default class NewsList extends Vue {
       color: #bdbdbd;
       font-size: 30rpx;
       margin-bottom: 10rpx;
+      min-width: 180rpx;
     }
   }
 }

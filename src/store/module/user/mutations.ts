@@ -1,5 +1,6 @@
 import { ICount, IUser, IUserState } from '@store/module/user/state.interface';
 import { UserStoreActionType } from '@store/module/user/constant';
+import { TOKEN_KEY } from '@common/constant/storage.constant';
 
 export const state: IUserState = {
   userInfo: {},

@@ -30,11 +30,10 @@
 </template>
 
 <script lang="ts">
-import { Component, Mixins, Watch, Emit, Vue } from 'vue-property-decorator';
+import { Component, Vue } from 'vue-property-decorator';
 import UniNavBar from '@dcloudio/uni-ui/lib/uni-nav-bar/uni-nav-bar.vue';
 import ChatInputBtn from '@components/chat-input-btn/chat-input-btn.vue';
 import ChatList, { ContentType } from '@pages/news/components/chat-list/chat-list.vue';
-import WebsocketMixin, { IReadState, ISocketMessage } from '@src/mixins/websocket.mixin';
 import { namespace } from 'vuex-class';
 import { IUser } from '@store/module/user';
 import { CHAT_LIST, NEWS_LIST, TOKEN_KEY } from '@common/constant/storage.constant';
@@ -48,6 +47,7 @@ export interface IChat {
   content: string; // 如果是文字内容那么内容就是文字 如果是图片内容 内容就是url
   time: number; // 时间戳
   user?: IUser;
+  targetUserId?: number;
 }
 
 const UserModule = namespace('userModule');
@@ -87,16 +87,6 @@ export default class Chat extends Vue {
   acceptEvent() {
     uni.$on('newChat', () => {
       this.getCache();
-      if (typeof timer !== 'undefined') {
-        clearTimeout(timer);
-        timer = setTimeout(() => {
-          this.getChatListHeight();
-        }, 500);
-        return;
-      }
-      timer = setTimeout(() => {
-        this.getChatListHeight();
-      }, 500);
     });
   }
 
@@ -126,10 +116,11 @@ export default class Chat extends Vue {
           type: ContentType.image, // 发送内容的类型
           content: res.tempFilePaths[res.tempFilePaths.length - 1], // 如果是文字内容那么内容就是文字 如果是图片内容 内容就url
           time: new Date().getTime(), // 时间戳
+          targetUserId: this.targetId,
         });
         uni.uploadFile({
           name: 'files',
-          url: `${BASE_URL}/api/v1/upload/images`,
+          url: `${BASE_URL}/upload/images`,
           header: {
             Authorization: `Bearer ${uni.getStorageSync(TOKEN_KEY)}`,
           },
@@ -142,12 +133,12 @@ export default class Chat extends Vue {
               content: uploadRes.data.success[0],
               time: new Date().getTime(),
               type: ContentType.image,
+              targetUserId: this.targetId,
             };
             uni.$emit('sendMsg', {
               event: 'chatMessage',
               data,
             });
-            // this.sendMessage();
             //  存入缓存
             this.saveCache(data);
             this.$nextTick(() => {
@@ -179,6 +170,7 @@ export default class Chat extends Vue {
       type: ContentType.text, // 发送内容的类型
       content: value, // 如果是文字内容那么内容就是文字 如果是图片内容 内容就url
       time, // 时间戳
+      targetUserId: this.targetId,
     };
     this.chatDataList.push(data);
     // 防抖获取高度
@@ -206,6 +198,10 @@ export default class Chat extends Vue {
     const findIndex: number = d.findIndex((item) => item.userId === this.targetId);
     d[findIndex].content = data.content;
     d[findIndex].time = data.time;
+
+    if (data.type === ContentType.image) {
+      d[findIndex].content = '图片';
+    }
 
     uni.setStorage({ key: NEWS_LIST(this.userInfo.id), data: d });
 
@@ -236,6 +232,8 @@ export default class Chat extends Vue {
     const chatList: IChat[] | '' = uni.getStorageSync(CHAT_LIST(this.userInfo.id, this.targetId));
     if (chatList) {
       this.chatDataList = chatList;
+      // 防抖获取高度
+      this.preventJitter();
     }
   }
   // 获取每一个信息组件的高度 然后赋值给 scrollTop
@@ -246,7 +244,7 @@ export default class Chat extends Vue {
         .boundingClientRect((res) => {
           if (res?.height) {
             if (res.height > parseInt(this.scrollHeight.replace('px', ''), 10)) {
-              this.scrollTop = res.height;
+              this.scrollTop = res.height!;
             }
           }
         })

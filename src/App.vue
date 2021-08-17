@@ -1,10 +1,9 @@
 <script lang="ts">
-import { ModuleConstant } from '@store/module.constant';
 import { UserStoreActionType } from '@store/module/user/constant';
-import { CHAT_LIST, NEWS_LIST, TOKEN_KEY } from '@common/constant/storage.constant';
+import { CHAT_LIST, NEWS_LIST, TOKEN_KEY, USER_NEW_ATTENTION_COUNT } from '@common/constant/storage.constant';
 
-import { Component, Mixins, Watch } from 'vue-property-decorator';
-import WebsocketMixin, { IReadState, ISocketMessage } from '@src/mixins/websocket.mixin';
+import { Component, Mixins } from 'vue-property-decorator';
+import WebsocketMixin, { ISocketMessage, WebsocketMixinAbstract } from '@src/mixins/websocket.mixin';
 import { IChat } from '@pages/chat/chat.vue';
 import { INews } from '@pages/news/news.vue';
 import { namespace } from 'vuex-class';
@@ -16,11 +15,22 @@ const UserModule = namespace('userModule');
 @Component({
   mpType: 'app',
 })
-export default class extends Mixins(WebsocketMixin) {
+export default class extends Mixins(WebsocketMixin) implements WebsocketMixinAbstract {
   @UserModule.State('userInfo')
   private readonly userInfo!: IUser;
+  @UserModule.State('newAttentionCount')
+  private readonly newAttentionCount!: number;
+  @UserModule.Action(UserStoreActionType.GET_USER_INFO)
+  private readonly getUserInfo!: () => void;
 
   created() {
+    this.onEvent();
+    //  获取当前小红点的数量
+    this.getCount();
+  }
+
+  // 监听事件
+  onEvent() {
     uni.$on('sendMsg', this.sendMessage);
     uni.$on('closeSocket', () => {
       this.close();
@@ -34,12 +44,10 @@ export default class extends Mixins(WebsocketMixin) {
     const token: string | '' = uni.getStorageSync(TOKEN_KEY);
     if (token) {
       // 获取用户信息 并且得到用户的数据
-      await this.$store.dispatch(`${ModuleConstant.userModule}/${UserStoreActionType.GET_USER_INFO}`);
-      //  得到websocket连接
+      await this.getUserInfo();
     }
   }
 
-  // @Watch('message')
   watchMessage(msg: ISocketMessage) {
     switch (msg.event) {
       // 离线消息
@@ -47,6 +55,9 @@ export default class extends Mixins(WebsocketMixin) {
         msg.data.forEach((item: IChat[]) => {
           this.saveChatMessage(item);
         });
+        break;
+      case 'offlineFollowCount':
+        this.handlerOfflineFollowCount(msg);
         break;
       //  消息
       case 'chatMessage':
@@ -61,10 +72,6 @@ export default class extends Mixins(WebsocketMixin) {
         break;
       default:
     }
-  }
-
-  showMsgCount(count: number) {
-    uni.setTabBarBadge({ index: 2, text: `${count}` });
   }
 
   saveChatMessage(data: any) {
@@ -99,15 +106,10 @@ export default class extends Mixins(WebsocketMixin) {
         newsList.unshift(news);
         uni.setStorageSync(NEWS_LIST(this.userInfo.id), newsList);
       }
-
-      let count: number = 0;
-      newsList.forEach((item) => {
-        count += item.unreadCount;
-      });
-      this.showMsgCount(count);
+      this.getCount();
     } else {
-      this.showMsgCount(1);
       uni.setStorageSync(NEWS_LIST(this.userInfo.id), [news]);
+      this.getCount();
     }
 
     const chat: IChat = {
@@ -126,6 +128,34 @@ export default class extends Mixins(WebsocketMixin) {
       chatList.push(chat);
       uni.setStorageSync(CHAT_LIST(this.userInfo.id, data.user.id), chatList);
     }
+  }
+
+  handlerOfflineFollowCount(msg: ISocketMessage) {
+    const count: number | '' = uni.getStorageSync(USER_NEW_ATTENTION_COUNT);
+    let newCount: number;
+    typeof count !== 'string' ? (newCount = count + msg.data) : (newCount = msg.data);
+    uni.setStorageSync(USER_NEW_ATTENTION_COUNT, newCount);
+    this.getCount();
+  }
+
+  // 获取小红点的数量
+  getCount() {
+    let sumCount: number = 0;
+    const newsList: INews[] | '' = uni.getStorageSync(NEWS_LIST(this.userInfo.id));
+    const count: number | '' = uni.getStorageSync(USER_NEW_ATTENTION_COUNT);
+    if (typeof newsList !== 'string') {
+      newsList.forEach((item) => {
+        sumCount += item.unreadCount;
+      });
+    }
+    if (typeof count !== 'string') {
+      sumCount += count;
+    }
+    this.showMsgCount(sumCount);
+  }
+
+  showMsgCount(count: number) {
+    uni.setTabBarBadge({ index: 2, text: `${count}` });
   }
 
   onShow() {

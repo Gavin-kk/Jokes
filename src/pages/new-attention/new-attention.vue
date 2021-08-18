@@ -102,7 +102,6 @@ export default class NewAttention extends Vue {
     uni.navigateTo({ url: `/pages/personal-space/personal-space?userId=${userId}` });
   }
   // 点击聊天
-
   async openChat(index: number) {
     const result: AxiosResponse<IResponse<boolean>> = await checkIsFollowEachOtherRequest(
       this.userInfo.id,

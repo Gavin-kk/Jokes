@@ -193,7 +193,7 @@ export default class News extends Vue {
   //   原生导航栏点击监听
   onNavigationBarButtonTap(d: { index: number }) {
     if (d.index === 0) {
-      uni.showToast({ title: '进入好友列表' });
+      uni.navigateTo({ url: '/pages/friends/friends' });
     } else {
       // 显示添加好友弹框
       this.isShowMenu = true;

@@ -360,6 +360,17 @@
           "bounce": "none" // 关闭反弹效果
         }
       }
+    },
+    {
+      "path": "pages/friends/friends",
+      "style": {
+        "navigationStyle": "custom",
+        "app-plus": {
+          "titleNView": false,
+          "scrollIndicator": "none",
+          "bounce": "none" // 关闭反弹效果
+        }
+      }
     }
   ],
   "globalStyle": {

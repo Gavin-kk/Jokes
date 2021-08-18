@@ -77,6 +77,8 @@ export default class NewsList extends Vue {
     .news-content {
       @include ellipsis(400rpx);
       font-size: 30rpx;
+      //
+      line-height: 50rpx;
       color: #bdbdbd;
     }
   }

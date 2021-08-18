@@ -6,3 +6,5 @@ export const CHAT_LIST = (currentUserId: number, targetUserId: number) => `chatL
 export const TOKEN_KEY = '_token';
 // 用户的未读关注角标数量
 export const USER_NEW_ATTENTION_COUNT = 'userNewAttentionCount';
+// 用户未读新点赞角标数量
+export const USER_NEW_LIKE_COUNT = 'userNewLikeCount';

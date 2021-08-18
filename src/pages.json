@@ -55,7 +55,8 @@
           "titleNView": false
         }
       }
-    },    {
+    },
+    {
       "path": "pages/select-classify/select-classify",
       "style": {
         "app-plus": {
@@ -107,7 +108,7 @@
     {
       "path": "pages/mine/mine",
       "style": {
-//        "navigationStyle": "custom",
+        //        "navigationStyle": "custom",
         "app-plus": {
           "bounce": "none", // 关闭反弹效果
           "titleNView": false
@@ -161,7 +162,8 @@
           "titleNView": false
         }
       }
-    },    {
+    },
+    {
       "path": "pages/create-topic/create-topic",
       "style": {
         "navigationStyle": "custom",
@@ -312,15 +314,15 @@
       "style": {
         "navigationStyle": "custom",
         "app-plus": {
-//          "titleNView": {
-//            "scrollIndicator": "none",
-//            "type": "transparent", // 渐变
-//            "buttons": [
-//              {
-//                "type": "menu" // 按钮样式
-//              }
-//            ]
-//          },
+          //          "titleNView": {
+          //            "scrollIndicator": "none",
+          //            "type": "transparent", // 渐变
+          //            "buttons": [
+          //              {
+          //                "type": "menu" // 按钮样式
+          //              }
+          //            ]
+          //          },
           "scrollIndicator": "none",
           "bounce": "none" // 关闭反弹效果
         }
@@ -336,8 +338,20 @@
           "bounce": "none" // 关闭反弹效果
         }
       }
-    } , {
+    },
+    {
       "path": "pages/new-attention/new-attention",
+      "style": {
+        "navigationStyle": "custom",
+        "app-plus": {
+          "titleNView": false,
+          "scrollIndicator": "none",
+          "bounce": "none" // 关闭反弹效果
+        }
+      }
+    },
+    {
+      "path": "pages/praise/praise",
       "style": {
         "navigationStyle": "custom",
         "app-plus": {

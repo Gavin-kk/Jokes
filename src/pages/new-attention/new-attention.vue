@@ -37,11 +37,11 @@ import { Vue, Component } from 'vue-property-decorator';
 import NavBar from '@components/nav-bar/nav-bar.vue';
 import NewsList from '@pages/news/components/news-list/news-list.vue';
 import { INews } from '@pages/news/news.vue';
-import { getAListOfFansRequest } from '@services/follow.request';
+import { getAListOfFansRequest, checkIsFollowEachOtherRequest } from '@services/follow.request';
 import { AxiosResponse } from 'axios';
 import { IResponse } from '@services/interface/response.interface';
 import { IUser } from '@store/module/user';
-import { checkIsFollowEachOtherRequest } from '@services/common.request';
+
 import { NEWS_LIST, USER_NEW_ATTENTION_COUNT } from '@common/constant/storage.constant';
 import { namespace } from 'vuex-class';
 import { followUsersRequest } from '@services/user.request';

@@ -18,8 +18,3 @@ export const sendCommentRequest = (payload: ISendCommentPayload) => request.post
 // 通过经纬度获取地址
 export const getAddressByLatitudeAndLongitudeRequest = (payload: { longitude: number; latitude: number }) =>
   request.get('/geography/geocode', { params: payload });
-// 检查双方是否是互相关注
-export const checkIsFollowEachOtherRequest = (currentUserId: number, targetUserId: number) =>
-  request.get('/follow/mutual/whether', {
-    params: { currentUserId, targetUserId },
-  });

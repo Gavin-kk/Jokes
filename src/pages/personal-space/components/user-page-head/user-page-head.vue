@@ -54,7 +54,7 @@ import { followUsersRequest } from '@services/user.request';
 import { IFollowEventPayload } from '@components/dynamic/dynamic.vue';
 import { INews } from '@pages/news/news.vue';
 import { NEWS_LIST } from '@common/constant/storage.constant';
-import { checkIsFollowEachOtherRequest } from '@services/common.request';
+import { checkIsFollowEachOtherRequest } from '@services/follow.request';
 import { namespace } from 'vuex-class';
 import { AxiosResponse } from 'axios';
 import { IResponse } from '@services/interface/response.interface';

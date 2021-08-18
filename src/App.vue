@@ -1,6 +1,12 @@
 <script lang="ts">
 import { UserStoreActionType } from '@store/module/user/constant';
-import { CHAT_LIST, NEWS_LIST, TOKEN_KEY, USER_NEW_ATTENTION_COUNT } from '@common/constant/storage.constant';
+import {
+  CHAT_LIST,
+  NEWS_LIST,
+  TOKEN_KEY,
+  USER_NEW_ATTENTION_COUNT,
+  USER_NEW_LIKE_COUNT,
+} from '@common/constant/storage.constant';
 
 import { Component, Mixins } from 'vue-property-decorator';
 import WebsocketMixin, { ISocketMessage, WebsocketMixinAbstract } from '@src/mixins/websocket.mixin';
@@ -57,7 +63,12 @@ export default class extends Mixins(WebsocketMixin) implements WebsocketMixinAbs
         });
         break;
       case 'offlineFollowCount':
-        this.handlerOfflineFollowCount(msg);
+        this.handlerOfflineFollowCount(msg, USER_NEW_ATTENTION_COUNT);
+        uni.$emit('refresh-news');
+        break;
+      case 'offlineLikeCount':
+        this.handlerOfflineFollowCount(msg, USER_NEW_LIKE_COUNT);
+        uni.$emit('refresh-news');
         break;
       //  消息
       case 'chatMessage':
@@ -130,11 +141,12 @@ export default class extends Mixins(WebsocketMixin) implements WebsocketMixinAbs
     }
   }
 
-  handlerOfflineFollowCount(msg: ISocketMessage) {
-    const count: number | '' = uni.getStorageSync(USER_NEW_ATTENTION_COUNT);
+  // 处理离线点赞数量和离线关注数量
+  handlerOfflineFollowCount(msg: ISocketMessage, key: string) {
+    const count: number | '' = uni.getStorageSync(key);
     let newCount: number;
     typeof count !== 'string' ? (newCount = count + msg.data) : (newCount = msg.data);
-    uni.setStorageSync(USER_NEW_ATTENTION_COUNT, newCount);
+    uni.setStorageSync(key, newCount);
     this.getCount();
   }
 
@@ -142,14 +154,18 @@ export default class extends Mixins(WebsocketMixin) implements WebsocketMixinAbs
   getCount() {
     let sumCount: number = 0;
     const newsList: INews[] | '' = uni.getStorageSync(NEWS_LIST(this.userInfo.id));
-    const count: number | '' = uni.getStorageSync(USER_NEW_ATTENTION_COUNT);
+    const followCount: number | '' = uni.getStorageSync(USER_NEW_ATTENTION_COUNT);
+    const likeCount: number | '' = uni.getStorageSync(USER_NEW_LIKE_COUNT);
     if (typeof newsList !== 'string') {
       newsList.forEach((item) => {
         sumCount += item.unreadCount;
       });
     }
-    if (typeof count !== 'string') {
-      sumCount += count;
+    if (typeof followCount !== 'string') {
+      sumCount += followCount;
+    }
+    if (typeof likeCount !== 'string') {
+      sumCount += likeCount;
     }
     this.showMsgCount(sumCount);
   }

@@ -92,10 +92,10 @@ export interface IFollowEventPayload {
   filters: { handleNumber },
 })
 export default class Dynamic extends Vue {
-  @Prop({ type: Object, required: true })
-  private momentData!: IArticle;
   @UserModule.State('userInfo')
   private userInfo!: IUser;
+  @Prop({ type: Object, required: true })
+  private momentData!: IArticle;
   // 本属性只是为了让本组件可以使用到多个地方 不用在获取个人的文章时还要判断是不是要显示关注
   @Prop({ type: Boolean, required: false, default: false })
   private isShowFollow!: boolean;

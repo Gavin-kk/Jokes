@@ -12,7 +12,7 @@
     />
 
     <view class="bar">
-      <view class="item">
+      <view class="item" @tap="openPraise">
         <image class="image" src="/static/like.png"></image>
         <view>点赞</view>
         <view class="new-attention-count" v-show="isShowLeftTopRedDot">{{ leftTopCount }}</view>
@@ -49,7 +49,7 @@ import NewsList from '@pages/news/components/news-list/news-list.vue';
 import UniSwipeAction from '@dcloudio/uni-ui/lib/uni-swipe-action/uni-swipe-action.vue';
 import uniSwipeActionItem from '@dcloudio/uni-ui/lib/uni-swipe-action-item/uni-swipe-action-item.vue';
 import DropDownMenu from '@components/drop-down-menu/drop-down-menu.vue';
-import { CHAT_LIST, NEWS_LIST, USER_NEW_ATTENTION_COUNT } from '@common/constant/storage.constant';
+import { CHAT_LIST, NEWS_LIST, USER_NEW_ATTENTION_COUNT, USER_NEW_LIKE_COUNT } from '@common/constant/storage.constant';
 import { namespace } from 'vuex-class';
 import { IUser } from '@store/module/user';
 
@@ -90,7 +90,6 @@ export default class News extends Vue {
 
   onShow() {
     uni.hideTabBarRedDot({ index: 2 });
-    uni.$emit('reset_count');
     this.getStorage();
     this.dataList.forEach((item) => {
       item.time++;
@@ -109,19 +108,13 @@ export default class News extends Vue {
 
   // 从缓存中读取数据
   getCache() {
-    const data: INews[] = uni.getStorageSync(NEWS_LIST(this.userInfo.id));
+    const data: INews[] | '' = uni.getStorageSync(NEWS_LIST(this.userInfo.id));
     const rightTopCount: number | '' = uni.getStorageSync(USER_NEW_ATTENTION_COUNT);
+    const leftTopCount: number | '' = uni.getStorageSync(USER_NEW_LIKE_COUNT);
 
-    if (typeof rightTopCount !== 'string') {
-      this.rightTopCount = rightTopCount;
-    } else {
-      this.rightTopCount = 0;
-    }
-    if (data) {
-      this.dataList = data;
-    } else {
-      this.dataList = [];
-    }
+    typeof rightTopCount !== 'string' ? (this.rightTopCount = rightTopCount) : (this.rightTopCount = 0);
+    typeof leftTopCount !== 'string' ? (this.leftTopCount = leftTopCount) : (this.leftTopCount = 0);
+    typeof data !== 'string' ? (this.dataList = data) : (this.dataList = []);
   }
 
   // 确定userinfo的id存在 如果不存在则等到存在在执行
@@ -145,11 +138,17 @@ export default class News extends Vue {
   changeIsShow() {
     this.isShowMenu = false;
   }
+
   // 点击聊天列表的某一项 进入聊天列表
   openChat(id: number) {
     uni.navigateTo({
       url: `/pages/chat/chat?id=${id}`,
     });
+  }
+
+  // 打开查看点赞页面
+  openPraise() {
+    uni.navigateTo({ url: '/pages/praise/praise' });
   }
 
   // 点击添加好友

@@ -9,12 +9,7 @@ import { LoadingStatus } from '@components/sliding-list/loading-status';
 @Component({})
 export default class PullUpLoading extends Vue {
   @Prop({ type: String, default: LoadingStatus.load })
-  private text?: string;
-
-  @Watch('text')
-  sdf(newText: string) {
-    // console.log(newText, 1);
-  }
+  private text?: LoadingStatus;
 }
 </script>
 

@@ -154,7 +154,7 @@ export default class News extends Vue {
   // 点击添加好友
   addFriend() {
     this.changeIsShow();
-    uni.showToast({ title: '添加好友' });
+    uni.navigateTo({ url: '/pages/add-friend/add-friend' });
   }
 
   // 打开新增关注页面

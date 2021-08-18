@@ -12,3 +12,8 @@ export const editEmailRequest = (payload: { password: string; VCode: number; new
 export const editUserInfoRequest = (payload: IEditMaterialSubmit) => request.put('/user/edit/userinfo', payload);
 // 关注用户
 export const followUsersRequest = (follwoId: number) => request.post('/follow', { follwoId });
+// 搜索用户
+export const searchUserRequest = (content: string) =>
+  request.get('/user/search', {
+    params: { content },
+  });

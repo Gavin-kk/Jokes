@@ -8,15 +8,12 @@
       <view class="news-content" v-if="data.content">{{ data.content }}</view>
     </view>
     <view class="right">
-      <template v-if="!isUseSlot">
+      <slot name="right">
         <view class="time">{{ data.time | timeFilter }}</view>
         <view class="unread-count" v-show="isShowTag">
           <uni-badge :text="data.unreadCount" type="error"></uni-badge>
         </view>
-      </template>
-      <template v-else>
-        <slot name="right"></slot>
-      </template>
+      </slot>
     </view>
   </view>
 </template>

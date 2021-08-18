@@ -8,3 +8,5 @@ export const TOKEN_KEY = '_token';
 export const USER_NEW_ATTENTION_COUNT = 'userNewAttentionCount';
 // 用户未读新点赞角标数量
 export const USER_NEW_LIKE_COUNT = 'userNewLikeCount';
+// 添加好友页面搜索好友文字的历史记录
+export const SEARCH_ADD_FRIEND_HISTORY = 'search_add_friend_history';

@@ -45,7 +45,6 @@ import { IUser } from '@store/module/user';
 import { NEWS_LIST, USER_NEW_ATTENTION_COUNT } from '@common/constant/storage.constant';
 import { namespace } from 'vuex-class';
 import { followUsersRequest } from '@services/user.request';
-import { IFollowEventPayload } from '@components/dynamic/dynamic.vue';
 import Empty from '@components/empty/empty.vue';
 
 export interface IFans extends Partial<IUser> {

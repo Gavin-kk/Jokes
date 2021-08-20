@@ -1,18 +1,23 @@
 <template>
   <view class="input-box-m">
-    <input
-      v-model="text"
-      @confirm="confirm"
-      class="input"
-      type="text"
-      :focus="focus"
-      @blur="blur"
-      placeholder="文明发言"
-      placeholder-class="input-placeholder"
-    />
-    <view class="send" @tap="confirm">
-      <view class="iconfont icon-fabu"></view>
-    </view>
+    <slot name="left"></slot>
+    <slot name="center">
+      <input
+        v-model="text"
+        @confirm="confirm"
+        class="input"
+        type="text"
+        :focus="focus"
+        @blur="blur"
+        placeholder="文明发言"
+        placeholder-class="input-placeholder"
+      />
+    </slot>
+    <slot name="right">
+      <view class="send" @tap="confirm">
+        <view class="iconfont icon-fabu"></view>
+      </view>
+    </slot>
   </view>
 </template>
 
@@ -38,8 +43,9 @@ export default class ChatInputBtn extends Vue {
 
 <style lang="scss" scoped>
 .input-box-m {
-  position: fixed;
-  bottom: 0;
+  //position: fixed;
+  position: relative;
+  top: 0;
   display: flex;
   width: 100%;
   height: 80rpx;

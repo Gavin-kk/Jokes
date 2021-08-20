@@ -10,7 +10,7 @@ const areaHour: number = hour * 8;
 export function timeFilter(time: number): string;
 // 服务端时间
 export function timeFilter(time: string): string;
-export function timeFilter(time: any): string {
+export function timeFilter(time: number | string): string {
   let newTime: number = moment(time).valueOf();
   if (typeof time === 'string') {
     newTime -= areaHour;

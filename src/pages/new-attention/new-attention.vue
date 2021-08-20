@@ -152,7 +152,7 @@ export default class NewAttention extends Vue {
 
   //  删除消息页面右上角的角标
   removeUnreadCount() {
-    uni.removeStorage({ key: USER_NEW_ATTENTION_COUNT });
+    uni.removeStorage({ key: USER_NEW_ATTENTION_COUNT(this.userInfo.id) });
   }
 }
 </script>

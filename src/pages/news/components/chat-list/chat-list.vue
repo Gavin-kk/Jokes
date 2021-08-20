@@ -1,19 +1,77 @@
 <template>
   <view>
     <!--时间-->
-    <view class="time" v-if="time">{{ time }}</view>
+    <view class="time" v-if="data.time">{{ data.time | timeFilter }}</view>
     <view :class="['chat-item', { 'row-reverse': data.isMe }]">
       <view class="image-box">
         <image v-if="imageShow" class="image" :src="data.avatar" mode="aspectFill" lazy-load></image>
       </view>
       <view class="content-box">
-        <text class="content" v-if="type">
-          {{ data.content }}
-        </text>
-        <view class="content-image-box" v-else>
-          <image v-if="imageShow" class="content-image" :src="data.content" mode="widthFix" lazy-load></image>
-        </view>
+        <!-- 显示文字-->
+        <template v-if="showText">
+          <text class="content">
+            {{ data.content }}
+          </text>
+        </template>
+        <!--显示图片-->
+        <template v-else-if="showImage">
+          <view class="content-image-box">
+            <image class="content-image" :src="data.content" mode="widthFix" lazy-load></image>
+          </view>
+          <template v-if="isShowProgress">
+            <view class="schedule">
+              <round-schedule-progress
+                :x="10"
+                :y="10"
+                :r="8"
+                color="#cccccc"
+                bg-color="#969696"
+                style="height: 20px; width: 20px"
+                :progress="data.progressRate"
+              />
+            </view>
+          </template>
+        </template>
+        <template v-else-if="showVideo">
+          <view class="content-video-box">
+            <video
+              class="content-video"
+              id="content-video"
+              :controls="isShowControl"
+              :src="data.content"
+              :show-center-play-btn="false"
+              @fullscreenchange="fullscreenchange"
+            ></video>
+            <view class="video-play" v-show="!isShowControl" @tap="play"></view>
+            <view class="video-mask" @tap="play"></view>
+            <!--            @play="play"-->
+          </view>
+          <template v-if="isShowProgress">
+            <view class="schedule">
+              <round-schedule-progress
+                :x="10"
+                :y="10"
+                :r="8"
+                color="#cccccc"
+                bg-color="#969696"
+                style="height: 20px; width: 20px"
+                :progress="data.progressRate"
+              />
+            </view>
+          </template>
+          <template v-else-if="isError">
+            <view class="schedule">
+              <image src="/static/error.png" class="image"></image>
+            </view>
+          </template>
+        </template>
         <view :class="['angle', { me: data.isMe }]"></view>
+
+        <template v-if="isError">
+          <view class="schedule">
+            <image src="/static/error.png" class="image"></image>
+          </view>
+        </template>
       </view>
     </view>
   </view>
@@ -22,85 +80,84 @@
 <script lang="ts">
 import { Vue, Component, Prop } from 'vue-property-decorator';
 import moment from 'moment';
+import { timeFilter } from '@common/filters/time.filter';
+import RoundScheduleProgress from '@components/round-schedule-progress/round-schedule-progress.vue';
+import { IChat } from '@pages/chat/chat.vue';
 
 moment.locale('zh-cn');
 export enum ContentType {
   image = 'image',
   text = 'text',
+  video = 'video',
 }
 
-@Component({})
+@Component({
+  components: { RoundScheduleProgress },
+  filters: { timeFilter },
+})
 export default class ChatList extends Vue {
-  @Prop(Object)
-  private data!: {
-    isMe: boolean;
-    avatar: string;
-    type: ContentType; // 发送内容的类型
-    content: string; // 如果是文字内容那么内容就是文字 如果是图片内容 内容就url
-    time: number; // 时间戳
-  };
-
+  @Prop({ type: Object })
+  private data!: IChat;
   @Prop(Number)
   private preTime!: number;
+  private isShowControl: boolean = false;
+  private videoCtx: UniApp.VideoContext | null = null;
+
+  private isFirst: boolean = true;
+
+  // 是否显示发送进度
+  get isShowProgress(): boolean {
+    return !!this.data.progressRate && this.data.progressRate !== 100 && !this.data.errorState;
+  }
+
+  // 是否错误
+  get isError(): boolean {
+    return !!this.data.errorState;
+  }
 
   // 修复小程序端 初始化时图片未加载时 报错
   get imageShow() {
     return !!this.data.content && !!this.data.avatar;
   }
 
-  get time(): string {
-    // eslint-disable-next-line no-underscore-dangle
-    const _time: number = this.data.time;
-    // 当前时间戳
-    const currentTime: number = new Date().getTime();
-    // 时间差
-    const timeDifference = currentTime - _time;
-    // 分
-    const minute: number = 1000 * 60;
-    // 时
-    const hour: number = minute * 60;
-    // 天
-    const day: number = hour * 24;
-    // 月
-    const month: number = day * 30;
-    // 年
-    const year: number = month * 12;
-    let formatText: string = '';
-    switch (true) {
-      case _time - this.preTime < 1000 * 60 && _time - this.preTime > 0: {
-        // 如果上一条记录和当前记录时间戳之间相差不超过1分钟 不显示时间.
-        return '';
-      }
-      case timeDifference > year:
-      case timeDifference > month:
-      case timeDifference > day * 5:
-        formatText = 'LLL';
-        break;
-      case timeDifference < day * 5 && timeDifference > day * 2:
-        formatText = 'dddd';
-        break;
-      case timeDifference < day * 2 && timeDifference > day:
-        return moment(_time).subtract('days').calendar();
-      case timeDifference < day && timeDifference > hour * 12:
-        formatText = 'LTS';
-        break;
-      case timeDifference < day && timeDifference < hour * 12 && timeDifference > hour:
-        return moment(_time).startOf('hour').fromNow();
-      case timeDifference < hour:
-        return moment(_time).startOf('minute').fromNow();
-      default:
-    }
-    return moment(this.data.time).format(formatText);
+  // 判断内容类型
+  get showText(): boolean {
+    return this.data.type === ContentType.text;
+  }
+  get showImage(): boolean {
+    return this.data.type === ContentType.image;
+  }
+  get showVideo(): boolean {
+    return this.data.type === ContentType.video;
   }
 
-  // 判断内容类型
-  get type(): boolean {
-    return this.data.type === ContentType.text;
+  mounted() {
+    this.videoCtx = uni.createVideoContext('content-video', this);
+  }
+
+  fullscreenchange(arg: { detail: { fullScreen: boolean } }) {
+    if (!arg.detail.fullScreen) {
+      this.videoCtx?.pause();
+    }
+    this.isShowControl = arg.detail.fullScreen;
+  }
+
+  play() {
+    this.videoCtx?.requestFullScreen();
+    this.videoCtx?.seek(0);
+    this.videoCtx?.play();
   }
 }
 </script>
 
 <style lang="scss" scoped>
+///deep/.uni-video-progress-container {
+//  display: none;
+//}
+///deep/.uni-video-current-time {
+//  margin-right: 10rpx;
+//}
+///deep/.
 .time {
   display: flex;
   justify-content: center;
@@ -114,11 +171,35 @@ export default class ChatList extends Vue {
 }
 
 .chat-item {
+  position: relative;
   //flex-direction: row-reverse;
   display: flex;
   box-sizing: border-box;
   width: 100%;
   padding: 20rpx;
+
+  .video-play {
+    $bgs: 100rpx;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    z-index: 100;
+    transform: translate(-50%, -50%);
+    background: url('/static/play.png') no-repeat;
+    background-size: $bgs;
+    width: $bgs;
+    height: $bgs;
+  }
+
+  .video-mask {
+    position: absolute;
+    left: 20rpx;
+    bottom: 20rpx;
+    right: 20rpx;
+    top: 20rpx;
+
+    background: rgba(0, 0, 0, 0.5);
+  }
 
   .image-box {
     width: 100rpx;
@@ -150,6 +231,27 @@ export default class ChatList extends Vue {
       .content-image {
         height: auto;
         width: 100%;
+      }
+    }
+    .content-video-box {
+      width: 360rpx;
+      height: auto;
+      .content-video {
+        width: 100%;
+        transition: all 0.3s;
+        height: 250rpx;
+      }
+    }
+
+    .schedule {
+      position: absolute;
+      left: -15%;
+      top: 50%;
+      transform: translateY(-50%);
+
+      .image {
+        width: 40rpx;
+        height: 40rpx;
       }
     }
 

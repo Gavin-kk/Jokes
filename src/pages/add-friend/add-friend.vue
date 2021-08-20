@@ -10,14 +10,17 @@
       cancel-button="auto"
       :focus="searchFocus"
       @confirm="searchConfirm"
+      @clear="searchClear"
+      v-model="searchInput"
     ></uni-search-bar>
     <view class="box">
       <view v-show="isShowSearchHistory">
         <view class="title">搜索历史</view>
         <view class="search-list">
           <block v-for="(item, index) in searchHistory" :key="index">
-            <text class="search-history">{{ item }}</text>
+            <text class="search-history" @tap="searchConfirm({ value: item })">{{ item }}</text>
           </block>
+          <view v-if="!searchHistory.length" style="font-size: 28rpx; text-align: center; width: 100%"> 没有记录 </view>
         </view>
       </view>
       <view v-show="isShowEmpty">
@@ -41,15 +44,23 @@ import { IResponse } from '@services/interface/response.interface';
 import { SEARCH_ADD_FRIEND_HISTORY } from '@common/constant/storage.constant';
 import { searchUserRequest } from '@services/user.request';
 import Empty from '@components/empty/empty.vue';
+import { namespace } from 'vuex-class';
+
+const UserModule = namespace('userModule');
+
+let timer: number | undefined;
 
 @Component({
   components: { Empty, NewsList, NavBar, UniSearchBar },
 })
 export default class AddFriend extends Vue {
+  @UserModule.State('userInfo')
+  private readonly userInfo!: IUser;
   private userList: IUser[] = [];
   // private searchText: string = '';
   private searchFocus: boolean = true;
   private searchHistory: string[] = [];
+  private searchInput: string = '';
   // 是否显示搜索历史
   private isShowSearchHistory: boolean = true;
   // 是否显示空
@@ -58,7 +69,9 @@ export default class AddFriend extends Vue {
   async created() {
     try {
       this.searchHistory = await this.getSearchHistory();
-    } catch (err) {}
+    } catch (err) {
+      console.log(err);
+    }
   }
 
   // 搜索
@@ -66,6 +79,7 @@ export default class AddFriend extends Vue {
     const isExists: boolean = await this.getData(value);
     this.isShowEmpty = !isExists;
     this.isShowSearchHistory = !isExists;
+    this.searchInput = value;
     try {
       let searchHistory: string[] = await this.getSearchHistory();
       searchHistory.push(value);
@@ -91,25 +105,38 @@ export default class AddFriend extends Vue {
     return result.data.data.length > 0;
   }
 
+  // 清除搜索框事件
+  async searchClear() {
+    this.isShowSearchHistory = true;
+    this.userList = [];
+    this.isShowEmpty = false;
+    this.searchHistory = await this.getSearchHistory();
+  }
+
   // 读取搜索历史记录
-  getSearchHistory(): Promise<string[]> {
-    return new Promise((resolve, reject) => {
-      uni.getStorage({
-        key: SEARCH_ADD_FRIEND_HISTORY,
-        success: (res) => {
-          const content: string[] = res.data;
-          this.searchHistory = content;
-          resolve(content);
-        },
-        fail: () => {
-          reject(new Error(''));
-        },
-      });
+  async getSearchHistory(): Promise<string[]> {
+    await new Promise((resolve) => {
+      if (!this.userInfo.id) {
+        timer = setInterval(() => {
+          if (this.userInfo.id) {
+            clearInterval(timer);
+            resolve('');
+          }
+        }, 50);
+      } else {
+        resolve('');
+      }
     });
+
+    const content: string[] | '' = uni.getStorageSync(SEARCH_ADD_FRIEND_HISTORY(this.userInfo.id));
+    if (typeof content !== 'string') {
+      return content;
+    }
+    return [];
   }
   // 写入搜索历史记录
   setSearchHistory(content: string[]) {
-    uni.setStorageSync(SEARCH_ADD_FRIEND_HISTORY, content);
+    uni.setStorageSync(SEARCH_ADD_FRIEND_HISTORY(this.userInfo.id), content);
   }
 }
 </script>

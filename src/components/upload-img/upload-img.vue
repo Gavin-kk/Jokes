@@ -30,6 +30,7 @@ import { Vue, Component, Prop, PropSync } from 'vue-property-decorator';
 import permision from '@utils/permission';
 import { IResponse } from '@services/interface/response.interface';
 import { deleteUploadImage } from '@services/release.request';
+import { UPLOAD_IMAGE_URL } from '@common/constant/upload-path.constant';
 
 const sourceType = [['camera'], ['album'], ['camera', 'album']];
 const sizeType = [['compressed'], ['original'], ['compressed', 'original']];
@@ -86,7 +87,7 @@ export default class UploadImg extends Vue {
           uni.uploadFile({
             filePath,
             name: 'files',
-            url: 'http://localhost:5000/api/v1/upload/images',
+            url: UPLOAD_IMAGE_URL,
             success: (response) => {
               const data: IResponse<{ success: string[]; notSupport: string[]; restricted: string[] }> = JSON.parse(
                 response.data,

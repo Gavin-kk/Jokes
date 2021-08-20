@@ -93,6 +93,7 @@ import { deleteUploadVideo, postArticleRequest } from '@services/release.request
 import { namespace } from 'vuex-class';
 import { ITopic } from '@pages/moment/store';
 import { getAddressByLatitudeAndLongitudeRequest } from '@services/common.request';
+import { UPLOAD_VIDEO_URL } from '@common/constant/upload-path.constant';
 
 export const enum ArticleTypeEnum {
   article,
@@ -354,7 +355,7 @@ export default class Release extends Vue {
             // 发送视频上传请求
             const uploadVideo = uni.uploadFile({
               name: 'video',
-              url: 'http://localhost:5000/api/v1/upload/video',
+              url: UPLOAD_VIDEO_URL,
               fileType: 'video',
               file: res.tempFile,
               header: {

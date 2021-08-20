@@ -1,7 +1,7 @@
 export interface IResponse<T> {
   data: T;
   message: string;
-  statusCode: 200;
+  statusCode: number;
 }
 export interface IUploadResponse {
   success: string[];

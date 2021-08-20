@@ -5,8 +5,8 @@ export const CHAT_LIST = (currentUserId: number, targetUserId: number) => `chatL
 // 用户tokne的storage缓存key
 export const TOKEN_KEY = '_token';
 // 用户的未读关注角标数量
-export const USER_NEW_ATTENTION_COUNT = 'userNewAttentionCount';
+export const USER_NEW_ATTENTION_COUNT = (userId: number) => `userNewAttentionCount-${userId}`;
 // 用户未读新点赞角标数量
-export const USER_NEW_LIKE_COUNT = 'userNewLikeCount';
+export const USER_NEW_LIKE_COUNT = (userId: number) => `userNewLikeCount-${userId}`;
 // 添加好友页面搜索好友文字的历史记录
-export const SEARCH_ADD_FRIEND_HISTORY = 'search_add_friend_history';
+export const SEARCH_ADD_FRIEND_HISTORY = (userId: number) => `search_add_friend_history-${userId}`;

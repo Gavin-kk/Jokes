@@ -37,6 +37,7 @@ import { ITopicClassify } from '@pages/moment/store';
 import { MomentStoreActionType } from '@pages/moment/store/constant';
 import { ModuleConstant } from '@store/module.constant';
 import { createTopicRequest } from '@services/topic.request';
+import { UPLOAD_IMAGE_URL } from '@common/constant/upload-path.constant';
 
 export interface CreateTopicDto {
   title: string;
@@ -165,7 +166,7 @@ export default class CreateTopic extends Vue {
         success: (res) => {
           uni.uploadFile({
             name: 'files',
-            url: `${BASE_URL}/upload/images`,
+            url: UPLOAD_IMAGE_URL,
             header: {
               Authorization: `Bearer ${uni.getStorageSync('_token')}`,
             },

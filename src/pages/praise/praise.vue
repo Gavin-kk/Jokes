@@ -2,10 +2,10 @@
   <view>
     <nav-bar title="赞" page-path="/pages/news/news"></nav-bar>
     <view class="box">
+      <!-- 点赞列表-->
       <block v-for="item in data" :key="item.userId + item.time">
         <news-list :data="item" @openChat="openUser(item)" />
       </block>
-      <!-- 点赞列表-->
     </view>
   </view>
 </template>
@@ -21,6 +21,8 @@ import { IPraiseResponse } from '@pages/praise/praise.interface';
 import { IResponse } from '@services/interface/response.interface';
 import { INews } from '@pages/news/news.vue';
 import { USER_NEW_LIKE_COUNT } from '@common/constant/storage.constant';
+import { namespace } from 'vuex-class';
+import { IUser } from '@store/module/user';
 
 type DataType = Omit<INews, 'time' | 'unreadCount'>;
 
@@ -28,11 +30,14 @@ interface IDataType extends DataType {
   time: string;
 }
 
+const UserModule = namespace('userModule');
 @Component({
   name: 'praise',
   components: { NewsList, NavBar },
 })
 export default class Praise extends Vue {
+  @UserModule.State('userInfo')
+  private readonly userInfo!: IUser;
   // 下拉加载的页码
   private pageNum: number = 1;
   // 下拉加载的提示文字
@@ -62,7 +67,9 @@ export default class Praise extends Vue {
   }
 
   clearUnread() {
-    uni.removeStorage({ key: USER_NEW_LIKE_COUNT });
+    if (this.userInfo.id) {
+      uni.removeStorage({ key: USER_NEW_LIKE_COUNT(this.userInfo.id) });
+    }
   }
 }
 </script>

@@ -29,7 +29,15 @@ export default class extends Mixins(WebsocketMixin) implements WebsocketMixinAbs
   @UserModule.Action(UserStoreActionType.GET_USER_INFO)
   private readonly getUserInfo!: () => void;
 
-  created() {
+  async onLaunch() {
+    const token: string | '' = uni.getStorageSync(TOKEN_KEY);
+    if (token) {
+      // 获取用户信息 并且得到用户的数据
+      await this.getUserInfo();
+    }
+  }
+
+  async created() {
     this.onEvent();
     //  获取当前小红点的数量
     this.getCount();
@@ -37,21 +45,13 @@ export default class extends Mixins(WebsocketMixin) implements WebsocketMixinAbs
 
   // 监听事件
   onEvent() {
+    uni.$on('initSocket', () => {
+      this.initWebsocket();
+    });
     uni.$on('sendMsg', this.sendMessage);
     uni.$on('closeSocket', () => {
       this.close();
     });
-    uni.$on('initSocket', () => {
-      this.initWebsocket();
-    });
-  }
-
-  async onLaunch() {
-    const token: string | '' = uni.getStorageSync(TOKEN_KEY);
-    if (token) {
-      // 获取用户信息 并且得到用户的数据
-      await this.getUserInfo();
-    }
   }
 
   watchMessage(msg: ISocketMessage) {
@@ -63,11 +63,11 @@ export default class extends Mixins(WebsocketMixin) implements WebsocketMixinAbs
         });
         break;
       case 'offlineFollowCount':
-        this.handlerOfflineFollowCount(msg, USER_NEW_ATTENTION_COUNT);
+        this.handlerOfflineFollowCount(msg, USER_NEW_ATTENTION_COUNT(this.userInfo.id));
         uni.$emit('refresh-news');
         break;
       case 'offlineLikeCount':
-        this.handlerOfflineFollowCount(msg, USER_NEW_LIKE_COUNT);
+        this.handlerOfflineFollowCount(msg, USER_NEW_LIKE_COUNT(this.userInfo.id));
         uni.$emit('refresh-news');
         break;
       //  消息
@@ -154,8 +154,8 @@ export default class extends Mixins(WebsocketMixin) implements WebsocketMixinAbs
   getCount() {
     let sumCount: number = 0;
     const newsList: INews[] | '' = uni.getStorageSync(NEWS_LIST(this.userInfo.id));
-    const followCount: number | '' = uni.getStorageSync(USER_NEW_ATTENTION_COUNT);
-    const likeCount: number | '' = uni.getStorageSync(USER_NEW_LIKE_COUNT);
+    const followCount: number | '' = uni.getStorageSync(USER_NEW_ATTENTION_COUNT(this.userInfo.id));
+    const likeCount: number | '' = uni.getStorageSync(USER_NEW_LIKE_COUNT(this.userInfo.id));
     if (typeof newsList !== 'string') {
       newsList.forEach((item) => {
         sumCount += item.unreadCount;

@@ -21,6 +21,7 @@ import { signOutRequest } from '@src/services/common.request';
 import { ModuleConstant } from '@store/module.constant';
 import { UserStoreActionType } from '@store/module/user/constant';
 import { TOKEN_KEY } from '@common/constant/storage.constant';
+import { UPLOAD_VIDEO_URL } from '@common/constant/upload-path.constant';
 
 @Component({ components: { NavBar, ItemList } })
 export default class Settings extends Vue {
@@ -37,7 +38,7 @@ export default class Settings extends Vue {
     uni.chooseImage({
       success(res) {
         const takes = uni.uploadFile({
-          url: 'http://localhost:5000/api/v1/upload/video',
+          url: UPLOAD_VIDEO_URL,
           name: 'video',
           filePath: res.tempFilePaths[0],
           header: { Authorization: `Bearer ${uni.getStorageSync('_token')}` },

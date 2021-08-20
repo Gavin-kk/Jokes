@@ -52,6 +52,7 @@ import DropDownMenu from '@components/drop-down-menu/drop-down-menu.vue';
 import { CHAT_LIST, NEWS_LIST, USER_NEW_ATTENTION_COUNT, USER_NEW_LIKE_COUNT } from '@common/constant/storage.constant';
 import { namespace } from 'vuex-class';
 import { IUser } from '@store/module/user';
+import * as toPinyin from 'jian-pinyin';
 
 export interface INews {
   userId: number;
@@ -109,8 +110,8 @@ export default class News extends Vue {
   // 从缓存中读取数据
   getCache() {
     const data: INews[] | '' = uni.getStorageSync(NEWS_LIST(this.userInfo.id));
-    const rightTopCount: number | '' = uni.getStorageSync(USER_NEW_ATTENTION_COUNT);
-    const leftTopCount: number | '' = uni.getStorageSync(USER_NEW_LIKE_COUNT);
+    const rightTopCount: number | '' = uni.getStorageSync(USER_NEW_ATTENTION_COUNT(this.userInfo.id));
+    const leftTopCount: number | '' = uni.getStorageSync(USER_NEW_LIKE_COUNT(this.userInfo.id));
 
     typeof rightTopCount !== 'string' ? (this.rightTopCount = rightTopCount) : (this.rightTopCount = 0);
     typeof leftTopCount !== 'string' ? (this.leftTopCount = leftTopCount) : (this.leftTopCount = 0);
@@ -167,8 +168,29 @@ export default class News extends Vue {
     this.dataList.forEach((item) => {
       item.unreadCount = 0;
     });
+    uni.getStorage({
+      key: NEWS_LIST(this.userInfo.id),
+      success: (res: { data: INews[] }) => {
+        const list = res.data.map((item) => ({ ...item, unreadCount: 0 }));
+        uni.setStorage({
+          key: NEWS_LIST(this.userInfo.id),
+          data: list,
+        });
+      },
+    });
+    uni.setStorage({
+      key: USER_NEW_LIKE_COUNT(this.userInfo.id),
+      data: 0,
+    });
+    uni.setStorage({
+      key: USER_NEW_ATTENTION_COUNT(this.userInfo.id),
+      data: 0,
+    });
+
+    this.rightTopCount = 0;
+    this.leftTopCount = 0;
     this.changeIsShow();
-    uni.showToast({ title: '清除未读' });
+    uni.showToast({ title: '清除成功' });
   }
 
   // 点击拉取出来的删除按钮触发

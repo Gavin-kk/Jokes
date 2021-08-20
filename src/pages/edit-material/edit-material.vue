@@ -39,6 +39,7 @@ import { IUser } from '@store/module/user';
 import lodash from 'lodash';
 import { editUserInfoRequest } from '@services/user.request';
 import { IResponse, IUploadResponse } from '@src/services/interface/response.interface';
+import { UPLOAD_IMAGE_URL } from '@common/constant/upload-path.constant';
 
 export interface IEditMaterialSubmit {
   avatar: string;
@@ -151,7 +152,7 @@ export default class EditMaterial extends Mixins(CheckLoginMixin) {
       sizeType: ['compressed'],
       success: (res) => {
         uni.uploadFile({
-          url: 'http://localhost:5000/api/v1/upload/images',
+          url: UPLOAD_IMAGE_URL,
           filePath: res.tempFilePaths[res.tempFilePaths.length - 1],
           name: 'files',
           header: {

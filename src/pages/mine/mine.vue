@@ -1,10 +1,14 @@
 <template>
   <view>
+    <!--#ifndef MP-WEIXIN-->
     <!--     导航栏-->
     <uni-nav-bar status-bar :border="false">
       <view slot="default" class="title-center">我</view>
       <view slot="right" class="iconfont icon-gengduo1" @tap="openSettings"></view>
     </uni-nav-bar>
+    <!--#endif-->
+    <!--#ifdef MP-WEIXIN-->
+    <!--#endif-->
     <view class="root-box">
       <!--    登录方式-->
       <template v-if="!isLogin">
@@ -49,29 +53,50 @@ export default class Mine extends Vue {
   @UserModule.State('count')
   private readonly countObj!: ICount;
 
-  get sectionList(): { count: number; text: string }[] {
+  get sectionList(): { count: number; text: string; url: string }[] {
     const countKeys: string[] = Object.keys(this.countObj);
-    const list: string[] = ['文章', '话题', '评论', '点赞'];
-    return countKeys.map((item: string, index: number) => ({ count: this.countObj[item], text: list[index] }));
+    const list: { text: string; url: string }[] = [
+      { text: '文章', url: '/pages/my-article/my-article' },
+      { text: '话题', url: '/pages/my-topic/my-topic' },
+      { text: '关注', url: '/pages/my-follow/my-follow' },
+      { text: '粉丝', url: '/pages/my-fans/my-fans' },
+    ];
+    return countKeys.map((item: string, index: number) => ({
+      count: this.countObj[item],
+      text: list[index].text,
+      url: list[index].url,
+    }));
   }
   // 列表数据
   private list: IItemList[] = [
-    { iconfontClass: 'icon-liulan', text: '浏览历史', color: '#68c1ff' },
-    { iconfontClass: 'icon-huiyuanvip', text: '认证', color: '#ff7332' },
-    { iconfontClass: 'icon-icon_im_keyboard', text: '陪审团', color: '#7ccaff' },
+    {
+      iconfontClass: 'icon-liulan',
+      text: '浏览历史',
+      color: '#68c1ff',
+      url: '/pages/browsing-history/browsing-history',
+    },
   ];
+
+  created() {
+    //  #ifdef MP_WEIXIN
+    this.list.push({
+      iconfontClass: 'icon-shezhi',
+      text: '设置',
+      url: '/pages/settings/settings',
+    });
+    //  #endif
+  }
 
   // 打开设置
   openSettings() {
     uni.navigateTo({
       url: '/pages/settings/settings',
     });
-    uni.showToast({ title: '打开个人设置' });
   }
 
   // 点击列表
   clickListEvent(item: IItemList) {
-    uni.showToast({ title: `${item.text}进入` });
+    uni.navigateTo({ url: item.url! });
   }
 }
 </script>

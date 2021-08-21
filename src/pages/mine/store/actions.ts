@@ -21,7 +21,6 @@ export const actions = {
       const result: AxiosResponse<IResponse<IArticle[]>> = await getAllUserPersonalArticleListRequest(pageNumber);
       context.commit(ArticleStoreActionType.CHANGE_ALL_PERSONAL_ARTICLES, result.data.data);
     } catch (err) {
-      uni.showToast({ title: '连接失败', icon: 'none' });
       console.log(err.response.data);
     }
   },

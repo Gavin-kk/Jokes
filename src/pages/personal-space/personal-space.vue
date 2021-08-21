@@ -71,11 +71,9 @@
         :is-show-menu="isShowMenu"
         first-text="拉黑"
         first-iconfont-class="icon-guanbi"
-        last-iconfont-class="icon-bianji"
         :nav-bar-height="navigationBarHeight"
         @close="closeMenu"
         @clickOnTheFirst="menuClickOnTheFirst"
-        @clickTheLastOne="menuClickTheLastOne"
       />
     </view>
   </view>
@@ -212,8 +210,12 @@ export default class PersonalSpace extends Vue {
   async getPagesData() {
     const pages: any = getCurrentPages();
     const {
-      options: { userId },
+      // options: { userId },
+      options,
     } = pages[pages.length - 1];
+
+    const userId = options?.userId;
+
     if (+userId === this.user.id) {
       this.isMe = true;
     }
@@ -266,9 +268,6 @@ export default class PersonalSpace extends Vue {
   }
   menuClickOnTheFirst() {
     uni.showToast({ title: '点击拉黑' });
-  }
-  menuClickTheLastOne() {
-    uni.showToast({ title: '点击备注' });
   }
 
   // tabbar切换事件
@@ -372,6 +371,9 @@ export default class PersonalSpace extends Vue {
 <style lang="scss" scoped>
 .title-bar {
   position: absolute;
+  /*#ifdef MP-WEIXIN*/
+  top: var(-status-bar-height);
+  /*#endif*/
   top: 0;
   z-index: 100;
   width: 100%;

@@ -1,14 +1,12 @@
 <template>
   <view :class="['box', 'animate__animated', 'animate__fadeIn']" style="animation-duration: 200ms">
     <!--     导航栏-->
-    <uni-nav-bar status-bar class="nav-bar-height">
-      <view slot="left" @tap="comeBack" class="iconfont icon-fanhui" hover-class="hover"></view>
+    <nav-bar :title="title" page-path="/pages/news/news" class="nav-bar-height">
       <view slot="right" @tap="openPersonal" class="right" hover-class="hover">
         <view class="iconfont icon-geren"></view>
       </view>
-    </uni-nav-bar>
+    </nav-bar>
     <!--内容-->
-
     <scroll-view
       id="scroll-view-chat"
       style="transition: all 0.3s"
@@ -21,7 +19,6 @@
         <block v-for="(item, index) in chatDataList" :key="index">
           <chat-list :data="item" :pre-time="chatDataPreTime(index)"></chat-list>
         </block>
-        <!--        <view @tap="test">haha</view>-->
       </view>
     </scroll-view>
 
@@ -66,6 +63,7 @@ import { INews } from '@pages/news/news.vue';
 import { UPLOAD_IMAGE_URL, UPLOAD_VIDEO_URL } from '@common/constant/upload-path.constant';
 import { IResponse } from '@services/interface/response.interface';
 import RoundScheduleProgress from '@components/round-schedule-progress/round-schedule-progress.vue';
+import NavBar from '@components/nav-bar/nav-bar.vue';
 
 export interface IChat {
   isMe: boolean;
@@ -99,7 +97,7 @@ const UserModule = namespace('userModule');
 let timer: number | undefined;
 let timer2: number | undefined;
 // let height: number | undefined;
-@Component({ components: { RoundScheduleProgress, ChatList, ChatInputBtn, UniNavBar } })
+@Component({ components: { NavBar, RoundScheduleProgress, ChatList, ChatInputBtn, UniNavBar } })
 // export default class Chat extends Mixins(WebsocketMixin) {
 export default class Chat extends Vue {
   @UserModule.State('userInfo')
@@ -129,6 +127,8 @@ export default class Chat extends Vue {
   private isShowInputDropDownMenuMask: boolean = false;
   // 开关动画
   private switchAnimation: boolean = true;
+  // 本次聊天的title
+  private title: string = '';
   //  控制动画
   get animationClassName(): string {
     return this.switchAnimation ? 'animate__fadeInRight' : 'animate__fadeOutRight';
@@ -149,12 +149,12 @@ export default class Chat extends Vue {
         this.windowHeight = res.windowHeight;
       },
     });
-    this.getPageData();
-    //  获取本地缓存
-    this.getCache();
   }
 
   mounted() {
+    this.getPageData();
+    //  获取本地缓存
+    this.getCache();
     this.$nextTick(() => {
       this.getHeight();
       this.preventJitter();
@@ -253,10 +253,13 @@ export default class Chat extends Vue {
   // 获取上个页面携带的id
   getPageData() {
     const pages: any = getCurrentPages();
+    console.log(pages[pages.length - 1].options);
+
     const {
-      options: { id },
+      options: { id, username },
     } = pages[pages.length - 1];
     this.targetId = +id;
+    this.title = username;
   }
 
   handlerSuccess(type: ContentType) {
@@ -273,7 +276,7 @@ export default class Chat extends Vue {
       const filePath: string = res.tempFilePath || res.tempFilePaths[res.tempFilePaths.length - 1];
       const sendData: IChat = data(filePath);
       // 记录当前数据插入时的位置
-      const length = this.chatDataList.length;
+      const length: number = this.chatDataList.length;
       this.chatDataList.push(sendData);
       // 防抖获取高度
       this.preventJitter();
@@ -451,7 +454,9 @@ export default class Chat extends Vue {
   }
 
   openPersonal() {
-    uni.showToast({ title: '进入个人页' });
+    uni.navigateTo({
+      url: `/pages/personal-space/personal-space?userId=${this.targetId}`,
+    });
   }
 
   // 检查文件大小
@@ -487,8 +492,10 @@ export default class Chat extends Vue {
 .right {
   display: flex;
   justify-content: flex-end;
+  align-items: flex-end;
   width: 100%;
-  padding-right: 10rpx;
+  //padding-right: 10rpx;
+  margin-left: 18rpx;
 }
 
 .iconfont {

@@ -6,9 +6,9 @@ export const getAllUserPersonalArticleListRequest = (pageNumber: number) =>
     params: { pageNumber },
   });
 // 获取个人所有话题下的文章
-export const getAllUserTopicArticleListRequest = (pageNumber: number) =>
+export const getAllUserTopicArticleListRequest = (pageNum: number) =>
   request.get('/article/user/topic/list', {
-    params: { pageNumber },
+    params: { pageNum },
   });
 // 获取个人所有的评论的文章
 export const getAllUserCommentListRequest = (pageNumber: number) =>

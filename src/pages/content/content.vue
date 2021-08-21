@@ -39,6 +39,11 @@ import { IResponse } from '@services/interface/response.interface';
 import ReplyComment from '@pages/content/components/reply-comment/reply-comment.vue';
 import { timeFilter } from '@common/filters/time.filter';
 import Empty from '@components/empty/empty.vue';
+import { BROWSING_HISTORY_ARTICLE } from '@common/constant/storage.constant';
+import { IArticle } from '@pages/home/store';
+import { namespace } from 'vuex-class';
+import { IUser } from '@store/module/user';
+import lodash from 'lodash';
 
 export interface ISendCommentPayload {
   // 文章的id 如果是回复一级评论或其下的评论 此项可不填
@@ -50,7 +55,6 @@ export interface ISendCommentPayload {
   //  一级评论的id 如果只传comment和content 那么就是该一级评论下的评论
   commentId?: number;
 }
-
 @Component({
   components: { Empty, Share, ChatInputBtn, Comment, MomentList, INavBar, ReplyComment },
   filters: { timeFilter },

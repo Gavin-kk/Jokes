@@ -16,6 +16,7 @@ export const enum UserStoreActionType {
   // 获取当前用户的所有文章,话题文章,评论的文章,点赞的文章 的数量
   GET_COUNT = 'get_count',
   CHANGE_COUNT = 'change_count',
+  CHANGE_BG = 'change_bg',
   //  初始化数据
   INIT = 'init',
 }

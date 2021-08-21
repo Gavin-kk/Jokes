@@ -1,7 +1,7 @@
 <template>
   <view class="top">
     <view class="bg-box">
-      <image class="bg-img" :src="bgImageUrls[currentBgIndex]" mode="aspectFill"></image>
+      <image class="bg-img" :src="bgImage" mode="aspectFill"></image>
     </view>
     <view class="box">
       <view class="user-info">
@@ -58,6 +58,7 @@ import { checkIsFollowEachOtherRequest } from '@services/follow.request';
 import { namespace } from 'vuex-class';
 import { AxiosResponse } from 'axios';
 import { IResponse } from '@services/interface/response.interface';
+import { UserStoreActionType } from '@store/module/user/constant';
 
 const UserModule = namespace('userModule');
 
@@ -65,6 +66,7 @@ const UserModule = namespace('userModule');
 export default class UserPageHead extends Vue {
   @UserModule.State('userInfo')
   private readonly IuserInfo!: IUser;
+
   @PropSync('constellation', { type: String, default: '' })
   private readonly constellationC!: string;
   @PropSync('sectionList', { type: Array, default: [] })
@@ -75,13 +77,11 @@ export default class UserPageHead extends Vue {
   private readonly isMe!: boolean;
   // 是否关注
   private isFollow: boolean = false;
+  private bgImageUrl: string = '/static/default-user-bg.jpeg';
 
-  private bgImageUrls: string[] = [
-    '/static/demo/topicpic/2.jpeg',
-    '/static/demo/topicpic/3.jpeg',
-    '/static/demo/topicpic/1.jpeg',
-  ];
-  private currentBgIndex: number = 0;
+  get bgImage(): string {
+    return (this.isMe ? this.IuserInfo.bgUrl : this.userInfoC.bgUrl) || this.bgImageUrl;
+  }
 
   get attentionText(): string {
     return this.isFollow ? '已关注' : '关注';
@@ -100,7 +100,16 @@ export default class UserPageHead extends Vue {
   }
 
   created() {
-    this.onFollow();
+    this.onEvent();
+  }
+
+  onEvent() {
+    // 监听关注事件
+    uni.$on('follow', (payload: IFollowEventPayload) => {
+      if (payload.userId === this.userInfoC.id && this.isFollow !== payload.isFollow) {
+        this.isFollow = payload.isFollow;
+      }
+    });
   }
 
   // 点击关注
@@ -112,14 +121,6 @@ export default class UserPageHead extends Vue {
     uni.$emit('follow', { isFollow, userId: this.userInfoC.id } as IFollowEventPayload);
   }
 
-  // 监听关注事件
-  onFollow() {
-    uni.$on('follow', (payload: IFollowEventPayload) => {
-      if (payload.userId === this.userInfoC.id && this.isFollow !== payload.isFollow) {
-        this.isFollow = payload.isFollow;
-      }
-    });
-  }
   // 点击聊天
   async toChatWith() {
     const result: AxiosResponse<IResponse<boolean>> = await checkIsFollowEachOtherRequest(
@@ -184,7 +185,7 @@ export default class UserPageHead extends Vue {
       success: (res) => {
         if (res.tapIndex === 0) {
           uni.previewImage({
-            urls: [this.bgImageUrls[this.currentBgIndex]],
+            urls: [this.bgImageUrl],
           });
         } else {
           uni.navigateTo({
@@ -199,6 +200,9 @@ export default class UserPageHead extends Vue {
 
 <style lang="scss" scoped>
 $height: 555rpx;
+/*#ifdef MP-WEIXIN*/
+$height: 650rpx;
+/*#endif*/
 .top {
   position: relative;
 
@@ -345,13 +349,13 @@ $height: 555rpx;
       height: 100%;
       width: 300rpx;
       flex-direction: column;
-      right: 0;
+      right: -20rpx;
 
       .edit-data {
         display: flex;
         align-items: center;
         justify-content: center;
-        background: rgba(255, 255, 255, 0.4);
+        background: rgba(0, 0, 0, 0.3);
         box-sizing: border-box;
         color: #ffffff;
         padding: 20rpx;

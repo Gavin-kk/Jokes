@@ -29,9 +29,6 @@ import { IFans } from '@pages/new-attention/new-attention.vue';
 export default class NewsList extends Vue {
   @Prop(Object)
   private data!: INews | IFans;
-  // 是否使用slot
-  @Prop({ type: Boolean, default: false })
-  private isUseSlot!: boolean;
 
   get isShowTag(): boolean {
     return (this.data as INews).unreadCount > 0;

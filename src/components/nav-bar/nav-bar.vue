@@ -3,6 +3,9 @@
     <uni-nav-bar status-bar :border="false">
       <view slot="default" class="title-center">{{ title }}</view>
       <view slot="left" class="iconfont icon-fanhui" @tap="clickLeft"></view>
+      <view slot="right">
+        <slot name="right"></slot>
+      </view>
     </uni-nav-bar>
   </view>
 </template>
@@ -20,6 +23,13 @@ export default class NavBar extends Vue {
   private pagePath!: string;
 
   clickLeft() {
+    const pages: any = getCurrentPages();
+    if (pages.length > 1) {
+      uni.navigateBack({
+        delta: 1,
+      });
+      return;
+    }
     uni.redirectTo({
       url: this.pagePath,
       fail: () => {

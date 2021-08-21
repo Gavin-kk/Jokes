@@ -3,7 +3,7 @@
     <!--时间-->
     <view class="time" v-if="data.time">{{ data.time | timeFilter }}</view>
     <view :class="['chat-item', { 'row-reverse': data.isMe }]">
-      <view class="image-box">
+      <view class="image-box" @tap="openUser">
         <image v-if="imageShow" class="image" :src="data.avatar" mode="aspectFill" lazy-load></image>
       </view>
       <view class="content-box">
@@ -83,6 +83,8 @@ import moment from 'moment';
 import { timeFilter } from '@common/filters/time.filter';
 import RoundScheduleProgress from '@components/round-schedule-progress/round-schedule-progress.vue';
 import { IChat } from '@pages/chat/chat.vue';
+import { namespace } from 'vuex-class';
+import { IUser } from '@store/module/user';
 
 moment.locale('zh-cn');
 export enum ContentType {
@@ -90,20 +92,21 @@ export enum ContentType {
   text = 'text',
   video = 'video',
 }
+const UserModule = namespace('userModule');
 
 @Component({
   components: { RoundScheduleProgress },
   filters: { timeFilter },
 })
 export default class ChatList extends Vue {
+  @UserModule.State('userInfo')
+  private readonly userInfo!: IUser;
   @Prop({ type: Object })
   private data!: IChat;
   @Prop(Number)
   private preTime!: number;
   private isShowControl: boolean = false;
   private videoCtx: UniApp.VideoContext | null = null;
-
-  private isFirst: boolean = true;
 
   // 是否显示发送进度
   get isShowProgress(): boolean {
@@ -119,7 +122,6 @@ export default class ChatList extends Vue {
   get imageShow() {
     return !!this.data.content && !!this.data.avatar;
   }
-
   // 判断内容类型
   get showText(): boolean {
     return this.data.type === ContentType.text;
@@ -146,6 +148,18 @@ export default class ChatList extends Vue {
     this.videoCtx?.requestFullScreen();
     this.videoCtx?.seek(0);
     this.videoCtx?.play();
+  }
+
+  openUser() {
+    let userId: number;
+    if (typeof this.data.user?.id === 'undefined') {
+      userId = this.userInfo.id;
+    } else {
+      userId = this.data.user?.id;
+    }
+    uni.navigateTo({
+      url: `/pages/personal-space/personal-space?userId=${userId}`,
+    });
   }
 }
 </script>

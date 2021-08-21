@@ -47,6 +47,8 @@ const MomentModule = namespace('momentModule');
 export default class Moment extends Vue {
   @MomentModule.State('followArticleList')
   private followArticleList!: IArticle[];
+  @MomentModule.Action(MomentStoreActionType.GET_USER_ARTICLES_FOLLOWED_BY_USERS)
+  private getUserArticlesFollowedByUsers!: (n: number) => Promise<boolean>;
   // 关注列表的页码
   private followPageNum: number = 1;
   // 关注页面的下拉文本
@@ -67,10 +69,7 @@ export default class Moment extends Vue {
       },
     });
     // 获取用户关注的文章
-    this.$store.dispatch(
-      `${ModuleConstant.momentModule}/${MomentStoreActionType.GET_USER_ARTICLES_FOLLOWED_BY_USERS}`,
-      this.followPageNum,
-    );
+    this.getUserArticlesFollowedByUsers(this.followPageNum);
   }
 
   mounted() {
@@ -106,10 +105,7 @@ export default class Moment extends Vue {
   async bottomOut() {
     this.pullMsg = LoadingStatus.loading;
     this.followPageNum++;
-    const isExists: boolean = await this.$store.dispatch(
-      `${ModuleConstant.momentModule}/${MomentStoreActionType.GET_USER_ARTICLES_FOLLOWED_BY_USERS}`,
-      this.followPageNum,
-    );
+    const isExists: boolean = await this.getUserArticlesFollowedByUsers(this.followPageNum);
     isExists ? (this.pullMsg = LoadingStatus.load) : (this.pullMsg = LoadingStatus.air);
   }
 

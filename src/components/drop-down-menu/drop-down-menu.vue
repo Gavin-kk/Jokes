@@ -6,10 +6,10 @@
       :class="['menu', 'animate__animated', 'animate__backInDown']"
       :style="{ 'animation-duration': '200ms', top: statusBarIsExists }"
     >
-      <view :class="['iconfont', firstIconfontClass]" hover-class="hover" @tap="clickOnTheFirst" v-show="firstText">{{
+      <view :class="['iconfont', firstIconfontClass]" hover-class="hover" @tap="clickOnTheFirst" v-if="firstText">{{
         firstText
       }}</view>
-      <view :class="['iconfont', lastIconfontClass]" hover-class="hover" @tap="clickTheLastOne" v-show="lastText">{{
+      <view :class="['iconfont', lastIconfontClass]" hover-class="hover" @tap="clickTheLastOne" v-if="lastText">{{
         lastText
       }}</view>
     </view>

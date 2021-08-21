@@ -3,7 +3,7 @@
     <nav-bar title="赞" page-path="/pages/news/news"></nav-bar>
     <view class="box">
       <!-- 点赞列表-->
-      <block v-for="item in data" :key="item.userId + item.time">
+      <block v-for="(item, index) in data" :key="index">
         <news-list :data="item" @openChat="openUser(item)" />
       </block>
     </view>

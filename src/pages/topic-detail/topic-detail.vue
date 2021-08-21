@@ -31,7 +31,7 @@
           <swiper-item>
             <view :id="idArr[index]">
               <block v-for="(itex, itexIndex) in item.list" :key="itexIndex">
-                <moment-list :data="itex" />
+                <moment-list :data="itex" :topic="topic" />
               </block>
               <pull-up-loading :text="item.loading" v-if="!isShowLoadingText"></pull-up-loading>
             </view>
@@ -86,15 +86,19 @@ export default class TopicDetail extends Vue {
   }
 
   created() {
+    this.getPageData();
+    //  请求该话题下的文章
+    this.getTopicList();
+    this.getTopicList(this.activeIndex + 1);
+  }
+
+  getPageData() {
     const pages: any = getCurrentPages();
     const {
       options: { data },
     } = pages[pages.length - 1];
     this.topic = JSON.parse(data);
     this.list = this.titleNavList.map(() => ({ loading: LoadingStatus.load, list: [], pageNum: 1 }));
-    //  请求该话题下的文章
-    this.getTopicList();
-    this.getTopicList(this.activeIndex + 1);
   }
 
   mounted() {

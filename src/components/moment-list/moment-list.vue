@@ -19,7 +19,10 @@
       <view class="time">
         <slot name="time"></slot>
       </view>
-      <text class="content" @tap="openMomentDetail">{{ data.content }}</text>
+      <text class="content">
+        <text v-if="isTopicArticle" class="topic-prefix" @tap="openTopic"> #{{ topicText }}# </text>
+        <text @tap="openMomentDetail">{{ data.content }}</text>
+      </text>
       <view class="image" v-if="imageShow">
         <swiper style="width: 100%; height: 100%" indicator-dots>
           <block v-for="(item, index) in data.contentImg" :key="index">
@@ -69,6 +72,9 @@ import { namespace } from 'vuex-class';
 import { IUser } from '@store/module/user';
 import { followUsersRequest } from '@services/user.request';
 import { IFollowEventPayload } from '@components/dynamic/dynamic.vue';
+import { BROWSING_HISTORY_ARTICLE } from '@common/constant/storage.constant';
+import lodash from 'lodash';
+import { ITopic } from '@pages/moment/store';
 
 const UserModule = namespace('userModule');
 
@@ -82,9 +88,20 @@ export default class MomentList extends Vue {
   private readonly data!: IArticle;
   @Prop({ type: Boolean, default: false })
   private readonly isTheEnd!: boolean;
+  @Prop({ type: Object, default: null })
+  private readonly topic!: ITopic | null;
   private isLike: number | null = null;
   private likeCount: number | null = null;
   private isFollow: boolean | null = null;
+
+  // 是否显示话题前缀
+  get isTopicArticle(): boolean {
+    return (this.data.topics && this.data.topics.length > 0) || !!this.topic;
+  }
+  // 话题前缀显示什么
+  get topicText(): string {
+    return (this.data.topics && this.data.topics[0].title) || (this.topic && this.topic.title) || '';
+  }
 
   get videoShow(): boolean {
     return this.data?.type === ArticleType.Video;
@@ -110,7 +127,18 @@ export default class MomentList extends Vue {
     this.isFollow =
       !!(this.data?.user.followed && this.data.user.followed.length) || this.data?.user.id === this.userInfo.id;
   }
-
+  // 打开topic页面
+  openTopic() {
+    const topic: ITopic | undefined = this.topic
+      ? (this.topic as ITopic)
+      : this.data.topics && (this.data.topics[0] as ITopic);
+    if (!topic.title) {
+      return;
+    }
+    uni.navigateTo({
+      url: `/pages/topic-detail/topic-detail?data=${JSON.stringify(topic)}`,
+    });
+  }
   // 监听关注事件
   onFollow() {
     uni.$on('follow', (payload: IFollowEventPayload) => {
@@ -158,6 +186,31 @@ export default class MomentList extends Vue {
   openMomentDetail() {
     if (!this.isTheEnd) {
       uni.navigateTo({ url: `/pages/content/content?id=${this.data.id}` });
+      this.addBrowsingHistory();
+    }
+  }
+
+  //  添加浏览历史
+  addBrowsingHistory() {
+    if (this.userInfo.id) {
+      uni.getStorage({
+        key: BROWSING_HISTORY_ARTICLE(this.userInfo.id),
+        success: ({ data }: { data: IArticle[] }) => {
+          if (Object.keys(this.data as Record<string, any>).length > 0) {
+            data.unshift(this.data!);
+            uni.setStorage({
+              key: BROWSING_HISTORY_ARTICLE(this.userInfo.id),
+              data: lodash.uniqBy(data, (e) => e.id),
+            });
+          }
+        },
+        fail: () => {
+          uni.setStorage({
+            key: BROWSING_HISTORY_ARTICLE(this.userInfo.id),
+            data: [this.data],
+          });
+        },
+      });
     }
   }
 
@@ -297,6 +350,11 @@ export default class MomentList extends Vue {
       line-height: 60rpx;
       color: #000000;
       font-size: 35rpx;
+
+      .topic-prefix {
+        color: #0a98d5;
+        margin-right: 10rpx;
+      }
     }
 
     .image {

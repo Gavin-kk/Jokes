@@ -80,6 +80,9 @@ import { namespace } from 'vuex-class';
 import { IUser } from '@store/module/user';
 import { likeArticleRequest } from '@services/home.request';
 import { followUsersRequest } from '@services/user.request';
+import { BROWSING_HISTORY_ARTICLE } from '@common/constant/storage.constant';
+import { IArticleDetail } from '@pages/content/content.interface';
+import lodash from 'lodash';
 
 const UserModule = namespace('userModule');
 
@@ -139,6 +142,7 @@ export default class Dynamic extends Vue {
       }
     });
   }
+
   // 关注用户事件
   async followUsers() {
     // 发送关注请求或取关
@@ -169,7 +173,33 @@ export default class Dynamic extends Vue {
     uni.navigateTo({
       url: `/pages/content/content?id=${id}`,
     });
+    this.addBrowsingHistory();
   }
+
+  //  添加浏览历史
+  addBrowsingHistory() {
+    if (this.userInfo.id) {
+      uni.getStorage({
+        key: BROWSING_HISTORY_ARTICLE(this.userInfo.id),
+        success: ({ data }: { data: IArticle[] }) => {
+          if (Object.keys(this.momentData as Record<string, any>).length > 0) {
+            data.unshift(this.momentData!);
+            uni.setStorage({
+              key: BROWSING_HISTORY_ARTICLE(this.userInfo.id),
+              data: lodash.uniqBy(data, (e) => e.id),
+            });
+          }
+        },
+        fail: () => {
+          uni.setStorage({
+            key: BROWSING_HISTORY_ARTICLE(this.userInfo.id),
+            data: [this.momentData],
+          });
+        },
+      });
+    }
+  }
+
   // 打开用户详情页面
   openUserDetail() {
     uni.navigateTo({ url: `/pages/personal-space/personal-space?userId=${this.momentData.user.id}` });

@@ -15,12 +15,12 @@
       <view class="item" @tap="openPraise">
         <image class="image" src="/static/like.png"></image>
         <view>点赞</view>
-        <view class="new-attention-count" v-show="isShowLeftTopRedDot">{{ leftTopCount }}</view>
+        <view class="new-attention-count" v-if="isShowLeftTopRedDot">{{ leftTopCount }}</view>
       </view>
       <view class="item" @tap="openNewAttention">
         <image class="image" src="/static/follow.png"></image>
         <view>新增关注</view>
-        <view class="new-attention-count" v-show="isShowRightTopRedDot">{{ rightTopCount }}</view>
+        <view class="new-attention-count" v-if="isShowRightTopRedDot">{{ rightTopCount }}</view>
       </view>
     </view>
     <view class="list-box">
@@ -29,7 +29,7 @@
           <uni-swipe-action-item>
             <view>
               <!-- 聊天列表-->
-              <news-list :data="item" @openChat="openChat" />
+              <news-list :data="item" @openChat="openChat($event, index)" />
             </view>
             <template v-slot:right>
               <view class="delete-box" @click="clickDelete(index)">
@@ -141,9 +141,9 @@ export default class News extends Vue {
   }
 
   // 点击聊天列表的某一项 进入聊天列表
-  openChat(id: number) {
+  openChat(id: number, index: number) {
     uni.navigateTo({
-      url: `/pages/chat/chat?id=${id}`,
+      url: `/pages/chat/chat?id=${id}&username=${this.dataList[index].username}`,
     });
   }
 

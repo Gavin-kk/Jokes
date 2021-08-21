@@ -12,8 +12,10 @@ export interface IUserinfo {
 export interface ICount {
   articleCount: number;
   topicArticleCount: number;
-  commentCount: number;
-  likeCount: number;
+  /*  commentCount: number;
+  likeCount: number; */
+  attentionCount: number;
+  fansCount: number;
   [key: string]: number;
 }
 
@@ -36,6 +38,7 @@ export interface IUser {
   phone: string;
   nickname: string;
   userinfo?: [IUserinfo];
+  bgUrl: string | null;
   // 当前用户是否关注了文章的发布者 文章的关注 如果是则数组存在
   followed: [IFollow];
   totalVisitors?: number; // 总访客数

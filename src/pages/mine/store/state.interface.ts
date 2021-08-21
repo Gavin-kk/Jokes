@@ -1,4 +1,5 @@
 import { IUser } from '@store/module/user';
+import { ITopic } from '@pages/moment/store';
 
 export interface IUserArticlesLikes {
   id: number;
@@ -26,6 +27,7 @@ export interface IArticle {
   status: number;
   createAt: string;
   updateAt: string;
+  topics: Omit<ITopic, 'articleCount' | 'todayCount'>[];
   user: IUser;
   share: IArticle;
   userArticlesLikes: IUserArticlesLikes[];

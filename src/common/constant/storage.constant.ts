@@ -10,3 +10,7 @@ export const USER_NEW_ATTENTION_COUNT = (userId: number) => `userNewAttentionCou
 export const USER_NEW_LIKE_COUNT = (userId: number) => `userNewLikeCount-${userId}`;
 // 添加好友页面搜索好友文字的历史记录
 export const SEARCH_ADD_FRIEND_HISTORY = (userId: number) => `search_add_friend_history-${userId}`;
+// 文章浏览历史
+export const BROWSING_HISTORY_ARTICLE = (userId: number) => `browsing_history_article-${userId}`;
+// 动态浏览历史
+export const BROWSING_HISTORY_TOPIC = (userId: number) => `browsing_history_topic-${userId}`;

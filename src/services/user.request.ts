@@ -17,3 +17,5 @@ export const searchUserRequest = (content: string) =>
   request.get('/user/search', {
     params: { content },
   });
+// 更改用户主页背景
+export const changeUserBgRequest = (imageUrl: string) => request.put('/user/changebg', { imageUrl });

@@ -8,8 +8,8 @@ export const state: IUserState = {
   count: {
     articleCount: 0,
     topicArticleCount: 0,
-    commentCount: 0,
-    likeCount: 0,
+    attentionCount: 0,
+    fansCount: 0,
   },
 };
 
@@ -26,12 +26,15 @@ export const mutations = {
   [UserStoreActionType.CHANGE_COUNT](state: IUserState, payload: ICount) {
     state.count = payload;
   },
+  [UserStoreActionType.CHANGE_BG](state: IUserState, url: string) {
+    state.userInfo.bgUrl = url;
+  },
   [UserStoreActionType.INIT](state: IUserState) {
     state.count = {
       articleCount: 0,
       topicArticleCount: 0,
-      commentCount: 0,
-      likeCount: 0,
+      attentionCount: 0,
+      fansCount: 0,
     };
     state.isLogin = false;
     state.userInfo = {};

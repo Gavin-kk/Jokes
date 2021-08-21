@@ -8,7 +8,6 @@
       <view class="logout-box">
         <view class="logout-btn" @tap="signOutRequest">退出登录</view>
       </view>
-      <button @tap="upload">upload</button>
     </view>
   </view>
 </template>
@@ -34,27 +33,7 @@ export default class Settings extends Vue {
     { text: '意见反馈', method: 'nav', url: '/pages/feedback/feedback' },
     { text: '关于嘻嘻哈哈', method: 'nav', url: '/pages/about/about' },
   ];
-  upload() {
-    uni.chooseImage({
-      success(res) {
-        const takes = uni.uploadFile({
-          url: UPLOAD_VIDEO_URL,
-          name: 'video',
-          filePath: res.tempFilePaths[0],
-          header: { Authorization: `Bearer ${uni.getStorageSync('_token')}` },
-          success(r) {
-            console.log(r);
-          },
-          fail(res) {
-            console.log(res.errMsg);
-          },
-        });
-        takes.onProgressUpdate((result) => {
-          console.log(result);
-        });
-      },
-    });
-  }
+
   // 退出登录
   async signOutRequest() {
     uni.showModal({

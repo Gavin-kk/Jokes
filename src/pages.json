@@ -108,6 +108,90 @@
     {
       "path": "pages/mine/mine",
       "style": {
+        //  #ifdef MP-WEIXIN
+        "navigationBarTitleText": "我",
+        //   #endif
+        //        "navigationStyle": "custom",
+        "app-plus": {
+          "bounce": "none", // 关闭反弹效果
+          "titleNView": false
+        },
+        "h5": {
+          "titleNView": false
+        }
+      }
+    },
+    {
+      "path": "pages/browsing-history/browsing-history",
+      "style": {
+        //  #ifdef MP-WEIXIN
+        "navigationBarTitleText": "浏览历史",
+        //   #endif
+        //        "navigationStyle": "custom",
+        "app-plus": {
+          "bounce": "none", // 关闭反弹效果
+          "titleNView": false
+        },
+        "h5": {
+          "titleNView": false
+        }
+      }
+    },
+    {
+      "path": "pages/my-article/my-article",
+      "style": {
+        //  #ifdef MP-WEIXIN
+        "navigationBarTitleText": "我的文章",
+        //   #endif
+        //        "navigationStyle": "custom",
+        "app-plus": {
+          "bounce": "none", // 关闭反弹效果
+          "titleNView": false
+        },
+        "h5": {
+          "titleNView": false
+        }
+      }
+    },
+    {
+      "path": "pages/my-topic/my-topic",
+      "style": {
+        //  #ifdef MP-WEIXIN
+        "navigationBarTitleText": "我的动态",
+        //   #endif
+        //        "navigationStyle": "custom",
+        "app-plus": {
+          "bounce": "none", // 关闭反弹效果
+          "titleNView": false
+        },
+        "h5": {
+          "titleNView": false
+        }
+      }
+    },
+    {
+      "path": "pages/my-follow/my-follow",
+      "style": {
+        //  #ifdef MP-WEIXIN
+        "navigationBarTitleText": "我的关注",
+        //   #endif
+        //        "navigationStyle": "custom",
+        "app-plus": {
+          "bounce": "none", // 关闭反弹效果
+          "titleNView": false
+        },
+        "h5": {
+          "titleNView": false
+        }
+      }
+    },
+    {
+      "path": "pages/my-fans/my-fans",
+      "style": {
+
+        //  #ifdef MP-WEIXIN
+        "navigationBarTitleText": "我的粉丝",
+        //   #endif
         //        "navigationStyle": "custom",
         "app-plus": {
           "bounce": "none", // 关闭反弹效果

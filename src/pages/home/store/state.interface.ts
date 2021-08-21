@@ -1,4 +1,5 @@
 import { IUser } from '@store/module/user';
+import { ITopic } from '@pages/moment/store';
 
 export const enum ArticleType {
   Graphic, // 图文
@@ -27,6 +28,8 @@ export interface IVideo {
   videoUrl: string;
   pic: string;
 }
+// 话题
+
 export interface IArticle {
   id: number;
   title: string;
@@ -45,6 +48,7 @@ export interface IArticle {
   status: number;
   createAt: string;
   updateAt: string;
+  topics: Omit<ITopic, 'articleCount' | 'todayCount'>[];
   user: IUser;
   share: IArticle | null;
   userArticlesLikes: IUserArticlesLikes[];

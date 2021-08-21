@@ -4,6 +4,8 @@ import { request } from './service';
 export const getAllMutualFollowingListsRequest = () => request.get('/follow/mutual');
 // 获取所有粉丝也就是关注当前用户的列表
 export const getAListOfFansRequest = () => request.get('/follow/fans');
+// 获取所有关注的列表 包含互关信息
+export const getFollowUserRequest = () => request.get('/follow');
 // 检查双方是否是互相关注
 export const checkIsFollowEachOtherRequest = (currentUserId: number, targetUserId: number) =>
   request.get('/follow/mutual/whether', {

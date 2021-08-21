@@ -17,7 +17,7 @@
         </view>
         <view class="title">所有关注</view>
         <block v-for="(item, index) in fans" :key="item.id">
-          <news-list :data="item" @openChat="openUser" is-use-slot>
+          <news-list :data="item" @openChat="openUser">
             <view slot="right">
               <view class="btn-box" v-if="item.followEachOther" @tap.stop="openChat(index)">聊天</view>
               <view class="btn-box attention" v-else @tap.stop="follow(item.id, index)">关注</view>

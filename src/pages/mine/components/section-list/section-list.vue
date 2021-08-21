@@ -1,7 +1,7 @@
 <template>
   <view class="section">
     <block v-for="item in sectionList" :key="item.text">
-      <view class="item">
+      <view class="item" @tap="clickItem(item)">
         <view class="count">{{ item.count }}</view>
         <view class="text">{{ item.text }}</view>
       </view>
@@ -12,10 +12,22 @@
 <script lang="ts">
 import { Vue, Component, Prop } from 'vue-property-decorator';
 
+type SectionItem = { count: number; text: string; url: string };
 @Component({})
 export default class SectionList extends Vue {
   @Prop({ type: Array, default: [] })
-  private sectionList!: { count: number; text: string }[];
+  private sectionList!: SectionItem[];
+
+  clickItem(item: SectionItem) {
+    uni.navigateTo({
+      url: item.url,
+      fail: () => {
+        uni.switchTab({
+          url: item.url,
+        });
+      },
+    });
+  }
 }
 </script>
 

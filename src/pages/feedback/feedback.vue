@@ -28,7 +28,7 @@ export interface iFeedback {
   content: string;
 }
 
-@Component({ components: { ButtonEncapsulation, NavBar, UniCollapse, UniCollapseItem } })
+@Component({ name: 'Feedback', components: { ButtonEncapsulation, NavBar, UniCollapse, UniCollapseItem } })
 export default class Feedback extends Vue {
   private list: iFeedback[] = [
     {

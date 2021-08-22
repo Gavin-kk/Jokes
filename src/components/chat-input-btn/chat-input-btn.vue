@@ -44,8 +44,8 @@ export default class ChatInputBtn extends Vue {
 <style lang="scss" scoped>
 .input-box-m {
   //position: fixed;
-  position: relative;
-  top: 0;
+  //position: relative;
+  //top: 0;
   display: flex;
   width: 100%;
   height: 80rpx;

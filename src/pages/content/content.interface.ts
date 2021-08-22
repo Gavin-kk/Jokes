@@ -11,6 +11,8 @@ export interface IReply {
   target?: IReply;
   createAt: string;
   updateAt: string;
+  commentLikeCount: number; // 此评论的点赞数
+  isLike?: number; // 只有登录了才有 当前用户是否点赞 0否1是
 }
 
 export interface IComments {
@@ -23,6 +25,8 @@ export interface IComments {
   createAt: string;
   updateAt: string;
   replyCount: number; // 此一级评论下的评论数量
+  commentLikeCount: number; // 此评论的点赞数
+  isLike?: number; // 只有登录了才有 当前用户是否点赞 0否1是
 }
 
 export interface IArticleDetail {

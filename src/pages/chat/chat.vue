@@ -24,12 +24,21 @@
 
     <!-- 输入框-->
     <view :style="{ height: `${inputExpandedHeight}rpx` }" class="input-box">
-      <chat-input-btn @confirm="confirm">
+      <chat-input-btn @confirm="confirm" style="position: relative">
+        <!-- #ifndef H5-->
         <view slot="left" class="voice-box" @tap="changeInputType">
           <image :src="inputIconSrc" class="voice"></image>
         </view>
+        <!--#endif-->
         <template v-if="!inputType">
-          <view slot="center" class="send-voice" hover-class="send-voice-hover">发送语音</view>
+          <view
+            slot="center"
+            class="send-voice"
+            hover-class="send-voice-hover"
+            @longpress="recordVoice"
+            @touchend="endRecording"
+            >发送语音
+          </view>
         </template>
         <view slot="right" class="control">
           <view class="last" @tap="expandDropDownMenu(true)">+</view>
@@ -158,6 +167,24 @@ export default class Chat extends Vue {
     this.$nextTick(() => {
       this.getHeight();
       this.preventJitter();
+    });
+  }
+
+  // 录制语音
+  recordVoice() {
+    uni.startRecord({
+      success: () => {
+        console.log('开始录音');
+      },
+    });
+  }
+  // 结束录制语音
+  endRecording() {
+    uni.stopRecord({
+      success: (res) => {
+        console.log(res);
+        console.log('结束了');
+      },
     });
   }
 

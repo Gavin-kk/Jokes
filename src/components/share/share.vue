@@ -39,15 +39,22 @@
 // 分享组件
 import { Vue, Component, Prop, Watch } from 'vue-property-decorator';
 // eslint-disable-next-line import/no-self-import
+import { HOST } from '@common/constant/host.constant';
 import { ShareOptions } from './share';
 
 export interface IShare {
   name: string;
-  id: 'sinaweibo' | 'qq' | 'weixin';
+  id: 'sinaweibo' | 'qq' | 'weixin' | 'copy';
   type?: string;
   iconClass: string;
   sort: number;
 }
+const shareCopy: IShare = {
+  name: '复制链接',
+  id: 'copy',
+  iconClass: 'icon-weixin',
+  sort: 10,
+};
 
 @Component({})
 export default class Share extends Vue {
@@ -57,13 +64,16 @@ export default class Share extends Vue {
   private show: boolean = false;
   // 分享提供商的数据
   private sharingProvider: IShare[] = [];
-
   // 分享类型
   private shareType: 0 | 2 | 1 | 3 | 4 | 5 = 0;
   // 分享内容
   private shareText: string = '1234';
   // 分享的图片
   private image: string = '/static/demo/userpic/.jpg';
+
+  get shareCopy(): IShare {
+    return shareCopy;
+  }
 
   mounted() {
     this.getShareProvider();
@@ -110,6 +120,9 @@ export default class Share extends Vue {
               break;
             default:
           }
+          // #ifndef H5
+          dataList.push(shareCopy);
+          // #endif
         });
         this.sharingProvider = dataList.sort((a, b) => a.sort - b.sort);
       },
@@ -119,7 +132,16 @@ export default class Share extends Vue {
   // 分享
   async share(e: IShare) {
     console.log(`分享通道:${e.id}； 分享类型:${this.shareType}`);
-
+    // #ifndef H5
+    if (e.id === 'copy') {
+      const pages: any = getCurrentPages();
+      const data = `${HOST}/${pages[pages.length - 1].route}`;
+      uni.setClipboardData({
+        data,
+      });
+      uni.showToast({ title: '复制成功' });
+      return;
+    }
     if (!this.shareText && (this.shareType === 1 || this.shareType === 0)) {
       uni.showModal({
         content: '分享内容不能为空',
@@ -187,17 +209,19 @@ export default class Share extends Vue {
       default:
         break;
     }
-
+    // #ifdef APP-PLUS
     if (shareOptions.type === 0 && plus.os.name === 'iOS') {
       // 如果是图文分享，且是ios平台，则压缩图片
       (shareOptions.imageUrl as any) = await this.compress();
     }
+    // #endif
     if (shareOptions.type === 1 && shareOptions.provider === 'qq') {
       // 如果是分享文字到qq，则必须加上href和title
       shareOptions.href = 'https://uniapp.dcloud.io';
       shareOptions.title = '欢迎体验uniapp';
     }
     uni.share(shareOptions);
+    //  #endif
   }
 
   // 压缩图片
@@ -329,6 +353,19 @@ export default class Share extends Vue {
         width: 100rpx;
         height: 100rpx;
         background: #514d4c;
+        border-radius: 50%;
+        .pyq-image {
+          width: 70%;
+          height: 70%;
+        }
+      }
+      .copy {
+        @include centered;
+        width: 100rpx;
+        height: 100rpx;
+        background: #ffffff;
+        box-sizing: border-box;
+        border: 1px solid #cccccc;
         border-radius: 50%;
         .pyq-image {
           width: 70%;

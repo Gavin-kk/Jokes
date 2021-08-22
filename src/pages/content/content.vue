@@ -1,7 +1,12 @@
 <template>
   <view class="content-box">
     <!--导航栏-->
+    <!--#ifndef H5-->
     <i-nav-bar :title="dataCt.content" @leftClick="back" @rightClick="openMore"></i-nav-bar>
+    <!--#endif-->
+    <!--#ifdef H5-->
+    <i-nav-bar :title="dataCt.content" @leftClick="back" :right-show="false"></i-nav-bar>
+    <!--#endif-->
     <template v-if="data">
       <!-- 主题内容-->
       <template v-if="data">
@@ -12,15 +17,26 @@
       <!--评论模块-->
       <view class="comment-title">最新评论</view>
       <template v-if="commentOrEmpty">
-        <block v-for="item in commentList" :key="item.id">
-          <comment :data="item" @contentClick="contentClick" @userClick="userClick" @replyClick="replyClick"></comment>
+        <block v-for="(item, index) in commentList" :key="item.id">
+          <comment
+            :data="item"
+            @contentClick="contentClick"
+            @userClick="userClick"
+            @replyClick="replyClick"
+            @like="like(index)"
+          ></comment>
         </block>
       </template>
       <template v-else>
         <empty />
       </template>
     </template>
-    <chat-input-btn @confirm="submit" :isFocus.sync="isFocus" @outOfFocus="outOfFocus"></chat-input-btn>
+    <chat-input-btn
+      style="position: fixed; bottom: 0"
+      @confirm="submit"
+      :isFocus.sync="isFocus"
+      @outOfFocus="outOfFocus"
+    ></chat-input-btn>
     <share :is-show="isShowShare" @touchShareMask="touchShareMask"></share>
   </view>
 </template>
@@ -29,21 +45,16 @@
 import { Component, Vue } from 'vue-property-decorator';
 import INavBar from '@pages/content/components/nav-bar/nav-bar.vue';
 import MomentList from '@components/moment-list/moment-list.vue';
-import Comment from '@pages/content/components/comment/comment.vue';
+import Comment, { LikeCommentType } from '@pages/content/components/comment/comment.vue';
 import ChatInputBtn from '@components/chat-input-btn/chat-input-btn.vue';
 import Share from '@components/share/share.vue';
-import { getArticleDetailRequest, sendCommentRequest } from '@services/common.request';
+import { getArticleDetailRequest, likeCommentRequest, sendCommentRequest } from '@services/common.request';
 import { AxiosResponse } from 'axios';
 import { IArticleDetail } from '@pages/content/content.interface';
 import { IResponse } from '@services/interface/response.interface';
 import ReplyComment from '@pages/content/components/reply-comment/reply-comment.vue';
 import { timeFilter } from '@common/filters/time.filter';
 import Empty from '@components/empty/empty.vue';
-import { BROWSING_HISTORY_ARTICLE } from '@common/constant/storage.constant';
-import { IArticle } from '@pages/home/store';
-import { namespace } from 'vuex-class';
-import { IUser } from '@store/module/user';
-import lodash from 'lodash';
 
 export interface ISendCommentPayload {
   // 文章的id 如果是回复一级评论或其下的评论 此项可不填
@@ -103,16 +114,35 @@ export default class Content extends Vue {
     this.commentId = id;
     uni.showToast({ title: `我要回复一级评论${id}` });
   }
+
   // 点击回复   commentId 是共同的一级评论id id是当前点击的要回复评论的id index 是点击所在数组的 replay中
   replyClick(payload: { commentId: number; id: number }) {
     this.isFocus = true;
     this.commentId = payload.commentId;
     this.childId = payload.id;
-    uni.showToast({ title: `我要回复${payload.commentId}下的${payload.id}` });
   }
+
   // 点击评论的用户名或头像 进入他的个人主页
   userClick(id: number) {
     uni.navigateTo({ url: `/pages/personal-space/personal-space?userId=${id}` });
+  }
+
+  // 点赞评论
+  async like(index: number) {
+    if (this.data && this.data.comments) {
+      if (this.data.comments[index].isLike === 0) {
+        this.data.comments[index].isLike = 1;
+        this.data.comments[index].commentLikeCount++;
+      } else {
+        this.data.comments[index].isLike = 0;
+        this.data.comments[index].commentLikeCount--;
+      }
+    }
+    try {
+      await likeCommentRequest(LikeCommentType.firstLevelComment, this.commentList[index].id);
+    } catch ({ response }) {
+      console.log(response);
+    }
   }
 
   // 发送评论内容
@@ -138,18 +168,28 @@ export default class Content extends Vue {
   }
 
   back() {
-    uni.navigateBack({ delta: 1 });
+    const pages: any = getCurrentPages();
+    if (pages.length > 1) {
+      uni.navigateBack({ delta: 1 });
+    } else {
+      uni.switchTab({
+        url: '/pages/home/home',
+      });
+    }
   }
+
   // input 框失焦事件
   outOfFocus() {
     this.isFocus = false;
     this.commentId = 0;
     this.childId = 0;
   }
+
   // 打开分享
   openMore() {
     this.isShowShare = true;
   }
+
   //  关闭分享
   touchShareMask() {
     this.isShowShare = false;

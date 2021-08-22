@@ -72,7 +72,19 @@
       </view>
     </view>
     <view>
-      <popup :show="show" @confirm="confirm"></popup>
+      <popup :show="show">
+        <view class="popup-box">
+          <view class="m-img-box">
+            <image class="img" src="/static/bullet-frame-icon.png" mode="aspectFit"></image>
+          </view>
+          <view class="text">1. 涉及黄色,政治,广告及骚扰信息</view>
+          <view class="text">2. 涉及人身攻击</view>
+          <view class="text">3. 留联系方式,透露他人隐私</view>
+          <view class="text">一经核实将被封禁, 情节严重者永久封禁</view>
+          <view class="realize" @tap="confirm">我知道了</view>
+          <view class="placeholder"></view>
+        </view>
+      </popup>
     </view>
     <view class="bottom" @tap="releaseTypeChange"> {{ releaseType }} </view>
   </view>
@@ -149,7 +161,7 @@ export default class Release extends Vue {
   // 要上传的文件服务器url地址
   private imageUrl: string[] = [];
   // 是否显示警告提示框
-  private show: boolean = false;
+  private show: boolean = true;
   // 是否不可以返回
   private isReturns: boolean = true;
   // 是否发送位置
@@ -174,23 +186,29 @@ export default class Release extends Vue {
   private selectedTopicData: ITopic | Record<string, unknown> = {};
   // 图片缓存
   private imageCache: string[] = [];
+
   get animationSlider() {
     return this.position ? '100%' : '0';
   }
+
   get releaseType(): string {
     return this.videoUrl === '' ? '发布视频' : '发布图片';
   }
+
   // 判断视频是否存在 或
   get videoIsExists(): boolean {
     return this.videoUrl !== '';
   }
+
   // 判断请求 文章分类还是话题分类 页面显示话题分类还是文章分类
   get articleOrTopic(): boolean {
     return this.articleType === ArticleTypeEnum.article;
   }
+
   get selectedTopicDataTitle(): string {
     return (this.selectedTopicData.title as string) || '选择话题分类';
   }
+
   get selectedClassifyTitle(): string {
     return (this.selectedClassify.title as string) || '选择文章分类';
   }
@@ -606,7 +624,7 @@ export default class Release extends Vue {
   @include centered;
   position: absolute;
   bottom: 0;
-  background: rgb(255, 192, 85);
+  background: #ffe934;
   border-radius: 10rpx 10rpx 0 0;
   overflow: hidden;
   width: 100%;
@@ -636,5 +654,40 @@ export default class Release extends Vue {
     height: 40rpx;
     margin-right: 10rpx;
   }
+}
+
+.popup-box {
+  width: 650rpx;
+  height: 650rpx;
+  background: #ffffff;
+  border-radius: 10rpx;
+  box-sizing: border-box;
+}
+.m-img-box {
+  width: 100%;
+  height: 200rpx;
+  padding: 25rpx 0;
+  .img {
+    width: 100%;
+    height: 100%;
+  }
+}
+.text {
+  width: 100%;
+  padding: 10rpx 20rpx;
+  font-size: 30rpx;
+}
+
+.realize {
+  box-sizing: border-box;
+  @include centered;
+  width: 600rpx;
+  height: 100rpx;
+  margin: 20rpx 25rpx;
+  background: #ffe934;
+}
+
+.placeholder {
+  height: 20rpx;
 }
 </style>

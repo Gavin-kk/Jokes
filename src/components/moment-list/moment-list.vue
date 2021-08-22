@@ -1,5 +1,6 @@
 <template>
-  <view :class="['moment', 'animate__animated', { animate__slideInUp: !isTheEnd }]" style="animation-duration: 300ms">
+  <!--  <view :class="['moment', 'animate__animated', { animate__slideInUp: !isTheEnd }]" style="animation-duration: 300ms">-->
+  <view :class="['moment']">
     <view class="left">
       <view class="avatar-box" @tap="openUserDetail">
         <image class="avatar" :src="data.user.avatar" mode="scaleToFill"></image>

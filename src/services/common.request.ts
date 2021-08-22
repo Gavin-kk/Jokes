@@ -1,6 +1,7 @@
 import { SendEmailType } from '@common/enum/send-email-type';
 import { request } from '@services/service';
 import { ISendCommentPayload } from '@pages/content/content.vue';
+import { LikeCommentType } from '@pages/content/components/comment/comment.vue';
 // 请求验证码
 export const getEmailVerificationCodeRequest = (email: string, type: SendEmailType) =>
   request.get('/email/code', { params: { email, type } });
@@ -18,3 +19,9 @@ export const sendCommentRequest = (payload: ISendCommentPayload) => request.post
 // 通过经纬度获取地址
 export const getAddressByLatitudeAndLongitudeRequest = (payload: { longitude: number; latitude: number }) =>
   request.get('/geography/geocode', { params: payload });
+// 点赞评论
+export const likeCommentRequest = (type: LikeCommentType, commentId: number) =>
+  request.post('/comment/like/comment', {
+    commentId,
+    type,
+  });

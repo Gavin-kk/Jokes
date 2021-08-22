@@ -7,7 +7,7 @@
 
 <script lang="ts">
 import { Vue, Component } from 'vue-property-decorator';
-import NavBar from '@pages/content/components/nav-bar/nav-bar.vue';
+import NavBar from '@components/nav-bar/nav-bar.vue';
 import ItemList, { IItemList } from '@components/list/item-list.vue';
 import { UPLOAD_IMAGE_URL } from '@common/constant/upload-path.constant';
 import { TOKEN_KEY } from '@common/constant/storage.constant';

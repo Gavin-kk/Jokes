@@ -1,5 +1,6 @@
 <template>
-  <view class="dynamic animate__animated animate__slideInUp" style="animation-duration: 300ms">
+  <!--  <view class="dynamic animate__animated animate__slideInUp" style="animation-duration: 500ms">-->
+  <view class="dynamic">
     <view class="title-box">
       <view class="title-left" @tap="openUserDetail">
         <view class="img-box">
@@ -43,8 +44,6 @@
           <text class="share-content">{{ momentData.share.content }}</text>
         </view>
       </template>
-      <!--      <image class="content-img" :src="momentData.video.pic" mode="aspectFill" lazy-load />-->
-      <!--      <view class="play-btn iconfont icon-bofang" v-if="fileType" />-->
     </view>
     <view class="btn-box">
       <view class="btn-left">
@@ -81,8 +80,8 @@ import { IUser } from '@store/module/user';
 import { likeArticleRequest } from '@services/home.request';
 import { followUsersRequest } from '@services/user.request';
 import { BROWSING_HISTORY_ARTICLE } from '@common/constant/storage.constant';
-import { IArticleDetail } from '@pages/content/content.interface';
 import lodash from 'lodash';
+import Popup from '@components/popup/popup.vue';
 
 const UserModule = namespace('userModule');
 
@@ -92,6 +91,7 @@ export interface IFollowEventPayload {
 }
 
 @Component({
+  components: { Popup },
   filters: { handleNumber },
 })
 export default class Dynamic extends Vue {

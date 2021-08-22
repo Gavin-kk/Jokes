@@ -16,6 +16,7 @@
             :reply-list="replyList"
             v-if="replyListComponentIsShow"
             @contentClick="replyClick"
+            @like="likeChildComment"
           ></reply-comment>
         </view>
 
@@ -30,8 +31,8 @@
         </view>
       </view>
 
-      <view :class="['iconfont', 'icon-ccdbaa', { isLike: isLike }]" @tap="like">
-        <text class="count">{{ 1 }}</text>
+      <view :class="['iconfont', 'icon-ccdbaa', { isLike: data.isLike }]" @tap="like">
+        <text class="count">{{ data.commentLikeCount }}</text>
       </view>
     </view>
   </view>
@@ -41,11 +42,16 @@
 import { Vue, Component, Prop } from 'vue-property-decorator';
 import { IComments, IReply } from '@pages/content/content.interface';
 import ReplyComment from '@pages/content/components/reply-comment/reply-comment.vue';
-import { getCommentChildListRequest } from '@services/common.request';
+import { getCommentChildListRequest, likeCommentRequest } from '@services/common.request';
 import { AxiosResponse } from 'axios';
 import { IResponse } from '@services/interface/response.interface';
 import Loading from '@components/loading/loading.vue';
 import { timeFilter } from '@common/filters/time.filter';
+
+export enum LikeCommentType {
+  firstLevelComment,
+  secondaryComment,
+}
 
 @Component({
   components: { Loading, ReplyComment },
@@ -57,7 +63,6 @@ export default class Comment extends Vue {
   private replyList: IReply[] = [];
   // 评论的加载loading状态
   private loading: boolean = false;
-  private isLike: boolean = false;
 
   get username(): string {
     return this.data?.user.nickname || this.data?.user.username || '';
@@ -94,9 +99,9 @@ export default class Comment extends Vue {
     this.loading = false;
     // console.log(result.data.data.reply);
   }
-  // 给评论点赞
-  like() {
-    this.isLike = !this.isLike;
+  // 给一级评论点赞
+  async like() {
+    this.$emit('like');
   }
   contentClick() {
     this.$emit('contentClick', this.data?.id);
@@ -107,6 +112,22 @@ export default class Comment extends Vue {
   }
   userClick() {
     this.$emit('userClick', this.data?.user.id);
+  }
+
+  // 点击子评论的点赞
+  async likeChildComment(index: number) {
+    if (this.replyList[index].isLike === 0) {
+      this.replyList[index].isLike = 1;
+      this.replyList[index].commentLikeCount++;
+    } else {
+      this.replyList[index].isLike = 0;
+      this.replyList[index].commentLikeCount--;
+    }
+    try {
+      await likeCommentRequest(LikeCommentType.secondaryComment, this.replyList[index].id);
+    } catch ({ response }) {
+      console.log(response);
+    }
   }
 }
 </script>

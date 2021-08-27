@@ -86,8 +86,9 @@ import Popup from '@components/popup/popup.vue';
 const UserModule = namespace('userModule');
 
 export interface IFollowEventPayload {
-  userId: number;
+  userId?: number;
   isFollow: boolean;
+  clear: boolean;
 }
 
 @Component({
@@ -139,6 +140,12 @@ export default class Dynamic extends Vue {
     uni.$on('follow', (payload: IFollowEventPayload) => {
       if (payload.userId === this.momentData.userId && this.whetherFollow !== payload.isFollow) {
         this.whetherFollow = payload.isFollow;
+      }
+      if (payload.userId === 0) {
+        this.whetherFollow = true;
+      }
+      if (payload.clear) {
+        this.whetherFollow = false;
       }
     });
   }

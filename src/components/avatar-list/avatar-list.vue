@@ -7,7 +7,7 @@
     </template>
     <view class="content">
       <view class="content-child">
-        <view class="title">
+        <view :class="['title', { 'well-number': typeIsShow }]">
           {{ titleC }}
         </view>
         <view class="bottom">
@@ -21,7 +21,8 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, PropSync, Prop } from 'vue-property-decorator';
+import { Component, Prop, PropSync, Vue } from 'vue-property-decorator';
+import { ArticleTypeEnum } from '@pages/release/release.vue';
 
 @Component({})
 export default class AvatarList extends Vue {
@@ -37,9 +38,15 @@ export default class AvatarList extends Vue {
   private index!: number;
   @Prop({ type: Boolean, default: false })
   private isCreate!: boolean;
+  @Prop({ type: Number })
+  private type!: ArticleTypeEnum;
 
   get picIsExists(): boolean {
     return this.picC !== '';
+  }
+
+  get typeIsShow() {
+    return this.type === ArticleTypeEnum.topic;
   }
 
   clickItem() {
@@ -93,7 +100,8 @@ export default class AvatarList extends Vue {
         font-weight: 500;
         height: 50rpx;
         line-height: 50rpx;
-
+      }
+      .well-number {
         &:after,
         &:before {
           content: '#';

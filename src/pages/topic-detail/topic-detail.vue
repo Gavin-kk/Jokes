@@ -1,49 +1,54 @@
 <template>
   <view>
-    <view id="min-height">
-      <!--    背景模糊-->
-      <view class="fuzzy">
-        <image class="image" :src="topic.pic" mode="aspectFill"></image>
-      </view>
-      <!--    个人版块-->
-      <view class="topic-info">
-        <view class="title">
-          <view class="title-image-box">
-            <image class="title-image" :src="topic.pic" mode="aspectFill"></image>
-          </view>
-          <view class="title-name">{{ topic.title }}</view>
+    <z-paging ref="paging" refresher-only :fixed="true" use-page-scroll @onRefresh="refresh">
+      <view id="min-height">
+        <!--    背景模糊-->
+        <view class="fuzzy">
+          <image class="image" :src="topic.pic" mode="aspectFill"></image>
         </view>
-        <view class="topic-count">动态 {{ topic.articleCount }} 今日 {{ topic.todayCount }}</view>
-        <view class="desc">{{ topic.desc }}</view>
-      </view>
-
-      <!--    tab切换-->
-      <home-topbar
-        :list="titleNavList"
-        :activeIndex="activeIndex"
-        itemStyle="width:50%;"
-        @currentSwiperIndexChange="currentSwiperIndexChange"
-      />
-    </view>
-    <view>
-      <swiper :style="{ height: `${swiperHeight}px` }" @change="swiperChange" :current="activeIndex">
-        <block v-for="(item, index) in list" :key="index">
-          <swiper-item>
-            <view :id="idArr[index]">
-              <block v-for="(itex, itexIndex) in item.list" :key="itexIndex">
-                <moment-list :data="itex" :topic="topic" />
-              </block>
-              <pull-up-loading :text="item.loading" v-if="!isShowLoadingText"></pull-up-loading>
+        <!--    个人版块-->
+        <view class="topic-info">
+          <view class="title">
+            <view class="title-image-box">
+              <image class="title-image" :src="topic.pic" mode="aspectFill"></image>
             </view>
-          </swiper-item>
-        </block>
-      </swiper>
-    </view>
+            <view class="title-name">{{ topic.title }}</view>
+          </view>
+          <view class="topic-count">动态 {{ topic.articleCount }} 今日 {{ topic.todayCount }}</view>
+          <view class="desc">{{ topic.desc }}</view>
+        </view>
+
+        <!--    tab切换-->
+        <home-topbar
+          :list="titleNavList"
+          :activeIndex="activeIndex"
+          itemStyle="width:50%;"
+          @currentSwiperIndexChange="currentSwiperIndexChange"
+        />
+      </view>
+      <view>
+        <swiper :style="{ height: `${swiperHeight}px` }" @change="swiperChange" :current="activeIndex">
+          <block v-for="(item, index) in list" :key="index">
+            <swiper-item :style="{ height: `${swiperHeight}px` }">
+              <view :id="idArr[index]">
+                <block v-for="(itex, itexIndex) in item.list" :key="itexIndex">
+                  <moment-list :data="itex" :topic="topic" />
+                </block>
+                <template v-if="isEmpty(index)">
+                  <empty />
+                </template>
+                <pull-up-loading :text="item.loading" v-if="!isShowLoadingText"></pull-up-loading>
+              </view>
+            </swiper-item>
+          </block>
+        </swiper>
+      </view>
+    </z-paging>
   </view>
 </template>
 
 <script lang="ts">
-import { Component, Vue } from 'vue-property-decorator';
+import { Component, Mixins, Vue } from 'vue-property-decorator';
 import HomeTopbar from '@components/home-topbar/home-topbar.vue';
 import { LoadingStatus } from '@components/sliding-list/loading-status';
 import MomentList from '@components/moment-list/moment-list.vue';
@@ -53,6 +58,9 @@ import { IArticle } from '@pages/home/store';
 import { getTopicArticleListRequest } from '@services/topic.request';
 import { AxiosResponse } from 'axios';
 import { IResponse } from '@services/interface/response.interface';
+import Empty from '@components/empty/empty.vue';
+import ZPaging from '@components/z-paging/js/z-paging-main';
+import ZPagingMixin from '@components/z-paging/js/z-paging-mixin';
 
 export enum GetTopIcType {
   default,
@@ -60,9 +68,9 @@ export enum GetTopIcType {
 }
 
 @Component({
-  components: { PullUpLoading, MomentList, HomeTopbar },
+  components: { ZPaging, Empty, PullUpLoading, MomentList, HomeTopbar },
 })
-export default class TopicDetail extends Vue {
+export default class TopicDetail extends Mixins(ZPagingMixin) {
   private topic: ITopic | Record<string, any> = {};
   private activeIndex: number = 0;
   private titleNavList: { id: number; title: string }[] = [
@@ -81,6 +89,10 @@ export default class TopicDetail extends Vue {
     pageNum: number;
   }[] = [];
 
+  get isEmpty(): (index: number) => boolean {
+    return (index: number) => this.list[index].list.length === 0;
+  }
+
   get isShowLoadingText(): boolean {
     return this.list[this.activeIndex].list.length < 10;
   }
@@ -90,6 +102,12 @@ export default class TopicDetail extends Vue {
     //  请求该话题下的文章
     this.getTopicList();
     this.getTopicList(this.activeIndex + 1);
+  }
+
+  async refresh() {
+    const result: AxiosResponse<IResponse<any>> = await getTopicArticleListRequest(1, this.topic.id, this.activeIndex);
+    this.list[this.activeIndex].list = result.data.data.articles;
+    (this.$refs.paging as any).complete(true);
   }
 
   getPageData() {
@@ -102,6 +120,7 @@ export default class TopicDetail extends Vue {
   }
 
   mounted() {
+    this.getHeight(this.idArr[this.activeIndex]);
     this.getMinHeight();
   }
 

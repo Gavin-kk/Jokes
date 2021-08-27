@@ -20,7 +20,7 @@
           </block>
         </view>
       </view>
-      <view class="follow-box" v-show="!isMe">
+      <view class="follow-box" v-if="!isMe">
         <view class="attention-btn" @tap="toChatWith">
           <view class="follow-text to-chat-with">
             <image src="/static/to-chat-with.png" class="to-chat-with-icon"></image>
@@ -29,12 +29,12 @@
         </view>
         <view class="attention-btn">
           <view :class="['follow-text', { followed: isFollow }]" @tap="attention">
-            <view class="iconfont icon-zengjia" v-show="!isFollow"></view>
+            <view class="iconfont icon-zengjia" v-if="!isFollow"></view>
             {{ attentionText }}
           </view>
         </view>
       </view>
-      <view class="me" v-show="isMe">
+      <view class="me" v-if="isMe">
         <view class="edit-data iconfont icon-bianji" @tap="editData">编辑资料</view>
         <view class="edit-data" @tap="clickBg">
           <image src="/static/fingerprint.png" class="image-icon"></image>
@@ -236,7 +236,9 @@ $height: 650rpx;
 
     .user-info {
       width: 100%;
-
+      /*  #ifdef MP-WEIXIN*/
+      margin-top: 100rpx;
+      /* #endif*/
       .tags {
         display: flex;
         align-items: center;
@@ -304,7 +306,12 @@ $height: 650rpx;
     .follow-box {
       position: absolute;
       right: 30rpx;
+      /*  #ifndef MP-WEIXIN*/
       top: 150rpx;
+      /* #endif*/
+      /*  #ifdef MP-WEIXIN*/
+      top: 250rpx;
+      /* #endif*/
       display: flex;
       align-items: center;
       .attention-btn {

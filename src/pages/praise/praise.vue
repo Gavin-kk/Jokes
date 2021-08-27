@@ -6,6 +6,9 @@
       <block v-for="(item, index) in data" :key="index">
         <news-list :data="item" @openChat="openUser(item)" />
       </block>
+      <template v-if="isEmpty">
+        <empty />
+      </template>
     </view>
   </view>
 </template>
@@ -23,6 +26,7 @@ import { INews } from '@pages/news/news.vue';
 import { USER_NEW_LIKE_COUNT } from '@common/constant/storage.constant';
 import { namespace } from 'vuex-class';
 import { IUser } from '@store/module/user';
+import Empty from '@components/empty/empty.vue';
 
 type DataType = Omit<INews, 'time' | 'unreadCount'>;
 
@@ -33,7 +37,7 @@ interface IDataType extends DataType {
 const UserModule = namespace('userModule');
 @Component({
   name: 'praise',
-  components: { NewsList, NavBar },
+  components: { Empty, NewsList, NavBar },
 })
 export default class Praise extends Vue {
   @UserModule.State('userInfo')
@@ -43,6 +47,10 @@ export default class Praise extends Vue {
   // 下拉加载的提示文字
   private pullMsg: LoadingStatus = LoadingStatus.load;
   private data: IDataType[] = [];
+
+  get isEmpty(): boolean {
+    return this.data.length === 0;
+  }
 
   created() {
     //  请求给我点赞的用户携带文章content

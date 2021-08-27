@@ -6,6 +6,9 @@
     <block v-for="item in articleList" :key="item.id">
       <dynamic :moment-data="item" />
     </block>
+    <template v-if="articleListIsExists">
+      <empty />
+    </template>
   </view>
 </template>
 
@@ -18,10 +21,11 @@ import { IArticle } from '@pages/mine/store';
 import Dynamic from '@components/dynamic/dynamic.vue';
 import NavBar from '@components/nav-bar/nav-bar.vue';
 import CheckLoginMixin from '@src/mixins/check-login.mixin';
+import Empty from '@components/empty/empty.vue';
 
 const UserModule = namespace('userModule');
 @Component({
-  components: { NavBar, Dynamic },
+  components: { Empty, NavBar, Dynamic },
 })
 export default class BrowsingHistory extends Mixins(CheckLoginMixin) {
   @UserModule.State('userInfo')
@@ -29,7 +33,7 @@ export default class BrowsingHistory extends Mixins(CheckLoginMixin) {
   private articleList: IArticle[] = [];
 
   get articleListIsExists(): boolean {
-    return this.articleList.length > 0;
+    return this.articleList.length === 0;
   }
 
   created() {

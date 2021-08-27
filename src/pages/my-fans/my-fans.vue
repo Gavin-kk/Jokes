@@ -7,6 +7,9 @@
           <view slot="right"> </view>
         </news-list>
       </block>
+      <template v-if="isEmpty">
+        <empty />
+      </template>
     </view>
   </view>
 </template>
@@ -20,15 +23,22 @@ import { getAListOfFansRequest } from '@services/follow.request';
 import NavBar from '@components/nav-bar/nav-bar.vue';
 import NewsList from '@pages/news/components/news-list/news-list.vue';
 import CheckLoginMixin from '@src/mixins/check-login.mixin';
+import Empty from '@components/empty/empty.vue';
 
 @Component({
-  components: { NewsList, NavBar },
+  components: { Empty, NewsList, NavBar },
 })
 export default class MyFans extends Mixins(CheckLoginMixin) {
   private fansList: IFans[] = [];
+
+  get isEmpty() {
+    return this.fansList.length === 0;
+  }
+
   created() {
     this.getData();
   }
+
   async getData() {
     try {
       const result: AxiosResponse<IResponse<IFans[]>> = await getAListOfFansRequest();

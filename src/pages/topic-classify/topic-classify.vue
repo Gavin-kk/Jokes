@@ -76,7 +76,6 @@ export default class TopicClassify extends Vue {
   }
 
   async created() {
-    this.getCurrentPagesIndex();
     uni.getSystemInfo({
       success: (data) => {
         this.windowHeight = data.windowHeight;
@@ -85,6 +84,20 @@ export default class TopicClassify extends Vue {
     await this.getTopicClassifyList();
     this.classifyList = this.topicClassifyList.map(() => ({ loading: LoadingStatus.load, list: [], pageNum: 1 }));
     await this.getTopicList(1, this.activeIndex);
+  }
+
+  mounted() {
+    this.getCurrentPagesIndex();
+
+    uni
+      .createSelectorQuery()
+      .select('.topic-bar-height')
+      .boundingClientRect((data?) => {
+        if (data?.height) {
+          this.barHeight = data.height;
+        }
+      })
+      .exec();
   }
 
   // 获取上个页面传来的index
@@ -96,18 +109,6 @@ export default class TopicClassify extends Vue {
     if (typeof index !== 'undefined') {
       this.activeIndex = +index;
     }
-  }
-
-  mounted() {
-    uni
-      .createSelectorQuery()
-      .select('.topic-bar-height')
-      .boundingClientRect((data?) => {
-        if (data?.height) {
-          this.barHeight = data.height;
-        }
-      })
-      .exec();
   }
 
   // 请求分类列表

@@ -25,9 +25,13 @@ import ItemList, { IItemList } from '@components/list/item-list.vue';
 export default class About extends Vue {
   private version: string = '1.0.0';
 
-  private list: IItemList[] = [{ text: '新版本检测' }, { text: '用户协议' }];
+  private list: IItemList[] = [{ text: '新版本检测' }];
 
-  itemListClickEvent(item: IItemList) {}
+  itemListClickEvent(item: IItemList) {
+    if (item.text === this.list[0].text) {
+      uni.showLoading({ title: '新版本检测中' });
+    }
+  }
 }
 </script>
 

@@ -15,6 +15,7 @@ import { INews } from '@pages/news/news.vue';
 import { namespace } from 'vuex-class';
 import { IUser } from '@store/module/user';
 import { ContentType } from '@pages/news/components/chat-list/chat-list.vue';
+import { IFollowEventPayload } from '@components/dynamic/dynamic.vue';
 
 const UserModule = namespace('userModule');
 
@@ -27,7 +28,7 @@ export default class extends Mixins(WebsocketMixin) implements WebsocketMixinAbs
   @UserModule.State('newAttentionCount')
   private readonly newAttentionCount!: number;
   @UserModule.Action(UserStoreActionType.GET_USER_INFO)
-  private readonly getUserInfo!: () => void;
+  private readonly getUserInfo!: () => Promise<void>;
 
   async onLaunch() {
     const token: string | '' = uni.getStorageSync(TOKEN_KEY);
@@ -47,6 +48,15 @@ export default class extends Mixins(WebsocketMixin) implements WebsocketMixinAbs
   onEvent() {
     uni.$on('initSocket', () => {
       this.initWebsocket();
+    });
+    uni.$on('refreshSocket', async () => {
+      try {
+        await this.close();
+        this.initWebsocket();
+        this.getCount();
+      } catch (err) {
+        console.log(err);
+      }
     });
     uni.$on('sendMsg', this.sendMessage);
     uni.$on('closeSocket', () => {
@@ -79,7 +89,26 @@ export default class extends Mixins(WebsocketMixin) implements WebsocketMixinAbs
         uni.$emit('newChat');
         break;
       case 'error':
+        break;
+      case 'noMutualRelations':
         uni.showToast({ title: msg.data.msg, icon: 'none' });
+        const chatList: IChat[] | '' = uni.getStorageSync(CHAT_LIST(this.userInfo.id, msg.data.targetUserId));
+        const condition: string[] = msg.data.id.split('$');
+        // console.log(condition);
+        if (typeof chatList !== 'string') {
+          const findIndex = chatList.findIndex((item) => item.time === +condition[0] && item.content === condition[1]);
+          if (findIndex !== -1) {
+            chatList[findIndex].errorState = true;
+          }
+        }
+        uni.setStorage({
+          key: CHAT_LIST(this.userInfo.id, msg.data.targetUserId),
+          data: chatList,
+          success: () => {
+            // 通知chat页面有新消息 让其读取缓存
+            uni.$emit('newChat');
+          },
+        });
         break;
       default:
     }
@@ -167,7 +196,9 @@ export default class extends Mixins(WebsocketMixin) implements WebsocketMixinAbs
     if (typeof likeCount !== 'string') {
       sumCount += likeCount;
     }
-    this.showMsgCount(sumCount);
+    if (sumCount !== 0) {
+      this.showMsgCount(sumCount);
+    }
   }
 
   showMsgCount(count: number) {

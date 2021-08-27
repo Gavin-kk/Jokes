@@ -12,7 +12,8 @@
         </block>
       </uni-collapse>
     </view>
-    <button-encapsulation text="意见反馈"></button-encapsulation>
+    <button-encapsulation text="意见反馈" @clickBtn="openFeedbackInput"></button-encapsulation>
+    <ygc-comment ref="commentRef" @pubComment="pubComment" placeholder="请输入反馈内容"></ygc-comment>
   </view>
 </template>
 
@@ -22,13 +23,15 @@ import UniCollapse from '@dcloudio/uni-ui/lib/uni-collapse/uni-collapse.vue';
 import UniCollapseItem from '@dcloudio/uni-ui/lib/uni-collapse-item/uni-collapse-item.vue';
 import NavBar from '@components/nav-bar/nav-bar.vue';
 import ButtonEncapsulation from '@components/button-encapsulation/button-encapsulation.vue';
+import YgcComment from '@components/ygc-comment/ygc-comment.vue';
+import { feedbackRequest } from '@services/common.request';
 
 export interface iFeedback {
   title: string;
   content: string;
 }
 
-@Component({ name: 'Feedback', components: { ButtonEncapsulation, NavBar, UniCollapse, UniCollapseItem } })
+@Component({ name: 'Feedback', components: { YgcComment, ButtonEncapsulation, NavBar, UniCollapse, UniCollapseItem } })
 export default class Feedback extends Vue {
   private list: iFeedback[] = [
     {
@@ -38,15 +41,30 @@ export default class Feedback extends Vue {
     },
     {
       title: '忘记账号/昵称/密码怎么办?',
-      content:
-        '亲爱的用户，客服的工作时间为:周一至周六10:00-12:00,14:00-19:00,非工作时间的咨询反馈会自动转为留言，客服.上班后会第一时间回复哦~',
+      content: '可以通过邮箱登录然后重置密码呦~',
     },
     {
       title: '怎么搜索/查找/关注/取关用户?',
-      content:
-        '亲爱的用户，客服的工作时间为:周一至周六10:00-12:00,14:00-19:00,非工作时间的咨询反馈会自动转为留言，客服.上班后会第一时间回复哦~',
+      content: '可以在消息页面查找关注取关用户呦~',
     },
   ];
+
+  async pubComment(content: string) {
+    try {
+      await feedbackRequest(content);
+      uni.showToast({ title: '反馈成功' });
+      this.closeFeedbackInput();
+    } catch ({ response }) {
+      console.log(response);
+    }
+  }
+
+  openFeedbackInput() {
+    (this.$refs.commentRef as any).toggleMask('show');
+  }
+  closeFeedbackInput() {
+    (this.$refs.commentRef as any).toggleMask();
+  }
 }
 </script>
 

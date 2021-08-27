@@ -98,7 +98,7 @@ function contact() {
 }
 
 function record() {
-  let result = null;
+  let result: any = null;
   const avaudiosession = (plus.ios as any).import('AVAudioSession');
   const avaudio = avaudiosession.sharedInstance();
   const status = avaudio.recordPermission();
@@ -115,7 +115,7 @@ function record() {
 }
 
 function calendar() {
-  let result = null;
+  let result: any = null;
   const EKEventStore = (plus.ios as any).import('EKEventStore');
   const ekAuthStatus = EKEventStore.authorizationStatusForEntityType(0);
   if (ekAuthStatus == 3) {
@@ -129,7 +129,7 @@ function calendar() {
 }
 
 function memo() {
-  let result = null;
+  let result: any = null;
   const EKEventStore = (plus.ios as any).import('EKEventStore');
   const ekAuthStatus = EKEventStore.authorizationStatusForEntityType(1);
   if (ekAuthStatus == 3) {
@@ -181,7 +181,7 @@ function requestAndroid(permissionID: any) {
     plus.android.requestPermissions(
       [permissionID],
       (resultObj) => {
-        let result = 0;
+        let result: any = 0;
         // eslint-disable-next-line no-var
         for (var i = 0; i < resultObj.granted.length; i++) {
           const grantedPermission = resultObj.granted[i];

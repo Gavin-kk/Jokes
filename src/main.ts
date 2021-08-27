@@ -18,6 +18,7 @@ import App from './App.vue';
 //     },
 //   },
 // };
+
 Vue.config.productionTip = false;
 // Vue.mixin();
 const app = new App({ ...App, store });

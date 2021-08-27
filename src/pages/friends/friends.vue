@@ -9,6 +9,9 @@
           </view>
         </news-list>
       </block>
+      <template v-if="isEmpty">
+        <empty />
+      </template>
     </view>
   </view>
 </template>
@@ -24,15 +27,20 @@ import { IUser } from '@store/module/user';
 import { NEWS_LIST } from '@common/constant/storage.constant';
 import { INews } from '@pages/news/news.vue';
 import { namespace } from 'vuex-class';
+import Empty from '@components/empty/empty.vue';
 
 const UserModule = namespace('userModule');
 @Component({
-  components: { NewsList, NavBar },
+  components: { Empty, NewsList, NavBar },
 })
 export default class Friends extends Vue {
   @UserModule.State('userInfo')
   private readonly userInfo!: IUser;
   private userList: IUser[] = [];
+
+  get isEmpty(): boolean {
+    return this.userList.length === 0;
+  }
 
   created() {
     this.getData();

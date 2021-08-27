@@ -33,7 +33,6 @@
         <view class="msg">无匹配话题</view>
         <avatar-list
           @openCreateTopic="openCreateTopic"
-          @clickItem="clickTopicItem"
           :title="searchContent"
           desc="新话题"
           pic="/static/air.png"
@@ -43,7 +42,7 @@
       <view class="msg">搜索结果</view>
       <block v-for="(item, index) in searchList" :key="item.id">
         <avatar-list
-          @clickItem="clickTopicItem"
+          @clickItem="clickTopicItem(item)"
           :count="10"
           :title="item.title"
           :index="index"
@@ -64,24 +63,28 @@ import MSearch from '@components/search/m-search.vue';
 import Banner from '@components/banner/banner.vue';
 import PopularCategories from '@components/popular-categories/popularCategories.vue';
 import topicList from '@components/topic-list/topic-list.vue';
-import { LoadingStatus } from '@components/sliding-list/loading-status';
 import PullUpLoading from '@components/pull-up-loading/pull-up-loading.vue';
 import { namespace } from 'vuex-class';
-import { ITopic, ITopicClassify } from '@pages/moment/store';
-import { ModuleConstant } from '@store/module.constant';
+import { ITopic } from '@pages/moment/store';
 import { MomentStoreActionType } from '@pages/moment/store/constant';
 import AvatarList from '@components/avatar-list/avatar-list.vue';
 import { searchTopicRequest } from '@services/moment.request';
 import { AxiosResponse } from 'axios';
 import { IResponse } from '@services/interface/response.interface';
 import Empty from '@components/empty/empty.vue';
-import { getHotTopicsRequest } from '@services/topic.request';
 
 const MomentModule = namespace('momentModule');
 @Component({
   components: { Empty, AvatarList, PullUpLoading, topicList, PopularCategories, Banner, MSearch },
 })
 export default class Topic extends Vue {
+  // 最热的话题
+  @MomentModule.State('hotTopic')
+  private readonly popularTopicList!: ITopic[];
+  @MomentModule.Action(MomentStoreActionType.GET_ALL_TOPIC_CATEGORIES)
+  private readonly getAllTopicCategories!: () => Promise<void>;
+  @MomentModule.Action(MomentStoreActionType.GET_TRENDING_TOPIC)
+  private readonly getHotTopic!: () => Promise<void>;
   // 搜索的内容
   private searchContent: string = '';
   // 搜索的话题列表 如果该项有值 则只显示该项数据
@@ -90,14 +93,13 @@ export default class Topic extends Vue {
   private searchPageNum: number = 1;
   // 在搜索中是否没有匹配的话题
   private isMatching: boolean = false;
-  // 最热的话题
-  private popularTopicList: ITopic[] = [];
+  // private popularTopicList: ITopic[] = [];
 
   // 轮播图数据
   private bannerList: { id: number; pic: string }[] = [
-    { id: +(Math.random() * 1000 + 1).toFixed(), pic: '/static/demo/datapic/1.jpg' },
-    { id: +(Math.random() * 1000 + 1).toFixed(), pic: '/static/demo/datapic/2.jpg' },
-    { id: +(Math.random() * 1000 + 1).toFixed(), pic: '/static/demo/datapic/3.jpg' },
+    { id: 1, pic: '/static/demo/datapic/1.jpg' },
+    { id: 2, pic: '/static/demo/datapic/2.jpg' },
+    { id: 3, pic: '/static/demo/datapic/3.jpg' },
   ];
 
   get isShowSearch(): boolean {
@@ -107,11 +109,15 @@ export default class Topic extends Vue {
   created() {
     this.getTopIcClassifyList();
     //   获取热门话题
-    this.getHotTopics();
+    this.getHotTopic();
   }
 
   // 点击搜索到的话题 触发
-  clickTopicItem(index: number) {}
+  clickTopicItem(item: ITopic) {
+    uni.navigateTo({
+      url: `/pages/topic-detail/topic-detail?data=${JSON.stringify(item)}`,
+    });
+  }
 
   // 打开创建话题页面
   openCreateTopic(title: string) {
@@ -120,14 +126,13 @@ export default class Topic extends Vue {
     });
   }
 
-  // 获取热门话题
-  async getHotTopics() {
-    const result: AxiosResponse<IResponse<ITopic[]>> = await getHotTopicsRequest();
-    this.popularTopicList = result.data.data;
-  }
   // 获取话题分类列表
   async getTopIcClassifyList() {
-    await this.$store.dispatch(`${ModuleConstant.momentModule}/${MomentStoreActionType.GET_ALL_TOPIC_CATEGORIES}`);
+    try {
+      await this.getAllTopicCategories();
+    } catch (err) {
+      uni.showToast({ title: '网络错误', icon: 'none' });
+    }
   }
 
   // 当手机键盘按下搜索 或 确认时触发
@@ -163,7 +168,6 @@ export default class Topic extends Vue {
     uni.navigateTo({
       url: '/pages/topic-classify/topic-classify',
     });
-    uni.showToast({ title: '跳转到更多热门分类' });
   }
 }
 </script>

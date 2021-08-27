@@ -36,6 +36,8 @@ export default class HomeTopBar extends Vue {
   line-height: 100rpx;
   white-space: nowrap;
   border-bottom: 1px solid $borderColor;
+  background: #ffffff;
+  z-index: 10000;
 }
 
 .item {

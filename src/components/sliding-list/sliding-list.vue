@@ -3,16 +3,27 @@
     <view class="top-bar-height"></view>
     <view class="my-uni-tab-bar" v-if="listIsShow">
       <swiper class="my-swiper-box" :current="activeIndex" :style="{ height: windowHeight }" @change="swiperChange">
-        <swiper-item v-for="(items, index) in newList" :key="index">
-          <view v-if="isShowArticleList(items)" :style="{ height: windowHeight, width: '100%' }">
-            <scroll-view scroll-y class="my-list" @scrolltolower="scrolltolowerEvent(index)">
-              <view v-for="item in items.articleList" :key="item.id">
+        <swiper-item v-for="(items, inde) in newList" :key="inde">
+          <z-paging
+            ref="paging"
+            :fixed="false"
+            refresher-only
+            @onRefresh="query(inde)"
+            @scrolltolower="scrolltolowerEvent(inde)"
+            :safe-area-inset-bottom="true"
+            :delay="1000"
+          >
+            <view v-if="isShowArticleList(items)" class="paging-box" :style="{ height: windowHeight, width: '100%' }">
+              <view v-for="(item, index) in items.articleList" :key="index">
                 <dynamic :moment-data="item" />
               </view>
-              <pull-up-loading :text="items.loadingText" />
-            </scroll-view>
-          </view>
-          <template v-else> <empty /> </template>
+              <pull-up-loading class="loading-bar" :text="items.loadingText" />
+              <!--#ifdef MP-WEIXIN-->
+              <view style="height: 80px"></view>
+              <!--#endif-->
+            </view>
+            <template v-else> <empty /> </template>
+          </z-paging>
         </swiper-item>
       </swiper>
     </view>
@@ -26,26 +37,29 @@ import Dynamic from '@components/dynamic/dynamic.vue';
 import PullUpLoading from '@components/pull-up-loading/pull-up-loading.vue';
 import Empty from '@components/empty/empty.vue';
 import { IClassifyArticleList } from '@pages/home/home.vue';
+import { AxiosResponse } from 'axios';
+import { IResponse } from '@services/interface/response.interface';
+import { IArticle } from '@pages/home/store';
+import { getClassifyAllArticleRequest } from '@services/home.request';
+import ZPaging from '@components/z-paging/z-paging.vue';
 
-import { LoadingStatus } from './loading-status';
-
-@Component({ components: { Empty, PullUpLoading, Dynamic } })
+@Component({ components: { ZPaging, Empty, PullUpLoading, Dynamic } })
 export default class SlidingList extends Vue {
   @Prop({ type: Number, default: 0 })
   private activeIndex!: number;
   @PropSync('list', { type: Array, default: [] })
   private newList!: IClassifyArticleList[];
-
   private systemInfo: SystemInfo | null = null;
   private topBarHeight: number = 0;
   // 判断是否显示文章的列表
   get isShowArticleList() {
     return (items: IClassifyArticleList) => !!items.articleList.length;
   }
+
   // 计算window的高度
   get windowHeight(): string {
     if (this.systemInfo) {
-      return `${this.systemInfo.windowHeight - this.topBarHeight - 1}px`;
+      return `${this.systemInfo!.windowHeight - this.topBarHeight - 1}px`;
     }
     return '0px';
   }
@@ -55,11 +69,12 @@ export default class SlidingList extends Vue {
   }
 
   mounted() {
-    const topBar = uni.createSelectorQuery().select('.top-bar-height');
-    topBar
-      .boundingClientRect((e?) => {
-        if (e?.height) {
-          this.topBarHeight = e.height;
+    const query = uni.createSelectorQuery().in(this);
+    query
+      .select('.top-bar-height')
+      .fields({ size: true }, (res?) => {
+        if (res?.height) {
+          this.topBarHeight = res.height;
         }
       })
       .exec();
@@ -68,6 +83,17 @@ export default class SlidingList extends Vue {
 
   swiperChange({ detail }: { detail: { current: number } }): void {
     this.$emit('currentSwiperIndexChange', detail.current);
+  }
+
+  // 刷新数据
+  async query(index: number) {
+    this.newList[this.activeIndex].pageNum = 1;
+    const result: AxiosResponse<IResponse<IArticle[]>> = await getClassifyAllArticleRequest(
+      this.newList[this.activeIndex].pageNum,
+      this.newList[this.activeIndex].id,
+    );
+    this.newList[this.activeIndex].articleList = result.data.data;
+    (this as any).$refs.paging[index].complete(true);
   }
 
   // 滚动到列表最下方触发的事件
@@ -99,19 +125,4 @@ export default class SlidingList extends Vue {
     width: 100%;
   }
 }
-
-/*.empty-state {
-  @include centered;
-  flex-direction: column;
-  width: 100%;
-  height: 600rpx;
-
-  .empty-state-img {
-    width: 500rpx;
-    height: 500rpx;
-  }
-  .empty-state-text {
-    font-size: 40rpx;
-  }
-}*/
 </style>

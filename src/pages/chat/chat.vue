@@ -6,21 +6,25 @@
         <view class="iconfont icon-geren"></view>
       </view>
     </nav-bar>
-    <!--内容-->
-    <scroll-view
-      id="scroll-view-chat"
-      style="transition: all 0.3s"
-      :scroll-with-animation="true"
-      :scroll-top="scrollTop"
-      :scroll-y="true"
-      :style="{ height: scrollHeight }"
-    >
-      <view class="chat-list-chat">
-        <block v-for="(item, index) in chatDataList" :key="index">
-          <chat-list :data="item" :pre-time="chatDataPreTime(index)"></chat-list>
-        </block>
-      </view>
-    </scroll-view>
+    <view :style="{ height: scrollHeight }">
+      <z-paging ref="paging" :fixed="false" refresher-only refresher-refreshing-text="正在加载" @onRefresh="query">
+        <scroll-view
+          id="scroll-view-chat"
+          style="transition: all 0.3s"
+          :scroll-with-animation="true"
+          :scroll-top="scrollTop"
+          :scroll-y="true"
+          :style="{ height: scrollHeight }"
+        >
+          <!--内容-->
+          <view class="chat-list-chat">
+            <block v-for="(item, index) in chatDataList" :key="index">
+              <chat-list :data="item" :pre-time="chatDataPreTime(index)"></chat-list>
+            </block>
+          </view>
+        </scroll-view>
+      </z-paging>
+    </view>
 
     <!-- 输入框-->
     <view :style="{ height: `${inputExpandedHeight}rpx` }" class="input-box">
@@ -56,7 +60,12 @@
         </block>
       </view>
     </view>
-    <view class="mask" v-show="isShowInputDropDownMenuMask" @tap="expandDropDownMenu(false)"></view>
+    <view
+      class="mask"
+      v-show="isShowInputDropDownMenuMask"
+      @tap="expandDropDownMenu(false)"
+      @touchmove="touchmove"
+    ></view>
   </view>
 </template>
 
@@ -73,6 +82,7 @@ import { UPLOAD_IMAGE_URL, UPLOAD_VIDEO_URL } from '@common/constant/upload-path
 import { IResponse } from '@services/interface/response.interface';
 import RoundScheduleProgress from '@components/round-schedule-progress/round-schedule-progress.vue';
 import NavBar from '@components/nav-bar/nav-bar.vue';
+import ZPaging from '@components/z-paging/z-paging.vue';
 
 export interface IChat {
   isMe: boolean;
@@ -106,7 +116,7 @@ const UserModule = namespace('userModule');
 let timer: number | undefined;
 let timer2: number | undefined;
 // let height: number | undefined;
-@Component({ components: { NavBar, RoundScheduleProgress, ChatList, ChatInputBtn, UniNavBar } })
+@Component({ components: { ZPaging, NavBar, RoundScheduleProgress, ChatList, ChatInputBtn, UniNavBar } })
 // export default class Chat extends Mixins(WebsocketMixin) {
 export default class Chat extends Vue {
   @UserModule.State('userInfo')
@@ -138,6 +148,8 @@ export default class Chat extends Vue {
   private switchAnimation: boolean = true;
   // 本次聊天的title
   private title: string = '';
+  // 当前所处页码
+  private pageNum: number = 1;
   //  控制动画
   get animationClassName(): string {
     return this.switchAnimation ? 'animate__fadeInRight' : 'animate__fadeOutRight';
@@ -168,6 +180,21 @@ export default class Chat extends Vue {
       this.getHeight();
       this.preventJitter();
     });
+  }
+
+  // 拖拽蒙版事件
+  touchmove() {
+    if (this.inputExpandedHeight !== InputBoxHeight.expansion) return;
+    this.expandDropDownMenu(false);
+  }
+
+  // 下拉加载
+  async query() {
+    const scrollTop = this.scrollTop + Math.random();
+    this.pageNum++;
+    const middle: boolean = await this.getCache(this.pageNum, false);
+    (this.$refs.paging as any).complete(true);
+    middle ? (this.scrollTop = scrollTop) : (this.scrollTop = 0);
   }
 
   // 录制语音
@@ -280,8 +307,6 @@ export default class Chat extends Vue {
   // 获取上个页面携带的id
   getPageData() {
     const pages: any = getCurrentPages();
-    console.log(pages[pages.length - 1].options);
-
     const {
       options: { id, username },
     } = pages[pages.length - 1];
@@ -437,7 +462,7 @@ export default class Chat extends Vue {
     }
   }
   // 获取本地缓存
-  async getCache() {
+  async getCache(pageNum: number = 1, isBottom: boolean = true): Promise<boolean> {
     await new Promise((resolve) => {
       const getStorageTimer: number = setInterval(() => {
         if (this.userInfo?.id) {
@@ -453,10 +478,24 @@ export default class Chat extends Vue {
 
     const chatList: IChat[] | '' = uni.getStorageSync(CHAT_LIST(this.userInfo.id, this.targetId));
     if (chatList) {
-      this.chatDataList = chatList;
-      // 防抖获取高度
-      this.preventJitter();
+      const pageSize: number = 10;
+      const data =
+        chatList.length > pageSize
+          ? chatList
+              .reverse()
+              .slice((pageNum - 1) * pageSize, pageNum * pageSize)
+              .reverse()
+          : chatList;
+      if (!isBottom) {
+        this.chatDataList.unshift(...data);
+      } else {
+        this.chatDataList = data;
+        // 防抖获取高度
+        this.preventJitter();
+      }
+      return data.length >= 10;
     }
+    return false;
   }
   // 获取每一个信息组件的高度 然后赋值给 scrollTop
   getChatListHeight() {
@@ -552,7 +591,7 @@ export default class Chat extends Vue {
   position: fixed;
   bottom: 0;
   width: 100%;
-  z-index: 2;
+  z-index: 200;
   transition: all 0.3s;
   box-sizing: border-box;
   background: #ececec;
@@ -607,6 +646,6 @@ export default class Chat extends Vue {
   right: 0;
   top: 0;
   opacity: 0;
-  z-index: 1;
+  z-index: 100;
 }
 </style>

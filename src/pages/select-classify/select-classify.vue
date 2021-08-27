@@ -6,14 +6,15 @@
     </view>
     <template v-if="currentShowArticleOrTopic">
       <block v-for="(item, index) in classifyList" :key="item.id">
-        <avatar-list @clickItem="comeBack" :count="item.count" :index="index" :title="item.title" />
+        <avatar-list @clickItem="comeBack" :type="type" :count="item.count" :index="index" :title="item.title" />
       </block>
     </template>
     <template v-else>
       <block v-for="(item, index) in isSearch" :key="item.id">
         <avatar-list
           @clickItem="comeBack"
-          :count="10"
+          :type="type"
+          :count="item.articleCount"
           :title="item.title"
           :index="index"
           :desc="item.desc"

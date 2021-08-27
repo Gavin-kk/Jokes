@@ -12,6 +12,7 @@
     "experimentalDecorators":true,
     "sourceMap": true,
     "skipLibCheck": true,
+    "noImplicitAny": false,
     "types": [
       "webpack-env",
       "@dcloudio/types",

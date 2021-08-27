@@ -1,6 +1,6 @@
 import { ActionContext } from 'vuex';
 import { AxiosResponse } from 'axios';
-import { getAllTopicsRequest, getTopicClassifyListRequest } from '@services/topic.request';
+import { getAllTopicsRequest, getHotTopicsRequest, getTopicClassifyListRequest } from '@services/topic.request';
 import { IResponse } from '@services/interface/response.interface';
 import { getUserArticlesFollowedByUsersRequest } from '@services/moment.request';
 import { IArticle } from '@pages/home/store';
@@ -28,7 +28,15 @@ export const actions = {
     if (result.data.data.length === 0) {
       return false;
     }
-    context.commit(`${MomentStoreActionType.CHANGE_USER_ARTICLES_FOLLOWED_BY_USERS}`, result.data.data);
+    if (pageNum === 1) {
+      context.commit(MomentStoreActionType.CHANGE_USER_ARTICLES_FOLLOWED_BY_USERS, result.data.data);
+    } else {
+      context.commit(MomentStoreActionType.ADD_USER_ARTICLES_FOLLOWED_BY_USERS, result.data.data);
+    }
     return true;
+  },
+  async [MomentStoreActionType.GET_TRENDING_TOPIC](context: ActionContext<IMomentState, unknown>) {
+    const result: AxiosResponse<IResponse<ITopic[]>> = await getHotTopicsRequest();
+    context.commit(MomentStoreActionType.CHANGE_TRENDING_TOPIC, result.data.data);
   },
 };

@@ -2,12 +2,11 @@
   <view class="box">
     <nav-bar-s
       class="title-bar"
-      bg-color="#00000000"
+      bg-color="rgba(0,0,0,0)"
       :border="false"
       color="#fff"
-      :right-show="!isMe"
+      :right-show="false"
       @leftClick="topbarLeftClick"
-      @rightClick="topbarrightClick"
     ></nav-bar-s>
     <!--    <view class="title-bar"></view>-->
     <!--背景图-->
@@ -51,6 +50,9 @@
             <block v-for="item in articleList" :key="item.id">
               <moment-list :data="item"></moment-list>
             </block>
+            <template v-if="isEmptyArticle">
+              <empty />
+            </template>
           </view>
         </swiper-item>
         <swiper-item>
@@ -58,29 +60,20 @@
             <block v-for="item in topicArticleList" :key="item.id">
               <moment-list :data="item"></moment-list>
             </block>
+            <template v-if="isEmptyTopicArticle">
+              <empty />
+            </template>
           </view>
         </swiper-item>
       </swiper>
       <!-- 下拉加载组件-->
       <pull-up-loading v-show="isShowLoadingText" :text="dropDownLoadingText"></pull-up-loading>
     </view>
-    <!--右上角点击更多弹出层-->
-    <view class="top-menu">
-      <!--      last-text="备注"-->
-      <drop-down-menu
-        :is-show-menu="isShowMenu"
-        first-text="拉黑"
-        first-iconfont-class="icon-guanbi"
-        :nav-bar-height="navigationBarHeight"
-        @close="closeMenu"
-        @clickOnTheFirst="menuClickOnTheFirst"
-      />
-    </view>
   </view>
 </template>
 
 <script lang="ts">
-import { Vue, Component, Watch } from 'vue-property-decorator';
+import { Vue, Component } from 'vue-property-decorator';
 import UserPageHead from '@pages/personal-space/components/user-page-head/user-page-head.vue';
 import SectionList from '@pages/mine/components/section-list/section-list.vue';
 import HomeTopBar from '@components/home-topbar/home-topbar.vue';
@@ -89,11 +82,8 @@ import { getHoroscope } from '@src/utils/date-to-constellation';
 import MomentList from '@components/moment-list/moment-list.vue';
 import PullUpLoading from '@components/pull-up-loading/pull-up-loading.vue';
 import { LoadingStatus } from '@components/sliding-list/loading-status';
-import DropDownMenu from '@components/drop-down-menu/drop-down-menu.vue';
 import { IUser, IUserinfo } from '@store/module/user';
 import { namespace } from 'vuex-class';
-import { ModuleConstant } from '@store/module.constant';
-import { UserStoreActionType } from '@store/module/user/constant';
 import { AxiosResponse } from 'axios';
 import { IResponse } from '@services/interface/response.interface';
 import { getUserInfoRequest } from '@services/user.request';
@@ -101,7 +91,7 @@ import { IArticle } from '@pages/home/store';
 import { getTopicArticleListRequest, getUserArticlesRequest } from '@services/article.request';
 import NavBarB from '@components/nav-bar/nav-bar.vue';
 import NavBarS from '@pages/content/components/nav-bar/nav-bar.vue';
-import { IFollowEventPayload } from '@components/dynamic/dynamic.vue';
+import Empty from '@components/empty/empty.vue';
 
 moment.locale('zh-cn');
 
@@ -117,7 +107,7 @@ enum RequestTypeEnum {
 const UserModule = namespace('userModule');
 
 @Component({
-  components: { NavBarS, NavBarB, PullUpLoading, MomentList, SectionList, UserPageHead, HomeTopBar, DropDownMenu },
+  components: { Empty, NavBarS, NavBarB, PullUpLoading, MomentList, SectionList, UserPageHead, HomeTopBar },
 })
 export default class PersonalSpace extends Vue {
   @UserModule.State('userInfo')
@@ -137,6 +127,13 @@ export default class PersonalSpace extends Vue {
 
   get info(): IUserinfo | Record<string, any> {
     return (this.userInfo.userinfo && this.userInfo.userinfo[0]) || {};
+  }
+
+  get isEmptyArticle(): boolean {
+    return this.articleList.length === 0;
+  }
+  get isEmptyTopicArticle(): boolean {
+    return this.topicArticleList.length === 0;
   }
 
   //  tab导航的title
@@ -161,9 +158,6 @@ export default class PersonalSpace extends Vue {
   private loadingText: string[] = [LoadingStatus.load, LoadingStatus.load, LoadingStatus.load];
   // 三个页面容器的 id
   private idArr: string[] = ['store-height', 'content-height', 'dynamic-height'];
-
-  // 是否显示右上角菜单
-  private isShowMenu: boolean = false;
 
   // 计算要不要显示loadingtext
   get isShowLoadingText() {
@@ -194,10 +188,15 @@ export default class PersonalSpace extends Vue {
   }
 
   created() {
+    // #ifndef MP-WEIXIN
     this.getPagesData();
+    //  #endif
   }
 
   async mounted() {
+    // #ifdef MP-WEIXIN
+    this.getPagesData();
+    //  #endif
     // 获取进入首页的高度
     this.getHeight(this.idArr[this.currentTabBarIndex]);
     //  获取可用窗口高度
@@ -215,7 +214,7 @@ export default class PersonalSpace extends Vue {
     } = pages[pages.length - 1];
 
     const userId = options?.userId;
-
+    console.log(options);
     if (+userId === this.user.id) {
       this.isMe = true;
     }
@@ -260,14 +259,6 @@ export default class PersonalSpace extends Vue {
   // 监听页面滚动到底部
   onReachBottom() {
     this.downloadData();
-  }
-
-  // 关闭右上角菜单
-  closeMenu() {
-    this.isShowMenu = false;
-  }
-  menuClickOnTheFirst() {
-    uni.showToast({ title: '点击拉黑' });
   }
 
   // tabbar切换事件
@@ -361,10 +352,6 @@ export default class PersonalSpace extends Vue {
       uni.switchTab({ url: '/pages/home/home' });
     }
   }
-  // 导航栏点击菜单
-  topbarrightClick() {
-    this.isShowMenu = true;
-  }
 }
 </script>
 
@@ -412,11 +399,6 @@ export default class PersonalSpace extends Vue {
         }
       }
     }
-  }
-
-  .top-menu {
-    //position: absolute;
-    //left: 0;
   }
 }
 </style>

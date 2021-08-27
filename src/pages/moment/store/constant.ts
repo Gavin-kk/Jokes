@@ -8,4 +8,10 @@ export const enum MomentStoreActionType {
   //  TODO 获取所有用户关注的用户发布的文章 按时间排序
   GET_USER_ARTICLES_FOLLOWED_BY_USERS = 'get_user_articles_followed_by_users',
   CHANGE_USER_ARTICLES_FOLLOWED_BY_USERS = 'change_user_articles_followed_by_users',
+  ADD_USER_ARTICLES_FOLLOWED_BY_USERS = 'add_user_articles_followed_by_users',
+
+  // 更改热门话题
+  CHANGE_TRENDING_TOPIC = 'change_trending_topic',
+  // 获取热门话题
+  GET_TRENDING_TOPIC = 'get_trending_topic',
 }

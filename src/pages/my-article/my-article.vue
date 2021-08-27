@@ -6,9 +6,12 @@
     <block v-for="item in articleList" :key="item.id">
       <dynamic :moment-data="item"></dynamic>
     </block>
-    <view>
+    <template v-if="isEmpty">
+      <empty />
+    </template>
+    <template v-else>
       <pull-up-loading :text="loadingText"></pull-up-loading>
-    </view>
+    </template>
   </view>
 </template>
 
@@ -23,14 +26,19 @@ import Dynamic from '@components/dynamic/dynamic.vue';
 import PullUpLoading from '@components/pull-up-loading/pull-up-loading.vue';
 import { LoadingStatus } from '@components/sliding-list/loading-status';
 import CheckLoginMixin from '@src/mixins/check-login.mixin';
+import Empty from '@components/empty/empty.vue';
 
 @Component({
-  components: { PullUpLoading, Dynamic, NavBar },
+  components: { Empty, PullUpLoading, Dynamic, NavBar },
 })
 export default class MyArticle extends Mixins(CheckLoginMixin) {
   private articleList: IArticle[] = [];
   private pageNum: number = 1;
   private loadingText: LoadingStatus = LoadingStatus.load;
+
+  get isEmpty() {
+    return this.articleList.length === 0;
+  }
 
   created() {
     this.getData();

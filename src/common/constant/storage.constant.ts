@@ -14,3 +14,7 @@ export const SEARCH_ADD_FRIEND_HISTORY = (userId: number) => `search_add_friend_
 export const BROWSING_HISTORY_ARTICLE = (userId: number) => `browsing_history_article-${userId}`;
 // 动态浏览历史
 export const BROWSING_HISTORY_TOPIC = (userId: number) => `browsing_history_topic-${userId}`;
+// 缓存的文章分类
+export const ARTICLE_CLASSIFICATION = 'article_classification';
+// 缓存的搜索文章历史记录
+export const ARTICLE_SEARCH_HISTORY = (userId: number) => `article_search_history-${userId}`;

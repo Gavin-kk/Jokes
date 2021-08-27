@@ -1,5 +1,18 @@
 <template>
   <view>
+    <!-- #ifdef MP-WEIXIN-->
+    <news-nav-bar
+      class="news-nav-bar-height"
+      :nav-list="navList"
+      :currentIndex="currentIndex"
+      @change="navSelectedChange"
+      @leftClick="signIn"
+      @rightClick="openPublished"
+      is-status-bar-show
+      :right-is-show="false"
+    ></news-nav-bar>
+    <!--  #endif-->
+    <!-- #ifndef MP-WEIXIN-->
     <news-nav-bar
       class="news-nav-bar-height"
       :nav-list="navList"
@@ -8,30 +21,51 @@
       @leftClick="signIn"
       @rightClick="openPublished"
     ></news-nav-bar>
-
+    <!--#endif-->
     <!--   列表组件-->
     <swiper :current="currentIndex" @change="swiperChange" :style="{ height: windowHeight }">
-      <swiper-item>
-        <scroll-view scroll-y :style="{ height: windowHeight }" @scrolltolower="bottomOut">
+      <swiper-item :style="{ height: windowHeight }">
+        <z-paging
+          ref="paging"
+          :fixed="false"
+          refresher-only
+          @onRefresh="query"
+          @scrolltolower="bottomOut"
+          :safe-area-inset-bottom="true"
+          :delay="1000"
+        >
+          <!--        <scroll-view scroll-y @scrolltolower="bottomOut" :style="{ height: windowHeight }">-->
           <block v-for="item in followArticleList" :key="item.id">
             <moment-list :data="item"></moment-list>
           </block>
           <pull-up-loading :text="pullMsg" />
-        </scroll-view>
+          <!--        </scroll-view>-->
+        </z-paging>
       </swiper-item>
-      <swiper-item>
-        <scroll-view scroll-y :style="{ height: windowHeight }">
+      <swiper-item :style="{ height: windowHeight }">
+        <z-paging
+          ref="paginga"
+          :fixed="false"
+          refresher-only
+          @onRefresh="refrechTopic"
+          :safe-area-inset-bottom="true"
+          :delay="1000"
+        >
+          <!--        <scroll-view scroll-y :style="{ height: windowHeight }">-->
           <!--          话题页面-->
           <topic />
-        </scroll-view>
+          <!--        </scroll-view>-->
+        </z-paging>
       </swiper-item>
     </swiper>
+    <!-- #ifdef MP-WEIXIN-->
+    <post-an-article-btn @tap="openPublished" />
+    <!-- #endif-->
   </view>
 </template>
 
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator';
-
 import MomentList from '@components/moment-list/moment-list.vue';
 import NewsNavBar from '@components/news/news-nav-bar.vue';
 import { LoadingStatus } from '@components/sliding-list/loading-status';
@@ -39,16 +73,21 @@ import PullUpLoading from '@components/pull-up-loading/pull-up-loading.vue';
 import Topic from '@components/topic/topic.vue';
 import { namespace } from 'vuex-class';
 import { IArticle } from '@pages/home/store';
-import { ModuleConstant } from '@store/module.constant';
 import { MomentStoreActionType } from '@pages/moment/store/constant';
+import PostAnArticleBtn from '@components/post-an-article-btn/post-an-article-btn.vue';
+import ZPaging from '@components/z-paging/z-paging.vue';
 
 const MomentModule = namespace('momentModule');
-@Component({ components: { Topic, PullUpLoading, MomentList, NewsNavBar } })
+@Component({ components: { ZPaging, PostAnArticleBtn, Topic, PullUpLoading, MomentList, NewsNavBar } })
 export default class Moment extends Vue {
   @MomentModule.State('followArticleList')
-  private followArticleList!: IArticle[];
+  private readonly followArticleList!: IArticle[];
   @MomentModule.Action(MomentStoreActionType.GET_USER_ARTICLES_FOLLOWED_BY_USERS)
-  private getUserArticlesFollowedByUsers!: (n: number) => Promise<boolean>;
+  private readonly getUserArticlesFollowedByUsers!: (n: number) => Promise<boolean>;
+  @MomentModule.Action(MomentStoreActionType.GET_ALL_TOPIC_CATEGORIES)
+  private readonly getAllTopicCategories!: () => Promise<void>;
+  @MomentModule.Action(MomentStoreActionType.GET_TRENDING_TOPIC)
+  private readonly getHotTopic!: () => Promise<void>;
   // 关注列表的页码
   private followPageNum: number = 1;
   // 关注页面的下拉文本
@@ -83,6 +122,24 @@ export default class Moment extends Vue {
       .exec();
   }
 
+  query() {
+    this.followPageNum = 1;
+    // 获取用户关注的文章
+    this.getUserArticlesFollowedByUsers(this.followPageNum);
+    (this.$refs.paging as any).complete();
+  }
+
+  // 刷新topic页面
+  async refrechTopic() {
+    try {
+      await this.getAllTopicCategories();
+      await this.getHotTopic();
+      (this.$refs.paginga as any).complete();
+    } catch (err) {
+      uni.showToast({ title: '网络错误', icon: 'none' });
+    }
+  }
+
   // 打开发布页面
   openPublished() {
     uni.navigateTo({
@@ -102,6 +159,7 @@ export default class Moment extends Vue {
     this.currentIndex = current;
   }
 
+  // 页面触底
   async bottomOut() {
     this.pullMsg = LoadingStatus.loading;
     this.followPageNum++;

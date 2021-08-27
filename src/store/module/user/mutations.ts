@@ -5,6 +5,7 @@ import { TOKEN_KEY } from '@common/constant/storage.constant';
 export const state: IUserState = {
   userInfo: {},
   isLogin: false,
+  followedUsers: [],
   count: {
     articleCount: 0,
     topicArticleCount: 0,
@@ -38,5 +39,8 @@ export const mutations = {
     };
     state.isLogin = false;
     state.userInfo = {};
+  },
+  [UserStoreActionType.CHANGE_FOLLOW_LIST](state: IUserState, payload: IUser[]) {
+    state.followedUsers = payload;
   },
 };

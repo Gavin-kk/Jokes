@@ -25,4 +25,5 @@ export interface IMomentState {
   topicClassifyList: ITopicClassify[];
   topicList: ITopic[];
   followArticleList: IArticle[];
+  hotTopic: ITopic[];
 }

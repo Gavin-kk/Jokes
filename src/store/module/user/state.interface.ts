@@ -52,5 +52,6 @@ export interface IUser {
 export interface IUserState {
   userInfo: IUser | Record<string, unknown>;
   isLogin: boolean;
+  followedUsers: IUser[];
   count: ICount;
 }

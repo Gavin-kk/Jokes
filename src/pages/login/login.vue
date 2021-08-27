@@ -65,6 +65,10 @@ const UserModule = namespace('userModule');
 export default class Login extends Vue {
   // 是否登录
   @UserModule.State('isLogin') isLogin!: boolean;
+  @UserModule.Action(UserStoreActionType.SEND_EMAIL_VERIFICATION_CODE_TO_LOG_IN)
+  private sendEmailCode!: (payload: { email: string; VCode: number }) => Promise<void>;
+  @UserModule.Action(UserStoreActionType.SEND_ACCOUNT_PASSWORD_TO_LOG_IN)
+  private sendEmailPasswordToLogIn!: (payload: { username: string; password: string }) => Promise<void>;
 
   @Watch('isLogin')
   goToMinepage(newIsLogin: boolean) {
@@ -94,19 +98,21 @@ export default class Login extends Vue {
     // 派发登录action
     // 邮箱验证码登录
     if (this.loginMethods === LoginMethodsEnum.verificationCode) {
-      this.$store.dispatch(
-        `${ModuleConstant.userModule}/${UserStoreActionType.SEND_EMAIL_VERIFICATION_CODE_TO_LOG_IN}`,
-        {
-          email: this.email,
-          VCode: this.verificationCode,
-        },
-      );
+      this.sendEmailCode({
+        email: this.email,
+        VCode: this.verificationCode!,
+      });
+      // this.$store.dispatch(
+      //   `${ModuleConstant.userModule}/${UserStoreActionType.SEND_EMAIL_VERIFICATION_CODE_TO_LOG_IN}`,
+      //
+      // );
     } else {
       // 账号密码登录
-      this.$store.dispatch(`${ModuleConstant.userModule}/${UserStoreActionType.SEND_ACCOUNT_PASSWORD_TO_LOG_IN}`, {
+      this.sendEmailPasswordToLogIn({
         username: this.username,
         password: this.password,
       });
+      // this.$store.dispatch(`${ModuleConstant.userModule}/${UserStoreActionType.SEND_ACCOUNT_PASSWORD_TO_LOG_IN}`, );
     }
   }
 

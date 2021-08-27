@@ -3,19 +3,21 @@
     <view class="nav-left" slot="left" @tap="leftClick">
       <view class="iconfont icon-qiandao"></view>
     </view>
-    <block slot="default">
-      <view class="nav-center">
-        <view
-          :class="['item', 'follow', { active: currentIndex === index }]"
-          v-for="(item, index) in navList"
-          :key="item"
-          @tap="changeActive(item, index)"
-        >
-          {{ item }}
+    <slot name="default">
+      <block slot="default">
+        <view class="nav-center">
+          <view
+            :class="['item', 'follow', { active: currentIndex === index }]"
+            v-for="(item, index) in navList"
+            :key="item"
+            @tap="changeActive(item, index)"
+          >
+            {{ item }}
+          </view>
         </view>
-      </view>
-    </block>
-    <view class="nav-right" slot="right" @tap="rightClick">
+      </block>
+    </slot>
+    <view class="nav-right" slot="right" v-if="rightIsShow" @tap="rightClick">
       <view class="iconfont icon-bianji1"></view>
     </view>
   </uni-nav-bar>
@@ -27,17 +29,24 @@ import UniNavBar from '@dcloudio/uni-ui/lib/uni-nav-bar/uni-nav-bar.vue';
 
 @Component({ components: { UniNavBar } })
 export default class NewsNavBar extends Vue {
-  private isStatusBar: boolean = true;
+  private isStatus: boolean = true;
 
   @Prop(Array)
   private navList!: string[];
 
   @Prop(Number)
   private currentIndex!: number;
+  @Prop({ type: Boolean, default: false })
+  private isStatusBarShow!: boolean;
+  @Prop({ type: Boolean, default: true })
+  private rightIsShow!: boolean;
 
+  get isStatusBar(): boolean {
+    return this.isStatusBarShow || this.isStatus;
+  }
   created() {
     // #ifdef MP-WEIXIN
-    this.isStatusBar = false;
+    this.isStatus = false;
     // #endif
   }
 

@@ -17,6 +17,9 @@ export const enum UserStoreActionType {
   GET_COUNT = 'get_count',
   CHANGE_COUNT = 'change_count',
   CHANGE_BG = 'change_bg',
+  // 获取个人关注列表
+  GET_FOLLOW_LIST = 'get_follow_list',
+  CHANGE_FOLLOW_LIST = 'change_follow_list',
   //  初始化数据
   INIT = 'init',
 }

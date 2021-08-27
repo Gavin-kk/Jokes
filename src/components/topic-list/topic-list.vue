@@ -1,5 +1,5 @@
 <template>
-  <view class="topic-list animate__animated animate__slideInUp" style="animation-duration: 300ms" @tap="intoTheTopic">
+  <view class="topic-list" style="animation-duration: 300ms" @tap="intoTheTopic">
     <view class="left">
       <image class="topic-image" :src="data.pic" mode="aspectFill" lazy-load></image>
     </view>

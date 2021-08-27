@@ -1,7 +1,7 @@
 <template>
   <view>
     <!--时间-->
-    <view class="time" v-if="data.time">{{ data.time | timeFilter }}</view>
+    <view class="time" v-if="time">{{ data.time | timeFilter }}</view>
     <view :class="['chat-item', { 'row-reverse': data.isMe }]">
       <view class="image-box" @tap="openUser">
         <image v-if="imageShow" class="image" :src="data.avatar" mode="aspectFill" lazy-load></image>
@@ -113,6 +113,9 @@ export default class ChatList extends Vue {
     return !!this.data.progressRate && this.data.progressRate !== 100 && !this.data.errorState;
   }
 
+  get time(): boolean {
+    return !(timeFilter(this.preTime) === timeFilter(this.data.time));
+  }
   // 是否错误
   get isError(): boolean {
     return !!this.data.errorState;
@@ -259,7 +262,7 @@ export default class ChatList extends Vue {
 
     .schedule {
       position: absolute;
-      left: -15%;
+      left: -70rpx;
       top: 50%;
       transform: translateY(-50%);
 

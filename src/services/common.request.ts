@@ -25,3 +25,5 @@ export const likeCommentRequest = (type: LikeCommentType, commentId: number) =>
     commentId,
     type,
   });
+// 意见反馈
+export const feedbackRequest = (content: string) => request.post('/feedback', { content });

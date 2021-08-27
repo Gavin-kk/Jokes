@@ -20,7 +20,7 @@ import { signOutRequest } from '@src/services/common.request';
 import { ModuleConstant } from '@store/module.constant';
 import { UserStoreActionType } from '@store/module/user/constant';
 import { TOKEN_KEY } from '@common/constant/storage.constant';
-import { UPLOAD_VIDEO_URL } from '@common/constant/upload-path.constant';
+import { IFollowEventPayload } from '@components/dynamic/dynamic.vue';
 
 @Component({ components: { NavBar, ItemList } })
 export default class Settings extends Vue {
@@ -28,11 +28,15 @@ export default class Settings extends Vue {
     { text: '账号与安全', method: 'nav', url: '/pages/edit-password/edit-password' },
     { text: '绑定邮箱', method: 'nav', url: '/pages/bind-email/bind-email' },
     { text: '资料编辑', method: 'nav', url: '/pages/edit-material/edit-material' },
-    { text: '小纸条' },
     { text: '清除缓存', method: 'clear' },
     { text: '意见反馈', method: 'nav', url: '/pages/feedback/feedback' },
-    { text: '关于嘻嘻哈哈', method: 'nav', url: '/pages/about/about' },
   ];
+
+  created() {
+    //  #ifdef APP-PLUS
+    this.list.push({ text: '关于嘻嘻哈哈', method: 'nav', url: '/pages/about/about' });
+    //  #endif
+  }
 
   // 退出登录
   async signOutRequest() {
@@ -50,6 +54,7 @@ export default class Settings extends Vue {
           await this.$store.commit(`${ModuleConstant.userModule}/${UserStoreActionType.INIT}`);
           // 关闭websocket连接
           uni.$emit('closeSocket');
+          uni.$emit('follow', { clear: true } as IFollowEventPayload);
           // 导航到用户主页
           uni.switchTab({ url: '/pages/mine/mine' });
         }

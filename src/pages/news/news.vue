@@ -10,41 +10,55 @@
       @clickOnTheFirst="addFriend"
       @clickTheLastOne="clearUnread"
     />
+    <z-paging ref="paging" :fixed="true" refresher-only @onRefresh="query" :safe-area-inset-bottom="true" :delay="1000">
+      <!-- #ifdef MP-WEIXIN-->
+      <uni-nav-bar status-bar :border="false">
+        <view slot="left" class="left-nav-bar" @tap="openFriendsPage">
+          <view class="iconfont icon-user_icon"></view>
+        </view>
+        <view slot="default" class="center">消息</view>
+      </uni-nav-bar>
+      <!-- #endif   -->
 
-    <view class="bar">
-      <view class="item" @tap="openPraise">
-        <image class="image" src="/static/like.png"></image>
-        <view>点赞</view>
-        <view class="new-attention-count" v-if="isShowLeftTopRedDot">{{ leftTopCount }}</view>
+      <view class="bar">
+        <view class="item" @tap="openPraise">
+          <image class="image" src="/static/like.png"></image>
+          <view>点赞</view>
+          <view class="new-attention-count" v-if="isShowLeftTopRedDot">{{ leftTopCount }}</view>
+        </view>
+        <view class="item" @tap="openNewAttention">
+          <image class="image" src="/static/follow.png"></image>
+          <view>新增关注</view>
+          <view class="new-attention-count" v-if="isShowRightTopRedDot">{{ rightTopCount }}</view>
+        </view>
       </view>
-      <view class="item" @tap="openNewAttention">
-        <image class="image" src="/static/follow.png"></image>
-        <view>新增关注</view>
-        <view class="new-attention-count" v-if="isShowRightTopRedDot">{{ rightTopCount }}</view>
-      </view>
-    </view>
-    <view class="list-box">
-      <block v-for="(item, index) in dataList" :key="item.userId">
-        <uni-swipe-action>
-          <uni-swipe-action-item>
-            <view>
-              <!-- 聊天列表-->
-              <news-list :data="item" @openChat="openChat($event, index)" />
-            </view>
-            <template v-slot:right>
-              <view class="delete-box" @click="clickDelete(index)">
-                <text>删除</text>
+      <view class="list-box">
+        <block v-for="(item, index) in dataList" :key="item.userId">
+          <uni-swipe-action>
+            <uni-swipe-action-item>
+              <view>
+                <!-- 聊天列表-->
+                <news-list :data="item" @openChat="openChat($event, index)" />
               </view>
-            </template>
-          </uni-swipe-action-item>
-        </uni-swipe-action>
-      </block>
-    </view>
+              <template v-slot:right>
+                <view class="delete-box" @click="clickDelete(index)">
+                  <text>删除</text>
+                </view>
+              </template>
+            </uni-swipe-action-item>
+          </uni-swipe-action>
+        </block>
+      </view>
+    </z-paging>
+
+    <!-- #ifdef MP-WEIXIN-->
+    <post-an-article-btn @tap="addFriend" icon-class="icon-zengjia" />
+    <!-- #endif-->
   </view>
 </template>
 
 <script lang="ts">
-import { Vue, Component } from 'vue-property-decorator';
+import { Component, Mixins } from 'vue-property-decorator';
 import NewsList from '@pages/news/components/news-list/news-list.vue';
 import UniSwipeAction from '@dcloudio/uni-ui/lib/uni-swipe-action/uni-swipe-action.vue';
 import uniSwipeActionItem from '@dcloudio/uni-ui/lib/uni-swipe-action-item/uni-swipe-action-item.vue';
@@ -52,7 +66,11 @@ import DropDownMenu from '@components/drop-down-menu/drop-down-menu.vue';
 import { CHAT_LIST, NEWS_LIST, USER_NEW_ATTENTION_COUNT, USER_NEW_LIKE_COUNT } from '@common/constant/storage.constant';
 import { namespace } from 'vuex-class';
 import { IUser } from '@store/module/user';
-import * as toPinyin from 'jian-pinyin';
+import CheckLoginMixin from '@src/mixins/check-login.mixin';
+import NewsNavBar from '@components/news/news-nav-bar.vue';
+import UniNavBar from '@dcloudio/uni-ui/lib/uni-nav-bar/uni-nav-bar.vue';
+import PostAnArticleBtn from '@components/post-an-article-btn/post-an-article-btn.vue';
+import ZPaging from '@components/z-paging/js/z-paging-main';
 
 export interface INews {
   userId: number;
@@ -65,8 +83,19 @@ export interface INews {
 
 const UserModule = namespace('userModule');
 
-@Component({ components: { DropDownMenu, NewsList, UniSwipeAction, uniSwipeActionItem } })
-export default class News extends Vue {
+@Component({
+  components: {
+    ZPaging,
+    PostAnArticleBtn,
+    NewsNavBar,
+    DropDownMenu,
+    NewsList,
+    UniSwipeAction,
+    uniSwipeActionItem,
+    UniNavBar,
+  },
+})
+export default class News extends Mixins(CheckLoginMixin) {
   @UserModule.State('userInfo')
   private readonly userInfo!: IUser;
   private dataList: INews[] = [];
@@ -95,6 +124,14 @@ export default class News extends Vue {
     this.dataList.forEach((item) => {
       item.time++;
     });
+  }
+
+  query() {
+    uni.$emit('refreshSocket');
+    setTimeout(() => {
+      this.getStorage();
+      (this.$refs.paging as any).complete(true);
+    }, 1500);
   }
 
   async getStorage() {
@@ -200,31 +237,30 @@ export default class News extends Vue {
     uni.removeStorage({ key: CHAT_LIST(this.userInfo.id, this.dataList[index].userId) });
   }
 
-  // 监听下拉
-  onPullDownRefresh() {
-    this.pullDownToRefresh();
-  }
-
-  // 下拉刷新
-  pullDownToRefresh() {
-    setTimeout(() => {
-      uni.stopPullDownRefresh();
-    }, 2000);
-  }
-
   //   原生导航栏点击监听
   onNavigationBarButtonTap(d: { index: number }) {
     if (d.index === 0) {
-      uni.navigateTo({ url: '/pages/friends/friends' });
+      this.openFriendsPage();
     } else {
       // 显示添加好友弹框
       this.isShowMenu = true;
     }
   }
+  //  打开好友页面
+  openFriendsPage() {
+    uni.navigateTo({ url: '/pages/friends/friends' });
+  }
 }
 </script>
 
 <style lang="scss" scoped>
+.center {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
 .bar {
   display: flex;
   align-items: center;

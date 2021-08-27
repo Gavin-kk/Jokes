@@ -1,5 +1,7 @@
+// eslint-disable-next-line max-classes-per-file
 import { Vue, Component, Watch } from 'vue-property-decorator';
 import { TOKEN_KEY } from '@common/constant/storage.constant';
+import { WS_SERVER } from '@config/service.config';
 
 export interface IReadState {
   key: number;
@@ -24,7 +26,8 @@ let reconnectTimer: number | undefined;
 const reconnectCount: number = 10;
 // 心跳检测超时时间
 const timeout: number = 3000;
-
+let timer: number | undefined;
+let currentReconnectCount: number = 0;
 export abstract class WebsocketMixinAbstract {
   abstract watchMessage: (msg: ISocketMessage) => void;
 }
@@ -45,7 +48,7 @@ export default class WebsocketMixin extends Vue {
     if (this.isConnected) return;
     try {
       this.socket = uni.connectSocket({
-        url: 'ws://127.0.0.1:5001',
+        url: WS_SERVER,
         success: () => {
           this.readState = readyStateArr[0];
         },
@@ -79,7 +82,16 @@ export default class WebsocketMixin extends Vue {
   onWebsocketError() {
     this.isConnected = false;
     this.readState = readyStateArr[3];
-    console.log(this.readState, 'er');
+    if (typeof timer !== 'undefined') {
+      clearTimeout(timer);
+      timer = setTimeout(() => {
+        this.reconnect();
+      }, 3000);
+    } else {
+      timer = setTimeout(() => {
+        this.reconnect();
+      }, 3000);
+    }
   }
 
   // eslint-disable-next-line @typescript-eslint/no-empty-function
@@ -92,12 +104,18 @@ export default class WebsocketMixin extends Vue {
   }
 
   close() {
-    this.isConnected = false;
-    this.isExit = true;
-    this.socket?.close({
-      success: () => {
-        this.readState = readyStateArr[2];
-      },
+    return new Promise((resolve, reject) => {
+      this.isConnected = false;
+      this.isExit = true;
+      this.socket?.close({
+        success: () => {
+          this.readState = readyStateArr[2];
+          resolve('');
+        },
+        fail: () => {
+          reject(new Error(''));
+        },
+      });
     });
   }
   // 心跳检测
@@ -122,11 +140,11 @@ export default class WebsocketMixin extends Vue {
 
   // 重连
   reconnect() {
-    let count: number = 0;
     reconnectTimer = setInterval(() => {
-      count++;
-      if (count === reconnectCount || this.isConnected || this.isExit) {
+      currentReconnectCount++;
+      if (currentReconnectCount === reconnectCount || this.isConnected || this.isExit) {
         clearInterval(reconnectTimer);
+        clearTimeout(timer);
         return;
       }
       this.socket?.close({

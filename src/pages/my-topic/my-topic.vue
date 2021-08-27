@@ -6,9 +6,12 @@
     <block v-for="item in topicArticleList" :key="item.id">
       <moment-list :data="item"></moment-list>
     </block>
-    <view>
+    <template v-if="isEmpty">
+      <empty />
+    </template>
+    <template v-else>
       <pull-up-loading :text="loadingText"></pull-up-loading>
-    </view>
+    </template>
   </view>
 </template>
 
@@ -23,14 +26,19 @@ import { AxiosResponse } from 'axios';
 import { IResponse } from '@services/interface/response.interface';
 import PullUpLoading from '@components/pull-up-loading/pull-up-loading.vue';
 import CheckLoginMixin from '@src/mixins/check-login.mixin';
+import Empty from '@components/empty/empty.vue';
 
 @Component({
-  components: { PullUpLoading, MomentList, NavBar },
+  components: { Empty, PullUpLoading, MomentList, NavBar },
 })
 export default class MyTopic extends Mixins(CheckLoginMixin) {
   private topicArticleList: IArticle[] = [];
   private pageNum: number = 1;
   private loadingText: LoadingStatus = LoadingStatus.load;
+
+  get isEmpty(): boolean {
+    return this.topicArticleList.length === 0;
+  }
 
   created() {
     //  获取话题文章

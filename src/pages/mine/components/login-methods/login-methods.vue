@@ -17,6 +17,25 @@
 
 <script lang="ts">
 import { Vue, Component, Prop } from 'vue-property-decorator';
+import { UserModule } from '@store/module/user';
+import { UserStoreActionType } from '@store/module/user/constant';
+import { otherBindLoginRequest } from '@services/auth.request';
+
+export interface IOtherBindLogin {
+  userBindId: number;
+  email: string;
+  password: string;
+  VCode: number;
+  nickname: string;
+  avatar: string;
+}
+
+export interface IOtherLogin {
+  type: string;
+  openid: string;
+  nickname: string;
+  avatar: string;
+}
 
 export interface IProvider {
   value: string;
@@ -26,6 +45,8 @@ export interface IProvider {
 
 @Component({})
 export default class LoginMethods extends Vue {
+  @UserModule.Action(UserStoreActionType.SEND_THIRD_PARTY_LOGIN)
+  private readonly otherLoginAction!: (payload: IOtherLogin) => Promise<{ type: boolean; userBindId?: number }>;
   @Prop({ type: Boolean, default: false })
   private ifUseIcon!: boolean;
 
@@ -65,12 +86,46 @@ export default class LoginMethods extends Vue {
       },
     });
   }
+
   // 登录
   login(item: IProvider) {
     uni.login({
       provider: item.id,
-      success: (res) => {
-        console.log(res);
+      success: (loginRes: any) => {
+        uni.getUserInfo({
+          provider: item.id,
+          success: (userInfo) => {
+            const provider = {
+              type: item.id,
+              openid: loginRes.authResult.openid,
+              nickname: userInfo.userInfo.nickName,
+              avatar: userInfo.userInfo.avatarUrl,
+            };
+            this.otherLoginAction(provider)
+              .then((res: { type: boolean; userBindId?: number }) => {
+                if (!res.type) {
+                  const userinfo = {
+                    nickname: userInfo.userInfo.nickName,
+                    avatar: userInfo.userInfo.avatarUrl,
+                    openid: loginRes.authResult.openid,
+                  };
+                  uni.navigateTo({
+                    url: `/pages/bind-email/bind-email?userInfo=${JSON.stringify(
+                      userinfo,
+                    )}&path=/pages/mine/mine&type=1&provider=${JSON.stringify(provider)}&userBindId=${res.userBindId}`,
+                    fail: () => {
+                      uni.showToast({ title: '登录失败,请重试' });
+                    },
+                  });
+                }
+              })
+              .catch(() => {
+                uni.showToast({ title: '登录失败,请重试' });
+              });
+          },
+        });
+
+        // console.log(res);
       },
       fail() {
         uni.showToast({ title: '获取登录通道失败,检查是否安装软件', icon: 'none' });

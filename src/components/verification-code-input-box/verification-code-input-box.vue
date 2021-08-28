@@ -53,7 +53,13 @@ export default class VerificationCodeInputBox extends Vue {
 
     try {
       // 发送验证码请求
-      await getEmailVerificationCodeRequest(this.value, this.emailType);
+      const result = await getEmailVerificationCodeRequest(this.value, this.emailType);
+      if ((result as any).response?.data.message === '操作频繁') {
+        this.isSendVCode = false;
+        uni.showToast({ title: (result as any).response?.data.message, icon: 'none' });
+        return;
+      }
+
       uni.showToast({ title: '已发送' });
       this.isSendVCode = true;
       timer = setInterval(() => {

@@ -43,7 +43,7 @@
       <block v-for="(item, index) in searchList" :key="item.id">
         <avatar-list
           @clickItem="clickTopicItem(item)"
-          :count="10"
+          :count="item.articleCount"
           :title="item.title"
           :index="index"
           :desc="item.desc"

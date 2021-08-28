@@ -27,3 +27,5 @@ export const likeCommentRequest = (type: LikeCommentType, commentId: number) =>
   });
 // 意见反馈
 export const feedbackRequest = (content: string) => request.post('/feedback', { content });
+// 添加访客 visitorUserId: 被访问者的id
+export const addGuestRequest = (visitorUserId: number) => request.post('/user/visitor', { visitorUserId });

@@ -6,7 +6,7 @@
         <view class="img-box">
           <image :src="momentData.user.avatar" mode="widthFix" class="img" lazy-load></image>
         </view>
-        <view class="username">{{ momentData.user.username }}</view>
+        <view class="username">{{ usernameOrNickname }}</view>
       </view>
       <view class="title-right">
         <view class="attention-btn" v-if="!whetherFollow" @tap="followUsers">关注</view>
@@ -111,6 +111,10 @@ export default class Dynamic extends Vue {
   private whetherFollow: boolean = false;
   private isLike: number | null = null;
   private dislike: number | null = null;
+
+  get usernameOrNickname(): string {
+    return this.momentData.user.nickname ? this.momentData.user.nickname : this.momentData.user.username;
+  }
 
   get shareImage() {
     return this.momentData?.share?.pic || this.momentData?.share?.video?.pic;

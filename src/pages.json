@@ -84,7 +84,7 @@
         //  #ifdef MP-WEIXIN
         "navigationStyle": "custom",
         //   #endif
-//        "enablePullDownRefresh": true, // 开启下拉刷新
+        //        "enablePullDownRefresh": true, // 开启下拉刷新
         "app-plus": {
           "bounce": "none", // 关闭反弹效果
           "scrollIndicator": "none",
@@ -197,7 +197,6 @@
     {
       "path": "pages/my-fans/my-fans",
       "style": {
-
         //  #ifdef MP-WEIXIN
         "navigationBarTitleText": "我的粉丝",
         //   #endif
@@ -216,7 +215,7 @@
       "style": {
         "navigationStyle": "custom",
         "titleNView": false
-    /*    "app-plus": {
+        /*    "app-plus": {
           "scrollIndicator": "none",
           "navigationStyle": "custom",
           "titleNView": {
@@ -284,7 +283,7 @@
     {
       "path": "pages/topic-detail/topic-detail",
       "style": {
-//        "enablePullDownRefresh": true, // 开启下拉刷新
+        //        "enablePullDownRefresh": true, // 开启下拉刷新
         "navigationBarTitleText": "话题详情",
         "app-plus": {
           "animationType": "slide-in-bottom",
@@ -409,15 +408,15 @@
       "style": {
         "navigationStyle": "custom",
         "app-plus": {
-//                    "titleNView": {
-//                      "scrollIndicator": "none",
-//                      "type": "transparent", // 渐变
-//                      "buttons": [
-//                        {
-//                          "type": "menu" // 按钮样式
-//                        }
-//                      ]
-//                    },
+          //                    "titleNView": {
+          //                      "scrollIndicator": "none",
+          //                      "type": "transparent", // 渐变
+          //                      "buttons": [
+          //                        {
+          //                          "type": "menu" // 按钮样式
+          //                        }
+          //                      ]
+          //                    },
           "titleNView": false,
           "scrollIndicator": "none",
           "bounce": "none" // 关闭反弹效果

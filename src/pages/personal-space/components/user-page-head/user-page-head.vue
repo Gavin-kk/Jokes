@@ -8,7 +8,7 @@
         <view class="avatar-box">
           <image class="avatar" :src="userInfoC.avatar" mode="widthFix"></image>
         </view>
-        <view class="username">{{ userInfoC.username }} <gender-tag :gender="info.gender" :age="info.age" /></view>
+        <view class="username">{{ usernameOrNickname }} <gender-tag :gender="info.gender" :age="info.age" /></view>
         <view class="tags">
           <view class="tag">{{ constellationC }}</view>
         </view>
@@ -85,6 +85,10 @@ export default class UserPageHead extends Vue {
 
   get attentionText(): string {
     return this.isFollow ? '已关注' : '关注';
+  }
+
+  get usernameOrNickname(): string {
+    return this.userInfoC.nickname ? this.userInfoC.nickname : this.userInfoC.username;
   }
 
   get info(): { gender: number; age: number } {

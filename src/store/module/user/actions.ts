@@ -1,7 +1,12 @@
 import { ActionContext } from 'vuex';
 import { AxiosResponse } from 'axios';
 import { ICount, IUser, IUserState } from '@store/module/user/state.interface';
-import { accountPasswordLogin, emailVerificationCodeLogin } from '@services/auth.request';
+import {
+  accountPasswordLogin,
+  emailVerificationCodeLogin,
+  otherBindLoginRequest,
+  otherLoginRequest,
+} from '@services/auth.request';
 import { IResponse } from '@services/interface/response.interface';
 import { editPasswordRequest, getUserInfoRequest } from '@services/user.request';
 import { IArticleState } from '@pages/mine/store';
@@ -9,7 +14,13 @@ import { getCountRequest } from '@services/common.request';
 import { getFollowUserRequest } from '@services/follow.request';
 import { IFollowEventPayload } from '@components/dynamic/dynamic.vue';
 import { TOKEN_KEY } from '@common/constant/storage.constant';
+import { IOtherBindLogin, IOtherLogin } from '@pages/mine/components/login-methods/login-methods.vue';
 import { UserStoreActionType } from './constant';
+
+export interface IAuthServiceOtherLoginError {
+  text: string;
+  userBindId: number;
+}
 
 const saveToken = (token: string) => {
   uni.setStorage({ key: TOKEN_KEY, data: token });
@@ -44,12 +55,40 @@ export const actions = {
     }
   },
   // 第三方登录
-  async [UserStoreActionType.SEND_THIRD_PARTY_LOGIN](context: ActionContext<IUserState, unknown>) {
-    // 在这里发送登录请求 把user提交上去 token 存到locastorage
-    context.commit(UserStoreActionType.CHANGE_USER_INFO, 'data');
+  async [UserStoreActionType.SEND_THIRD_PARTY_LOGIN](
+    context: ActionContext<IUserState, unknown>,
+    payload: IOtherLogin,
+  ): Promise<{ type: boolean; userBindId?: number }> {
+    const result: AxiosResponse<IResponse<IAuthServiceOtherLoginError | { user: IUser; token: string }>> =
+      await otherLoginRequest(payload);
+    if ((result.data.data as IAuthServiceOtherLoginError).text === '请绑定邮箱') {
+      return { type: false, userBindId: (result.data.data as IAuthServiceOtherLoginError).userBindId };
+    }
+    saveToken((result.data.data as { user: IUser; token: string }).token);
+    await context.dispatch(UserStoreActionType.GET_USER_INFO);
     await context.dispatch(UserStoreActionType.GET_FOLLOW_LIST);
     // 通知已经加载的文章或动态当前登录的人已经关注了他们的作者
     changePagesArticleFollow(context);
+    return { type: true };
+  },
+  // 第三方账号绑定邮箱登录
+  async [UserStoreActionType.BIND_EMAIL](
+    context: ActionContext<IUserState, unknown>,
+    payload: IOtherBindLogin,
+  ): Promise<string> {
+    console.log(payload);
+    const result: AxiosResponse<IResponse<{ user: IUser; token: string }>> = await otherBindLoginRequest(payload);
+    console.log((result as any).response);
+    if ((result as any).response?.data?.message === '验证码错误') {
+      return (result as any).response.data.message;
+    }
+    saveToken(result.data.data.token);
+
+    await context.dispatch(UserStoreActionType.GET_USER_INFO);
+    await context.dispatch(UserStoreActionType.GET_FOLLOW_LIST);
+    // 通知已经加载的文章或动态当前登录的人已经关注了他们的作者
+    changePagesArticleFollow(context);
+    return 'ok';
   },
   // 邮箱验证码登录
   async [UserStoreActionType.SEND_EMAIL_VERIFICATION_CODE_TO_LOG_IN](

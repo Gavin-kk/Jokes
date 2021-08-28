@@ -40,6 +40,7 @@ import lodash from 'lodash';
 import { editUserInfoRequest } from '@services/user.request';
 import { IResponse, IUploadResponse } from '@src/services/interface/response.interface';
 import { UPLOAD_IMAGE_URL } from '@common/constant/upload-path.constant';
+import { UserStoreActionType } from '@store/module/user/constant';
 
 export interface IEditMaterialSubmit {
   avatar: string;
@@ -68,7 +69,8 @@ const UserModule = namespace('userModule');
 export default class EditMaterial extends Mixins(CheckLoginMixin) {
   @UserModule.State('userInfo')
   private readonly userInfo!: IUser;
-
+  @UserModule.Action(UserStoreActionType.GET_USER_INFO)
+  private readonly getUserInfo!: () => Promise<void>;
   // 页面点击返回返回的页面
   private comeBackPath: string = '/pages/settings/settings';
 
@@ -128,6 +130,7 @@ export default class EditMaterial extends Mixins(CheckLoginMixin) {
     uni.showLoading({ title: '请稍候', mask: true });
     try {
       await editUserInfoRequest(this.formData);
+      await this.getUserInfo();
       uni.hideLoading();
       uni.showToast({ title: '更新成功' });
     } catch ({ response }) {

@@ -7,7 +7,7 @@
     </view>
     <view class="right">
       <view class="right-left">
-        <view class="username">{{ data.username }}</view>
+        <view class="username">{{ usernameOrNickname }}</view>
         <view class="visitor-count">总访客 {{ data.totalVisitors }} 今日 {{ data.todaySVisitor }}</view>
       </view>
       <view class="right-right iconfont icon-jinru"></view>
@@ -25,11 +25,16 @@ export default class User extends Vue {
     type: Object,
     default: {
       username: '',
+      nickname: '',
       totalVisitors: 0,
       todaySVisitor: 0,
     },
   })
   private data!: IUser;
+
+  get usernameOrNickname(): string {
+    return this.data.nickname ? this.data.nickname : this.data.username;
+  }
 
   openDetail() {
     uni.navigateTo({

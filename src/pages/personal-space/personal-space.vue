@@ -92,6 +92,8 @@ import { getTopicArticleListRequest, getUserArticlesRequest } from '@services/ar
 import NavBarB from '@components/nav-bar/nav-bar.vue';
 import NavBarS from '@pages/content/components/nav-bar/nav-bar.vue';
 import Empty from '@components/empty/empty.vue';
+import { UserStoreActionType } from '@store/module/user/constant';
+import { addGuestRequest } from '@services/common.request';
 
 moment.locale('zh-cn');
 
@@ -112,6 +114,8 @@ const UserModule = namespace('userModule');
 export default class PersonalSpace extends Vue {
   @UserModule.State('userInfo')
   private user!: IUser;
+  @UserModule.Action(UserStoreActionType.GET_USER_INFO)
+  private readonly getUserInfo!: () => Promise<void>;
   private userInfo: IUser | Record<string, any> = {};
   private ifNullText: string = '快去填写吧';
   // 是不是自己
@@ -124,17 +128,6 @@ export default class PersonalSpace extends Vue {
   private topicArticlePageNum: number = 1;
   // 当前用户的id
   private currentUserId: number = 0;
-
-  get info(): IUserinfo | Record<string, any> {
-    return (this.userInfo.userinfo && this.userInfo.userinfo[0]) || {};
-  }
-
-  get isEmptyArticle(): boolean {
-    return this.articleList.length === 0;
-  }
-  get isEmptyTopicArticle(): boolean {
-    return this.topicArticleList.length === 0;
-  }
 
   //  tab导航的title
   private tabBarList: { id: number; title: string }[] = [
@@ -159,6 +152,16 @@ export default class PersonalSpace extends Vue {
   // 三个页面容器的 id
   private idArr: string[] = ['store-height', 'content-height', 'dynamic-height'];
 
+  get info(): IUserinfo | Record<string, any> {
+    return (this.userInfo.userinfo && this.userInfo.userinfo[0]) || {};
+  }
+
+  get isEmptyArticle(): boolean {
+    return this.articleList.length === 0;
+  }
+  get isEmptyTopicArticle(): boolean {
+    return this.topicArticleList.length === 0;
+  }
   // 计算要不要显示loadingtext
   get isShowLoadingText() {
     return this.swiperHeight - this.windowHeight > 0;
@@ -214,9 +217,10 @@ export default class PersonalSpace extends Vue {
     } = pages[pages.length - 1];
 
     const userId = options?.userId;
-    console.log(options);
     if (+userId === this.user.id) {
       this.isMe = true;
+      await this.getUserInfo();
+      this.userInfo = this.user;
     }
 
     if (userId) {
@@ -227,9 +231,21 @@ export default class PersonalSpace extends Vue {
       await this.getData(userId, RequestTypeEnum.topic);
       if (result.data.data.isMe) {
         this.isMe = true;
+        if (!this.user.id) {
+          await this.getUserInfo();
+          this.userInfo = this.user;
+        }
+      } else {
+        try {
+          // 添加访客
+          await addGuestRequest(this.userInfo.id);
+        } catch (err) {}
       }
     } else {
       this.isMe = true;
+      if (!this.user.id) {
+        await this.getUserInfo();
+      }
       this.userInfo = this.user;
       await this.getData(this.user.id, RequestTypeEnum.article);
       await this.getData(this.user.id, RequestTypeEnum.topic);

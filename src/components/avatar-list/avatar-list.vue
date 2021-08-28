@@ -12,7 +12,7 @@
         </view>
         <view class="bottom">
           <view class="desc" :style="{ height: !countC ? '100%' : '' }">{{ descC }}</view>
-          <view class="count" v-if="countC"> 帖子 {{ countC }}</view>
+          <view class="count"> 帖子 {{ countC }}</view>
         </view>
       </view>
     </view>
@@ -31,7 +31,7 @@ export default class AvatarList extends Vue {
   @PropSync('pic', { type: String, default: '' })
   private picC!: string;
   @PropSync('count', { type: Number, default: 0 })
-  private countC!: string;
+  private countC!: number;
   @PropSync('desc', { type: String, default: '' })
   private descC!: string;
   @Prop({ type: Number, required: false })

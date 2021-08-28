@@ -1,29 +1,32 @@
 <template>
   <view>
-    <!--#ifndef MP-WEIXIN-->
-    <!--     导航栏-->
-    <uni-nav-bar status-bar :border="false">
-      <view slot="default" class="title-center">我</view>
-      <view slot="right" class="iconfont icon-gengduo1" @tap="openSettings"></view>
-    </uni-nav-bar>
-    <!--#endif-->
-    <!--#ifdef MP-WEIXIN-->
-    <!--#endif-->
-    <view class="root-box">
-      <!--    登录方式-->
-      <template v-if="!isLogin">
-        <login-methods />
-      </template>
-      <template v-else>
-        <user :data="userinfo" />
-      </template>
-      <!--    各种计数-->
-      <section-list :sectionList="sectionList" />
-      <!--  列表-->
-      <view class="list">
-        <item-list :list="list" @clickListEvent="clickListEvent" />
+    <z-paging ref="paging" refresher-only :fixed="true" @onRefresh="refresh">
+      <!--#ifndef MP-WEIXIN-->
+      <view slot="top">
+        <!--     导航栏-->
+        <uni-nav-bar status-bar :border="false">
+          <view slot="default" class="title-center">我</view>
+          <view slot="right" class="iconfont icon-gengduo1" @tap="openSettings"></view>
+        </uni-nav-bar>
       </view>
-    </view>
+
+      <!--#endif-->
+      <view class="root-box">
+        <!--    登录方式-->
+        <template v-if="!isLogin">
+          <login-methods />
+        </template>
+        <template v-else>
+          <user :data="userinfo" />
+        </template>
+        <!--    各种计数-->
+        <section-list :sectionList="sectionList" />
+        <!--  列表-->
+        <view class="list">
+          <item-list :list="list" @clickListEvent="clickListEvent" />
+        </view>
+      </view>
+    </z-paging>
   </view>
 </template>
 
@@ -36,14 +39,14 @@ import User from '@pages/mine/components/user/user.vue';
 import MSearch from '@components/search/m-search.vue';
 import SectionList from '@pages/mine/components/section-list/section-list.vue';
 import { namespace } from 'vuex-class';
-import { ModuleConstant } from '@store/module.constant';
 import { UserStoreActionType } from '@store/module/user/constant';
 import { ICount, IUser } from '@store/module/user';
-import { ArticleStoreActionType } from './store/constant';
+import ZPaging from '@components/z-paging/z-paging.vue';
+import { otherBindLoginRequest } from '@services/auth.request';
 
 const UserModule = namespace('userModule');
 
-@Component({ components: { SectionList, MSearch, User, LoginMethods, ItemList, UniNavBar } })
+@Component({ components: { ZPaging, SectionList, MSearch, User, LoginMethods, ItemList, UniNavBar } })
 export default class Mine extends Vue {
   // 是否登录
   @UserModule.State('isLogin')
@@ -52,6 +55,8 @@ export default class Mine extends Vue {
   private readonly userinfo!: IUser;
   @UserModule.State('count')
   private readonly countObj!: ICount;
+  @UserModule.Action(UserStoreActionType.GET_USER_INFO)
+  private readonly getUserInfo!: () => Promise<void>;
 
   get sectionList(): { count: number; text: string; url: string }[] {
     const countKeys: string[] = Object.keys(this.countObj);
@@ -94,6 +99,11 @@ export default class Mine extends Vue {
     });
   }
 
+  // 刷新用户信息
+  async refresh() {
+    await this.getUserInfo();
+    (this.$refs.paging as any).complete(true);
+  }
   // 点击列表
   clickListEvent(item: IItemList) {
     uni.navigateTo({ url: item.url! });

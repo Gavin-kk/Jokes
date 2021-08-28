@@ -9,7 +9,7 @@
     <view class="right">
       <view class="title">
         <view class="title-left" @tap="openUserDetail">
-          <view class="username">{{ data.user.username }}</view>
+          <view class="username">{{ usernameOrNickname }}</view>
           <gender-tag :age="data.user.userinfo[0].age" :gender="data.user.userinfo[0].gender"></gender-tag>
         </view>
         <view class="title-right">
@@ -94,6 +94,10 @@ export default class MomentList extends Vue {
   private isLike: number | null = null;
   private likeCount: number | null = null;
   private isFollow: boolean | null = null;
+
+  get usernameOrNickname(): string {
+    return this.data.user.nickname ? this.data.user.nickname : this.data.user.username;
+  }
 
   // 是否显示话题前缀
   get isTopicArticle(): boolean {

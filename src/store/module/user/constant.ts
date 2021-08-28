@@ -20,6 +20,8 @@ export const enum UserStoreActionType {
   // 获取个人关注列表
   GET_FOLLOW_LIST = 'get_follow_list',
   CHANGE_FOLLOW_LIST = 'change_follow_list',
+  // 第三方账号绑定邮箱
+  BIND_EMAIL = 'bind_email',
   //  初始化数据
   INIT = 'init',
 }

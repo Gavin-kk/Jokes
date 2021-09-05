@@ -1,6 +1,6 @@
 <template>
   <view>
-    <view class="topic-bar-height"></view>
+    <nav-bar class="topic-bar-height" title="话题分类" page-path="/pages/moment/moment"></nav-bar>
     <home-topbar
       :list="topicClassifyList"
       :activeIndex="activeIndex"
@@ -39,11 +39,12 @@ import { ITopic, ITopicClassify } from '@pages/moment/store';
 import { ModuleConstant } from '@store/module.constant';
 import { MomentStoreActionType } from '@pages/moment/store/constant';
 import { getTheSpecifiedTopicCategoryRequest } from '@services/topic.request';
+import NavBar from '@components/nav-bar/nav-bar.vue';
 
 const MomentModule = namespace('momentModule');
 
 @Component({
-  components: { PullUpLoading, TopicList, HomeTopbar },
+  components: { NavBar, PullUpLoading, TopicList, HomeTopbar },
 })
 export default class TopicClassify extends Vue {
   @MomentModule.State('topicClassifyList')
@@ -158,8 +159,6 @@ export default class TopicClassify extends Vue {
 
 <style lang="scss" scoped>
 .topic-bar-height {
-  position: absolute;
-  opacity: 0;
   height: 100rpx;
 }
 

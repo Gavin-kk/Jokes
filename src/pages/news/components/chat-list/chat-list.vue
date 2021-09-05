@@ -102,9 +102,9 @@ export default class ChatList extends Vue {
   @UserModule.State('userInfo')
   private readonly userInfo!: IUser;
   @Prop({ type: Object })
-  private data!: IChat;
+  private readonly data!: IChat;
   @Prop(Number)
-  private preTime!: number;
+  private readonly preTime!: number;
   private isShowControl: boolean = false;
   private videoCtx: UniApp.VideoContext | null = null;
 

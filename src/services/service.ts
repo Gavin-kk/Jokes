@@ -32,8 +32,8 @@ request.interceptors.response.use(
   (err) => {
     if (err.response.data.statusCode == 401) {
       uni.redirectTo({ url: '/pages/login/login' });
+      store.commit(`${ModuleConstant.userModule}/${UserStoreActionType.INIT}`);
     }
-    store.commit(`${ModuleConstant.userModule}/${UserStoreActionType.INIT}`);
     return err;
   },
 );

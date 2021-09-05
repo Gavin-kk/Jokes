@@ -13,7 +13,11 @@
       </template>
       <!-- 账号密码登录组件-->
       <template v-else>
-        <account-password-login @usernameChange="usernameChange" @passwordChange="passwordChange" />
+        <account-password-login
+          @changeLoginMethod="changeLoginMethod"
+          @usernameChange="usernameChange"
+          @passwordChange="passwordChange"
+        />
       </template>
 
       <view class="login-btn">
@@ -40,8 +44,6 @@ import { namespace } from 'vuex-class';
 import LoginMethods from '@pages/mine/components/login-methods/login-methods.vue';
 import VerificationCodeLogin from '@pages/login/components/verification-code-login/verification-code-login.vue';
 import AccountPasswordLogin from '@pages/login/components/account-password-login/account-password-login.vue';
-import { IUser } from '@store/module/user';
-import { ModuleConstant } from '@store/module.constant';
 import { UserStoreActionType } from '@store/module/user/constant';
 
 export const enum LoginMethodsEnum {
@@ -64,11 +66,12 @@ const UserModule = namespace('userModule');
 })
 export default class Login extends Vue {
   // 是否登录
-  @UserModule.State('isLogin') isLogin!: boolean;
+  @UserModule.State('isLogin')
+  private readonly isLogin!: boolean;
   @UserModule.Action(UserStoreActionType.SEND_EMAIL_VERIFICATION_CODE_TO_LOG_IN)
-  private sendEmailCode!: (payload: { email: string; VCode: number }) => Promise<void>;
+  private readonly sendEmailCode!: (payload: { email: string; VCode: number }) => Promise<void>;
   @UserModule.Action(UserStoreActionType.SEND_ACCOUNT_PASSWORD_TO_LOG_IN)
-  private sendEmailPasswordToLogIn!: (payload: { username: string; password: string }) => Promise<void>;
+  private readonly sendEmailPasswordToLogIn!: (payload: { username: string; password: string }) => Promise<void>;
 
   @Watch('isLogin')
   goToMinepage(newIsLogin: boolean) {
@@ -102,17 +105,12 @@ export default class Login extends Vue {
         email: this.email,
         VCode: this.verificationCode!,
       });
-      // this.$store.dispatch(
-      //   `${ModuleConstant.userModule}/${UserStoreActionType.SEND_EMAIL_VERIFICATION_CODE_TO_LOG_IN}`,
-      //
-      // );
     } else {
       // 账号密码登录
       this.sendEmailPasswordToLogIn({
         username: this.username,
         password: this.password,
       });
-      // this.$store.dispatch(`${ModuleConstant.userModule}/${UserStoreActionType.SEND_ACCOUNT_PASSWORD_TO_LOG_IN}`, );
     }
   }
 

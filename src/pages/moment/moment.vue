@@ -34,12 +34,13 @@
           :safe-area-inset-bottom="true"
           :delay="1000"
         >
-          <!--        <scroll-view scroll-y @scrolltolower="bottomOut" :style="{ height: windowHeight }">-->
           <block v-for="item in followArticleList" :key="item.id">
             <moment-list :data="item"></moment-list>
           </block>
-          <pull-up-loading :text="pullMsg" />
-          <!--        </scroll-view>-->
+          <template v-if="isExistsFollow">
+            <empty />
+          </template>
+          <pull-up-loading v-if="!isExistsFollow" :text="pullMsg" />
         </z-paging>
       </swiper-item>
       <swiper-item :style="{ height: windowHeight }">
@@ -51,10 +52,8 @@
           :safe-area-inset-bottom="true"
           :delay="1000"
         >
-          <!--        <scroll-view scroll-y :style="{ height: windowHeight }">-->
           <!--          话题页面-->
           <topic />
-          <!--        </scroll-view>-->
         </z-paging>
       </swiper-item>
     </swiper>
@@ -76,9 +75,13 @@ import { IArticle } from '@pages/home/store';
 import { MomentStoreActionType } from '@pages/moment/store/constant';
 import PostAnArticleBtn from '@components/post-an-article-btn/post-an-article-btn.vue';
 import ZPaging from '@components/z-paging/z-paging.vue';
+import Empty from '@components/empty/empty.vue';
+import { AxiosResponse } from 'axios';
+import { IResponse } from '@services/interface/response.interface';
+import { signInRequest } from '@services/user.request';
 
 const MomentModule = namespace('momentModule');
-@Component({ components: { ZPaging, PostAnArticleBtn, Topic, PullUpLoading, MomentList, NewsNavBar } })
+@Component({ components: { Empty, ZPaging, PostAnArticleBtn, Topic, PullUpLoading, MomentList, NewsNavBar } })
 export default class Moment extends Vue {
   @MomentModule.State('followArticleList')
   private readonly followArticleList!: IArticle[];
@@ -100,6 +103,11 @@ export default class Moment extends Vue {
   private totalHeight: number | null = null;
   // topbar 的高度
   private topNavBarHeight: number = 0;
+
+  // 关注列表是否存在数据
+  get isExistsFollow(): boolean {
+    return this.followArticleList.length === 0;
+  }
 
   created() {
     uni.getSystemInfo({
@@ -146,9 +154,18 @@ export default class Moment extends Vue {
       url: '/pages/release/release',
     });
   }
+
   // 签到事件
-  signIn() {
-    uni.showToast({ title: '签到成功,经验+3' });
+  async signIn() {
+    // 发送签到请求
+    const response: AxiosResponse<IResponse<any>> = await signInRequest();
+    if ((response as any).response) {
+      uni.showToast({ title: (response as any).response.data.message, icon: 'none' });
+    } else {
+      uni.showToast({
+        title: '签到成功 经验+3',
+      });
+    }
   }
 
   navSelectedChange({ index }: { item: string; index: number }) {
@@ -175,6 +192,7 @@ export default class Moment extends Vue {
 
 <style lang="scss">
 .news-nav-bar-height {
+  width: 100%;
   border-bottom: 1px solid #e9e8e8;
 }
 </style>

@@ -26,6 +26,11 @@ export interface IFollow {
   createAt: string;
   updateAt: string;
 }
+export interface IUserExperiences {
+  id: number;
+  experience: number;
+  grade: number;
+}
 
 export interface IUser {
   id: number;
@@ -47,6 +52,7 @@ export interface IUser {
   followCount?: number; // 我关注的数量
   fansCount?: number; // 关注我的数量
   isMe: boolean;
+  userExperiences?: IUserExperiences[];
 }
 
 export interface IUserState {

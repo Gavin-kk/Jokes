@@ -18,6 +18,22 @@
               {{ item.count | countFilter }} <text class="msg">{{ item.text }}</text>
             </view>
           </block>
+
+          <view class="level">
+            <view class="text-box">
+              <text class="current-level-progress grade">{{ userCurrentLevelText }}</text>
+              <text class="current-level-progress">{{ userLevelProgressText }}</text>
+            </view>
+            <view class="level-progress-box">
+              <progress
+                class="level-progress"
+                :percent="userLevelProgress"
+                active
+                activeColor="#fbe351"
+                border-radius="20"
+              ></progress>
+            </view>
+          </view>
         </view>
       </view>
       <view class="follow-box" v-if="!isMe">
@@ -34,7 +50,7 @@
           </view>
         </view>
       </view>
-      <view class="me" v-if="isMe">
+      <view class="me" v-else>
         <view class="edit-data iconfont icon-bianji" @tap="editData">编辑资料</view>
         <view class="edit-data" @tap="clickBg">
           <image src="/static/fingerprint.png" class="image-icon"></image>
@@ -58,7 +74,6 @@ import { checkIsFollowEachOtherRequest } from '@services/follow.request';
 import { namespace } from 'vuex-class';
 import { AxiosResponse } from 'axios';
 import { IResponse } from '@services/interface/response.interface';
-import { UserStoreActionType } from '@store/module/user/constant';
 
 const UserModule = namespace('userModule');
 
@@ -89,6 +104,28 @@ export default class UserPageHead extends Vue {
 
   get usernameOrNickname(): string {
     return this.userInfoC.nickname ? this.userInfoC.nickname : this.userInfoC.username;
+  }
+
+  get userLevelProgressText(): string {
+    if (Array.isArray(this.userInfoC.userExperiences) && this.userInfoC.userExperiences.length > 0) {
+      const currentExperience: number = this.userInfoC.userExperiences[0].experience;
+      const currentLevel: number = this.userInfoC.userExperiences[0].grade * 500 + 500;
+      return `${currentLevel}/${currentExperience}`;
+    }
+    return '500/0';
+  }
+  get userLevelProgress(): number {
+    if (Array.isArray(this.userInfoC.userExperiences) && this.userInfoC.userExperiences.length > 0) {
+      return Math.ceil((this.userInfoC.userExperiences[0].experience % 500) / 500);
+    }
+    return 0;
+  }
+  get userCurrentLevelText(): string {
+    if (Array.isArray(this.userInfoC.userExperiences) && this.userInfoC.userExperiences.length > 0) {
+      const currentLevel: number = this.userInfoC.userExperiences[0].grade;
+      return `V${currentLevel}`;
+    }
+    return 'V0';
   }
 
   get info(): { gender: number; age: number } {
@@ -264,6 +301,29 @@ $height: 650rpx;
         justify-content: flex-start;
         align-items: center;
         height: 100rpx;
+
+        .level {
+          margin-left: 20rpx;
+          .current-level-progress {
+            font-size: 28rpx;
+            color: #ffffff;
+            text-shadow: 2rpx 2rpx 2rpx black;
+            margin-right: 10rpx;
+          }
+          .grade {
+            font-size: 30rpx;
+            color: #fbe351;
+          }
+
+          .level-progress-box {
+            width: 400rpx;
+            border-radius: 10rpx;
+            overflow: hidden;
+            .level-progress {
+              width: 100%;
+            }
+          }
+        }
 
         .count {
           margin-right: 20rpx;

@@ -3,6 +3,13 @@
     <!--    <z-paging ref="paging" :fixed="true" refresher-enabled use-custom-refresher       refresher-only @onRefresh="onRefresh">-->
     <z-paging ref="paging" refresher-only :refresher-enabled="false" :scrollable="false">
       <view slot="top">
+        <news-nav-bar @leftClick="signIn" @rightClick="openPublished">
+          <view slot="default" class="search-box" style="width: 600rpx" @tap="navSearch">
+            <view class="search-home iconfont icon-sousuo">
+              <text class="text-search">搜索</text>
+            </view>
+          </view>
+        </news-nav-bar>
         <!-- #ifdef MP-WEIXIN-->
         <news-nav-bar class="news-nav-bar-height" :rightIsShow="false" is-status-bar-show>
           <view slot="default" class="search-box" style="width: 100%; margin-left: -20%" @tap="navSearch">
@@ -53,6 +60,7 @@ import MSearch from '@components/search/m-search.vue';
 import { ARTICLE_CLASSIFICATION } from '@common/constant/storage.constant';
 import ZPaging from '@components/z-paging/z-paging.vue';
 
+import { signInRequest } from '@services/user.request';
 import { HomeStoreActionType } from './store/constant';
 import { IArticle, IClassify } from './store';
 
@@ -152,25 +160,29 @@ export default class Home extends Vue {
       url: '../search/search',
     });
   }
-  // #ifdef MP-WEIXIN
   navSearch() {
     uni.navigateTo({
       url: '../search/search',
     });
   }
-  //  #endif
 
-  // 原生顶栏按钮点击监听事件
-  onNavigationBarButtonTap(e: INavigationBarButtonTapEvent) {
-    if (e.index === 0) {
+  // 签到
+  async signIn() {
+    // 发送签到请求
+    const response: AxiosResponse<IResponse<any>> = await signInRequest();
+    if ((response as any).response) {
+      uni.showToast({ title: (response as any).response.data.message, icon: 'none' });
+    } else {
       uni.showToast({
         title: '签到成功 经验+3',
       });
-    } else if (e.index === 1) {
-      uni.navigateTo({
-        url: `../release/release?type=${ArticleTypeEnum.article}`,
-      });
     }
+  }
+
+  openPublished() {
+    uni.navigateTo({
+      url: `../release/release?type=${ArticleTypeEnum.article}`,
+    });
   }
 
   postAnArticle() {

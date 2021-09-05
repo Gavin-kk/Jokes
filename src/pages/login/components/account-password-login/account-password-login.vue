@@ -1,14 +1,26 @@
 <template>
   <view class="input-box">
     <view class="username">
-      <input @input="usernameChange" type="text" class="username-input" placeholder="请输入昵称/手机号/邮箱" />
+      <input
+        @input="usernameChange"
+        type="text"
+        class="username-input"
+        placeholder-class="placeholder"
+        placeholder="请输入昵称/手机号/邮箱"
+      />
     </view>
 
     <view class="password">
       <view class="input-box">
-        <input @input="passwordChange" class="password-input" type="text" placeholder="请输入密码" />
+        <input
+          @input="passwordChange"
+          class="password-input"
+          type="text"
+          placeholder-class="placeholder"
+          placeholder="请输入密码"
+        />
       </view>
-      <view class="forgot-password">忘记密码?</view>
+      <view class="forgot-password" @tap="forgotPasswordClick">忘记密码?</view>
     </view>
   </view>
 </template>
@@ -29,6 +41,18 @@ export default class AccountPasswordLogin extends Vue {
   passwordChange(data: { detail: { value: string } }) {
     this.$emit('passwordChange', data.detail.value);
   }
+  // 点击忘记密码触发事件
+  forgotPasswordClick() {
+    uni.showModal({
+      title: '忘记密码提示',
+      content: '请使用邮箱验证码登录\n然后进入个人设置重置密码',
+      success: (res) => {
+        if (res.confirm) {
+          this.$emit('changeLoginMethod');
+        }
+      },
+    });
+  }
 }
 </script>
 
@@ -39,6 +63,9 @@ $inputHeight: 100rpx;
   width: 100%;
   box-sizing: border-box;
 
+  .placeholder {
+    font-size: 32rpx;
+  }
   .username {
     display: flex;
     align-items: center;

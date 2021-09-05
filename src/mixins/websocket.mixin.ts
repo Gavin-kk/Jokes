@@ -1,5 +1,5 @@
 // eslint-disable-next-line max-classes-per-file
-import { Vue, Component, Watch } from 'vue-property-decorator';
+import { Vue, Component } from 'vue-property-decorator';
 import { TOKEN_KEY } from '@common/constant/storage.constant';
 import { WS_SERVER } from '@config/service.config';
 
@@ -28,6 +28,7 @@ const reconnectCount: number = 10;
 const timeout: number = 3000;
 let timer: number | undefined;
 let currentReconnectCount: number = 0;
+
 export abstract class WebsocketMixinAbstract {
   abstract watchMessage: (msg: ISocketMessage) => void;
 }
@@ -118,6 +119,7 @@ export default class WebsocketMixin extends Vue {
       });
     });
   }
+
   // 心跳检测
   heartbeatDetection() {
     // console.log(this.timeout);
@@ -167,6 +169,7 @@ export default class WebsocketMixin extends Vue {
       },
     });
   }
+
   sendMessage(data: ISocketMessage) {
     this.socket?.send({
       data: JSON.stringify(data),

@@ -76,9 +76,7 @@ export const actions = {
     context: ActionContext<IUserState, unknown>,
     payload: IOtherBindLogin,
   ): Promise<string> {
-    console.log(payload);
     const result: AxiosResponse<IResponse<{ user: IUser; token: string }>> = await otherBindLoginRequest(payload);
-    console.log((result as any).response);
     if ((result as any).response?.data?.message === '验证码错误') {
       return (result as any).response.data.message;
     }
@@ -116,6 +114,9 @@ export const actions = {
   async [UserStoreActionType.GET_USER_INFO](context: ActionContext<IUserState, unknown>, id: number): Promise<void> {
     try {
       const result: AxiosResponse<IResponse<IUser>> = await getUserInfoRequest(id);
+      if ((result as any).response?.data?.statusCode === 400) {
+        throw new Error('');
+      }
       // 在这里发送登录请求 把user提交上去 token 存到locastorage
       context.commit(UserStoreActionType.CHANGE_USER_INFO, result.data.data);
       // 更改登录状态
@@ -127,7 +128,7 @@ export const actions = {
       uni.$emit('follow', { userId: 0, isFollow: true } as IFollowEventPayload);
       // 更改登录状态
       context.commit(UserStoreActionType.CHANGE_LOGIN_STATUS, false);
-      console.error(err.response.data, '获取用户详情出错');
+      // console.error(err.response.data, '获取用户详情出错');
     }
   },
   // 获取个人所有文章话题文章评论和点赞的文章 的数量

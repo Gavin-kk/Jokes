@@ -17,9 +17,11 @@
         </view>
       </block>
     </slot>
-    <view class="nav-right" slot="right" v-if="rightIsShow" @tap="rightClick">
-      <view class="iconfont icon-bianji1"></view>
-    </view>
+    <slot name="right">
+      <view class="nav-right" slot="right" v-if="rightIsShow" @tap="rightClick">
+        <view class="iconfont icon-bianji1"></view>
+      </view>
+    </slot>
   </uni-nav-bar>
 </template>
 

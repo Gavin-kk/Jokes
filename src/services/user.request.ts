@@ -19,3 +19,5 @@ export const searchUserRequest = (content: string) =>
   });
 // 更改用户主页背景
 export const changeUserBgRequest = (imageUrl: string) => request.put('/user/changebg', { imageUrl });
+// 签到
+export const signInRequest = () => request.post('/user/signIn');

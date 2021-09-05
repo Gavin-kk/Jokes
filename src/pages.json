@@ -1,82 +1,18 @@
 {
   "pages": [
-    //pages数组中第一项表示应用启动页，参考：https://uniapp.dcloud.io/collocation/pages
     {
       "path": "pages/home/home",
       "style": {
         //  #ifdef MP-WEIXIN
-        "navigationStyle": "custom",
+        "navigationStyle": "custom"
         //   #endif
-        "app-plus": {
-          "bounce": "none", // 关闭反弹效果
-          "scrollIndicator": "none",
-          "navigationStyle": "custom",
-          "titleNView": {
-            "backgroundColor": "#FFFFFF",
-            "searchInput": {
-              "align": "center",
-              "backgroundColor": "#f9f6f9",
-              "borderRadius": "4px",
-              "placeholder": "搜索新鲜事",
-              "placeholderColor": "#ccc",
-              "disabled": true
-            },
-            "buttons": [
-              {
-                "color": "#d7a95b",
-                "colorPressed": "#BBBBBB",
-                "float": "left",
-                "fontSize": "22px",
-                "fontSrc": "./static/icon/icon.ttf",
-                "text": "\ue609"
-              },
-              {
-                "color": "#000000",
-                "colorPressed": "#BBBBBB",
-                "float": "right",
-                "fontSize": "22px",
-                "fontSrc": "./static/icon/icon.ttf",
-                "text": "\ue653"
-              }
-            ]
-          }
-        }
       }
     },
     {
-      "path": "pages/moment/moment",
-      "style": {
-        //  #ifdef MP-WEIXIN
-        "navigationStyle": "custom",
-        //   #endif
-        "app-plus": {
-          "scrollIndicator": "none",
-          "bounce": "none", // 关闭反弹效果
-          "titleNView": false,
-          "navigationStyle": "custom"
-        },
-        "h5": {
-          "bounce": "none", // 关闭反弹效果
-          "navigationStyle": "custom",
-          "titleNView": false
-        }
-      }
+      "path": "pages/moment/moment"
     },
     {
-      "path": "pages/select-classify/select-classify",
-      "style": {
-        "app-plus": {
-          "scrollIndicator": "none",
-          "bounce": "none", // 关闭反弹效果
-          "titleNView": false,
-          "navigationStyle": "custom"
-        },
-        "h5": {
-          "bounce": "none", // 关闭反弹效果
-          "navigationStyle": "custom",
-          "titleNView": false
-        }
-      }
+      "path": "pages/select-classify/select-classify"
     },
     {
       "path": "pages/news/news",
@@ -84,11 +20,7 @@
         //  #ifdef MP-WEIXIN
         "navigationStyle": "custom",
         //   #endif
-        //        "enablePullDownRefresh": true, // 开启下拉刷新
         "app-plus": {
-          "bounce": "none", // 关闭反弹效果
-          "scrollIndicator": "none",
-          "navigationStyle": "custom",
           "titleNView": {
             "backgroundColor": "#FFFFFF",
             "titleText": "消息",
@@ -120,170 +52,88 @@
         //  #ifdef MP-WEIXIN
         "navigationBarTitleText": "我",
         //   #endif
-        //        "navigationStyle": "custom",
-        "app-plus": {
-          "bounce": "none", // 关闭反弹效果
-          "titleNView": false
-        },
-        "h5": {
-          "titleNView": false
-        }
+        //        "navigationStyle": "custom"
       }
     },
     {
       "path": "pages/browsing-history/browsing-history",
       "style": {
         //  #ifdef MP-WEIXIN
-        "navigationBarTitleText": "浏览历史",
+        "navigationBarTitleText": "浏览历史"
         //   #endif
         //        "navigationStyle": "custom",
-        "app-plus": {
-          "bounce": "none", // 关闭反弹效果
-          "titleNView": false
-        },
-        "h5": {
-          "titleNView": false
-        }
       }
     },
     {
       "path": "pages/my-article/my-article",
       "style": {
         //  #ifdef MP-WEIXIN
-        "navigationBarTitleText": "我的文章",
+        "navigationBarTitleText": "我的文章"
         //   #endif
-        //        "navigationStyle": "custom",
-        "app-plus": {
-          "bounce": "none", // 关闭反弹效果
-          "titleNView": false
-        },
-        "h5": {
-          "titleNView": false
-        }
       }
     },
     {
       "path": "pages/my-topic/my-topic",
       "style": {
         //  #ifdef MP-WEIXIN
-        "navigationBarTitleText": "我的动态",
+        "navigationBarTitleText": "我的动态"
         //   #endif
-        //        "navigationStyle": "custom",
-        "app-plus": {
-          "bounce": "none", // 关闭反弹效果
-          "titleNView": false
-        },
-        "h5": {
-          "titleNView": false
-        }
       }
     },
     {
       "path": "pages/my-follow/my-follow",
       "style": {
         //  #ifdef MP-WEIXIN
-        "navigationBarTitleText": "我的关注",
+        "navigationBarTitleText": "我的关注"
         //   #endif
         //        "navigationStyle": "custom",
-        "app-plus": {
-          "bounce": "none", // 关闭反弹效果
-          "titleNView": false
-        },
-        "h5": {
-          "titleNView": false
-        }
       }
     },
     {
       "path": "pages/my-fans/my-fans",
       "style": {
         //  #ifdef MP-WEIXIN
-        "navigationBarTitleText": "我的粉丝",
+        "navigationBarTitleText": "我的粉丝"
         //   #endif
         //        "navigationStyle": "custom",
-        "app-plus": {
-          "bounce": "none", // 关闭反弹效果
-          "titleNView": false
-        },
-        "h5": {
-          "titleNView": false
-        }
       }
     },
     {
-      "path": "pages/search/search",
-      "style": {
-        "navigationStyle": "custom",
-        "titleNView": false
-        /*    "app-plus": {
-          "scrollIndicator": "none",
-          "navigationStyle": "custom",
-          "titleNView": {
-            "autoBackButton": false,
-            "backgroundColor": "#FFFFFF",
-            "searchInput": {
-              "align": "left",
-              "backgroundColor": "#f9f6f9",
-              "borderRadius": "4px",
-              "placeholder": "搜索新鲜事",
-              "placeholderColor": "#ccc",
-              "autoFocus": true
-            },
-            "buttons": [
-              {
-                "color": "#000000",
-                "colorPressed": "#BBBBBB",
-                "float": "right",
-                "fontSize": "16px",
-                "text": "返回"
-              }
-            ]
-          }
-        },
-        "h5": {
-          "autoBackButton": false
-        }*/
-      }
+      "path": "pages/search/search"
     },
     {
       "path": "pages/release/release",
       "style": {
-        "navigationStyle": "custom",
         "app-plus": {
           "animationType": "slide-in-bottom",
-          "animationDuration": 200,
-          "scrollIndicator": "none",
-          "titleNView": false
+          "animationDuration": 200
         }
       }
     },
     {
       "path": "pages/create-topic/create-topic",
       "style": {
-        "navigationStyle": "custom",
         "app-plus": {
           "animationType": "slide-in-bottom",
-          "animationDuration": 200,
-          "scrollIndicator": "none",
-          "titleNView": false
+          "animationDuration": 200
         }
       }
     },
     {
+      ///
       "path": "pages/topic-classify/topic-classify",
       "style": {
         "navigationBarTitleText": "话题分类",
         "navigationBarBackgroundColor": "#ffffff",
         "app-plus": {
           "scrollIndicator": "none",
-          "bounce": "none" // 关闭反弹效果
+          "bounce": "none"
         }
       }
     },
     {
       "path": "pages/topic-detail/topic-detail",
       "style": {
-        //        "enablePullDownRefresh": true, // 开启下拉刷新
         "navigationBarTitleText": "话题详情",
         "app-plus": {
           "animationType": "slide-in-bottom",
@@ -304,186 +154,67 @@
     {
       "path": "pages/chat/chat",
       "style": {
-        "navigationStyle": "custom",
-        //				"enablePullDownRefresh": true, // 开启下拉刷新
         "app-plus": {
-          "animationType": "slide-in-bottom",
-          "titleNView": false,
-          "scrollIndicator": "none",
-          "bounce": "none" // 关闭反弹效果
+          "animationType": "slide-in-bottom"
         }
       }
     },
     {
-      "path": "pages/content/content",
-      "style": {
-        "navigationStyle": "custom",
-        "enablePullDownRefresh": true, // 开启下拉刷新
-        "app-plus": {
-          "titleNView": false,
-          "scrollIndicator": "none",
-          "bounce": "none" // 关闭反弹效果
-        }
-      }
+      "path": "pages/content/content"
     },
     {
-      "path": "pages/settings/settings",
-      "style": {
-        "navigationStyle": "custom",
-        "app-plus": {
-          "titleNView": false,
-          "scrollIndicator": "none",
-          "bounce": "none" // 关闭反弹效果
-        }
-      }
+      "path": "pages/settings/settings"
     },
     {
-      "path": "pages/edit-password/edit-password",
-      "style": {
-        "navigationStyle": "custom",
-        "app-plus": {
-          "titleNView": false,
-          "scrollIndicator": "none",
-          "bounce": "none" // 关闭反弹效果
-        }
-      }
+      "path": "pages/edit-password/edit-password"
     },
     {
-      "path": "pages/bind-email/bind-email",
-      "style": {
-        "navigationStyle": "custom",
-        "app-plus": {
-          "titleNView": false,
-          "scrollIndicator": "none",
-          "bounce": "none" // 关闭反弹效果
-        }
-      }
+      "path": "pages/bind-email/bind-email"
     },
     {
-      "path": "pages/edit-material/edit-material",
-      "style": {
-        "navigationStyle": "custom",
-        "app-plus": {
-          "titleNView": false,
-          "scrollIndicator": "none",
-          "bounce": "none" // 关闭反弹效果
-        }
-      }
+      "path": "pages/edit-material/edit-material"
     },
     {
-      "path": "pages/feedback/feedback",
-      "style": {
-        "navigationStyle": "custom",
-        "app-plus": {
-          "titleNView": false,
-          "scrollIndicator": "none",
-          "bounce": "none" // 关闭反弹效果
-        }
-      }
+      "path": "pages/feedback/feedback"
     },
     {
-      "path": "pages/about/about",
-      "style": {
-        "navigationStyle": "custom",
-        "app-plus": {
-          "titleNView": false,
-          "scrollIndicator": "none",
-          "bounce": "none" // 关闭反弹效果
-        }
-      }
+      "path": "pages/about/about"
     },
     {
-      "path": "pages/login/login",
-      "style": {
-        "navigationStyle": "custom",
-        "app-plus": {
-          "titleNView": false,
-          "scrollIndicator": "none",
-          "bounce": "none" // 关闭反弹效果
-        }
-      }
+      "path": "pages/login/login"
     },
     {
-      "path": "pages/personal-space/personal-space",
-      "style": {
-        "navigationStyle": "custom",
-        "app-plus": {
-          //                    "titleNView": {
-          //                      "scrollIndicator": "none",
-          //                      "type": "transparent", // 渐变
-          //                      "buttons": [
-          //                        {
-          //                          "type": "menu" // 按钮样式
-          //                        }
-          //                      ]
-          //                    },
-          "titleNView": false,
-          "scrollIndicator": "none",
-          "bounce": "none" // 关闭反弹效果
-        }
-      }
+      "path": "pages/personal-space/personal-space"
     },
     {
-      "path": "pages/personal-space/pages/customize-bg/customize-bg",
-      "style": {
-        "navigationStyle": "custom",
-        "app-plus": {
-          "titleNView": false,
-          "scrollIndicator": "none",
-          "bounce": "none" // 关闭反弹效果
-        }
-      }
+      "path": "pages/personal-space/pages/customize-bg/customize-bg"
     },
     {
-      "path": "pages/new-attention/new-attention",
-      "style": {
-        "navigationStyle": "custom",
-        "app-plus": {
-          "titleNView": false,
-          "scrollIndicator": "none",
-          "bounce": "none" // 关闭反弹效果
-        }
-      }
+      "path": "pages/new-attention/new-attention"
     },
     {
-      "path": "pages/praise/praise",
-      "style": {
-        "navigationStyle": "custom",
-        "app-plus": {
-          "titleNView": false,
-          "scrollIndicator": "none",
-          "bounce": "none" // 关闭反弹效果
-        }
-      }
+      "path": "pages/praise/praise"
     },
     {
-      "path": "pages/friends/friends",
-      "style": {
-        "navigationStyle": "custom",
-        "app-plus": {
-          "titleNView": false,
-          "scrollIndicator": "none",
-          "bounce": "none" // 关闭反弹效果
-        }
-      }
+      "path": "pages/friends/friends"
     },
     {
-      "path": "pages/add-friend/add-friend",
-      "style": {
-        "navigationStyle": "custom",
-        "app-plus": {
-          "titleNView": false,
-          "scrollIndicator": "none",
-          "bounce": "none" // 关闭反弹效果
-        }
-      }
+      "path": "pages/add-friend/add-friend"
     }
   ],
   "globalStyle": {
     "navigationBarTextStyle": "black",
     "navigationBarTitleText": "嘻嘻哈哈",
     "navigationBarBackgroundColor": "#F8F8F8",
-    "backgroundColor": "#ccc"
+    "backgroundColor": "#ccc",
+    "app-plus": {
+      "scrollIndicator": "none",
+      "bounce": "none" // 关闭反弹效果
+    },
+    "h5": {
+      "bounce": "none", // 关闭反弹效果
+      "titleNView": false
+    }
   },
   "tabBar": {
     "color": "#000000",

@@ -1,5 +1,4 @@
 import { Vue, Component } from 'vue-property-decorator';
-import { namespace } from 'vuex-class';
 import { TOKEN_KEY } from '@common/constant/storage.constant';
 
 @Component({})

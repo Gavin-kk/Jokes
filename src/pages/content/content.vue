@@ -16,18 +16,16 @@
       </template>
       <!--评论模块-->
       <view class="comment-title">最新评论</view>
+      <block v-for="(item, index) in commentList" :key="item.id">
+        <comment
+          :data="item"
+          @contentClick="contentClick"
+          @userClick="userClick"
+          @replyClick="replyClick"
+          @like="like(index)"
+        ></comment>
+      </block>
       <template v-if="commentOrEmpty">
-        <block v-for="(item, index) in commentList" :key="item.id">
-          <comment
-            :data="item"
-            @contentClick="contentClick"
-            @userClick="userClick"
-            @replyClick="replyClick"
-            @like="like(index)"
-          ></comment>
-        </block>
-      </template>
-      <template v-else>
         <empty />
       </template>
     </template>
@@ -37,7 +35,7 @@
       :isFocus.sync="isFocus"
       @outOfFocus="outOfFocus"
     ></chat-input-btn>
-    <share :is-show="isShowShare" @touchShareMask="touchShareMask"></share>
+    <share :is-show="isShowShare" :data="data" @touchShareMask="touchShareMask"></share>
   </view>
 </template>
 
@@ -66,6 +64,7 @@ export interface ISendCommentPayload {
   //  一级评论的id 如果只传comment和content 那么就是该一级评论下的评论
   commentId?: number;
 }
+
 @Component({
   components: { Empty, Share, ChatInputBtn, Comment, MomentList, INavBar, ReplyComment },
   filters: { timeFilter },
@@ -89,6 +88,7 @@ export default class Content extends Vue {
   get dataCt(): IArticleDetail | Record<string, any> {
     return this.data || {};
   }
+
   get commentOrEmpty(): boolean {
     return !!this.commentList.length;
   }

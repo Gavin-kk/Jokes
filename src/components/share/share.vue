@@ -37,29 +37,26 @@
 
 <script lang="ts">
 // 分享组件
-import { Vue, Component, Prop, Watch } from 'vue-property-decorator';
+import { Component, Prop, Vue, Watch } from 'vue-property-decorator';
 // eslint-disable-next-line import/no-self-import
-import { HOST } from '@common/constant/host.constant';
+import { IArticleDetail } from '@pages/content/content.interface';
+import { ArticleType } from '@pages/home/store';
 import { ShareOptions } from './share';
 
 export interface IShare {
   name: string;
-  id: 'sinaweibo' | 'qq' | 'weixin' | 'copy';
+  id: 'sinaweibo' | 'qq' | 'weixin';
   type?: string;
   iconClass: string;
   sort: number;
 }
-const shareCopy: IShare = {
-  name: '复制链接',
-  id: 'copy',
-  iconClass: 'icon-weixin',
-  sort: 10,
-};
 
 @Component({})
 export default class Share extends Vue {
   @Prop({ type: Boolean, default: false })
   private isShow!: boolean;
+  @Prop({ type: Boolean, default: false })
+  private data!: IArticleDetail;
   private animationTime: number = 200;
   private show: boolean = false;
   // 分享提供商的数据
@@ -71,8 +68,20 @@ export default class Share extends Vue {
   // 分享的图片
   private image: string = '/static/demo/userpic/.jpg';
 
-  get shareCopy(): IShare {
-    return shareCopy;
+  beforeUpdate() {
+    switch (this.data.type) {
+      case ArticleType.Graphic:
+      case ArticleType.PlainText:
+        this.shareType = this.data.type;
+        break;
+      case ArticleType.Share:
+        this.shareType = this.data.share.type;
+        break;
+      case ArticleType.Video:
+        this.shareType = 4;
+        break;
+      default:
+    }
   }
 
   mounted() {
@@ -120,9 +129,6 @@ export default class Share extends Vue {
               break;
             default:
           }
-          // #ifndef H5
-          dataList.push(shareCopy);
-          // #endif
         });
         this.sharingProvider = dataList.sort((a, b) => a.sort - b.sort);
       },
@@ -133,15 +139,6 @@ export default class Share extends Vue {
   async share(e: IShare) {
     console.log(`分享通道:${e.id}； 分享类型:${this.shareType}`);
     // #ifndef H5
-    if (e.id === 'copy') {
-      const pages: any = getCurrentPages();
-      const data = `${HOST}/${pages[pages.length - 1].route}`;
-      uni.setClipboardData({
-        data,
-      });
-      uni.showToast({ title: '复制成功' });
-      return;
-    }
     if (!this.shareText && (this.shareType === 1 || this.shareType === 0)) {
       uni.showModal({
         content: '分享内容不能为空',
@@ -163,48 +160,40 @@ export default class Share extends Vue {
       scene: e.type && e.type === 'WXSenceTimeline' ? 'WXSenceTimeline' : 'WXSceneSession', // WXSceneSession”分享到聊天界面，“WXSenceTimeline”分享到朋友圈，“WXSceneFavorite”分享到微信收藏
       type: this.shareType,
       success: (e: any) => {
-        console.log('success', e);
         uni.showModal({
           content: '已分享',
           showCancel: false,
         });
       },
       fail: (e: any) => {
-        console.log('fail', e);
         uni.showModal({
           content: e.errMsg,
           showCancel: false,
         });
       },
-      complete() {
-        console.log('分享操作结束!');
-      },
+      complete() {},
     };
 
     switch (this.shareType) {
       case 0:
-        shareOptions.summary = this.shareText;
-        shareOptions.imageUrl = this.image;
-        shareOptions.title = '欢迎体验uniapp';
-        shareOptions.href = 'https://uniapp.dcloud.io';
+        shareOptions.summary = this.data.content;
+        shareOptions.imageUrl = this.data.pic;
+        shareOptions.title = this.data.title;
+        shareOptions.href = 'https://newin.top:8088';
         break;
       case 1:
-        shareOptions.summary = this.shareText;
+        shareOptions.summary = this.data.content;
         break;
-      case 2:
-        shareOptions.imageUrl = this.image;
-        break;
-      case 5:
-        shareOptions.imageUrl = this.image
-          ? this.image
-          : 'https://vkceyugu.cdn.bspapp.com/VKCEYUGU-dc-site/b6304f00-5168-11eb-bd01-97bc1429a9ff.png';
-        shareOptions.title = '欢迎体验uniapp';
-        shareOptions.miniProgram = {
+      case 4:
+        shareOptions.imageUrl = this.data.video?.pic;
+        shareOptions.mediaUrl = this.data.video?.videoUrl;
+        shareOptions.title = this.data.title;
+        /*        shareOptions.miniProgram = {
           id: 'gh_33446d7f7a26',
           path: '/pages/tabBar/component/component',
-          webUrl: 'https://uniapp.dcloud.io',
+          webUrl: 'https://newin.top:8088',
           type: 0,
-        };
+        }; */
         break;
       default:
         break;
@@ -227,18 +216,15 @@ export default class Share extends Vue {
   // 压缩图片
   compress() {
     // 压缩图片 图文分享要求分享图片大小不能超过20Kb
-    console.log('开始压缩');
     const img = this.image;
     return new Promise((res) => {
       const localPath = plus.io.convertAbsoluteFileSystem(img.replace('file://', ''));
-      console.log(`after${localPath}`);
       // 压缩size
       plus.io.resolveLocalFileSystemURL(
         localPath,
         (entry: any) => {
           entry.file((file: any) => {
             // 可通过entry对象操作图片
-            console.log(`getFile:${JSON.stringify(file)}`);
             if (file.size > 20480) {
               // 压缩后size 大于20Kb
               plus.zip.compressImage(
@@ -251,7 +237,6 @@ export default class Share extends Vue {
                   overwrite: true,
                 },
                 (event) => {
-                  console.log(`success zip****${event.size}`);
                   const newImg = img.replace('.jpg', '2222.jpg').replace('.JPG', '2222.JPG');
                   res(newImg);
                 },
@@ -266,7 +251,6 @@ export default class Share extends Vue {
           });
         },
         (e) => {
-          console.log(`Resolve file URL failed: ${e.message}`);
           uni.showModal({
             content: '分享图片太大,需要请重新选择图片!',
             showCancel: false,

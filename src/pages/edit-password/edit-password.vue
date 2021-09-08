@@ -51,7 +51,6 @@ const UserModule = namespace('userModule');
 export default class EditPassword extends Mixins(CheckLoginMixin) {
   @UserModule.State('userInfo')
   private readonly userInfo!: IUser;
-  @UserModule.State('isLogin') isLogin!: boolean;
   private newPassword: string = '';
   private confirmPassword: string = '';
   private VCode: number | null = null;

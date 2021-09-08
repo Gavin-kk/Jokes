@@ -4,7 +4,7 @@
     <z-paging ref="paging" refresher-only :refresher-enabled="false" :scrollable="false">
       <view slot="top">
         <news-nav-bar @leftClick="signIn" @rightClick="openPublished">
-          <view slot="default" class="search-box" style="width: 600rpx" @tap="navSearch">
+          <view slot="default" class="search-box" style="width: 550rpx" @tap="navSearch">
             <view class="search-home iconfont icon-sousuo">
               <text class="text-search">搜索</text>
             </view>
@@ -160,6 +160,7 @@ export default class Home extends Vue {
       url: '../search/search',
     });
   }
+
   navSearch() {
     uni.navigateTo({
       url: '../search/search',

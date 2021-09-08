@@ -6,10 +6,9 @@ const hour: number = minute * 60;
 const day: number = hour * 24;
 const month: number = day * 30;
 const areaHour: number = hour * 8;
-// 客户端时间处理
-export function timeFilter(time: number): string;
-// 服务端时间
-export function timeFilter(time: string): string;
+
+export function timeFilter(time: number): string; // 客户端时间处理
+export function timeFilter(time: string): string; // 服务端时间
 export function timeFilter(time: number | string): string {
   let newTime: number = moment(time).valueOf();
   if (typeof time === 'string') {

@@ -50,7 +50,7 @@
       "path": "pages/mine/mine",
       "style": {
         //  #ifdef MP-WEIXIN
-        "navigationBarTitleText": "我",
+        "navigationBarTitleText": "我"
         //   #endif
         //        "navigationStyle": "custom"
       }
@@ -120,7 +120,6 @@
       }
     },
     {
-      ///
       "path": "pages/topic-classify/topic-classify",
       "style": {
         "navigationBarTitleText": "话题分类",
@@ -203,10 +202,12 @@
     }
   ],
   "globalStyle": {
-    "navigationBarTextStyle": "black",
-    "navigationBarTitleText": "嘻嘻哈哈",
-    "navigationBarBackgroundColor": "#F8F8F8",
-    "backgroundColor": "#ccc",
+    "navigationStyle":"custom",
+
+    //    "navigationBarTextStyle": "black",
+//    "navigationBarTitleText": "嘻嘻哈哈",
+//    "navigationBarBackgroundColor": "#F8F8F8",
+//    "backgroundColor": "#ccc",
     "app-plus": {
       "scrollIndicator": "none",
       "bounce": "none" // 关闭反弹效果

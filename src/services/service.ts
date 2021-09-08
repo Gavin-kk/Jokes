@@ -39,7 +39,7 @@ request.interceptors.response.use(
 );
 
 request.defaults.adapter = (config: AxiosRequestConfig) =>
-  // 自己定义个适配器，用来适配uniapp的语法
+  // 定义适配器，用来适配uniapp的语法
   new Promise((resolve, reject) => {
     // eslint-disable-next-line global-require
     const settle = require('axios/lib/core/settle');

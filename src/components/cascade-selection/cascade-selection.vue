@@ -160,12 +160,12 @@ export default class CascadeSelection extends Vue {
   }
 
   // 点击切换当前选择
-  changeCurrentSelected(index: number, pIndex: number) {
+  async changeCurrentSelected(index: number, pIndex: number) {
     // 让 loading 旋转起来
     this.list[pIndex].list[index].loading = true;
-    this.rotatingLoading();
     // 切换当前选择
     this.list[pIndex].currentSelectedIndex = index;
+    this.rotatingLoading();
 
     // 获取数据
     setTimeout(() => {

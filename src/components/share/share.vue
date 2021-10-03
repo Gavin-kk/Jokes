@@ -137,7 +137,6 @@ export default class Share extends Vue {
 
   // 分享
   async share(e: IShare) {
-    console.log(`分享通道:${e.id}； 分享类型:${this.shareType}`);
     // #ifndef H5
     if (!this.shareText && (this.shareType === 1 || this.shareType === 0)) {
       uni.showModal({
@@ -171,7 +170,6 @@ export default class Share extends Vue {
           showCancel: false,
         });
       },
-      complete() {},
     };
 
     switch (this.shareType) {
@@ -206,8 +204,8 @@ export default class Share extends Vue {
     // #endif
     if (shareOptions.type === 1 && shareOptions.provider === 'qq') {
       // 如果是分享文字到qq，则必须加上href和title
-      shareOptions.href = 'https://uniapp.dcloud.io';
-      shareOptions.title = '欢迎体验uniapp';
+      shareOptions.href = `https://newin.top:8088/#/pages/content/content?id=${this.data.id}`;
+      shareOptions.title = this.data.title;
     }
     uni.share(shareOptions);
     //  #endif

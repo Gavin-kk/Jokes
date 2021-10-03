@@ -29,3 +29,5 @@ export const likeCommentRequest = (type: LikeCommentType, commentId: number) =>
 export const feedbackRequest = (content: string) => request.post('/feedback', { content });
 // 添加访客 visitorUserId: 被访问者的id
 export const addGuestRequest = (visitorUserId: number) => request.post('/user/visitor', { visitorUserId });
+// 获取轮播图
+export const getBannerRequest = () => request.get('/carousel');

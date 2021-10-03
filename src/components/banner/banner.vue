@@ -7,7 +7,7 @@
       indicator-color="rgba(255, 255, 255, .6)"
       indicator-active-color="#ffffff"
     >
-      <swiper-item v-for="item in bannerImageList" :key="item.id" @tap="clickBanner(item.id)">
+      <swiper-item v-for="item in bannerImageList" :key="item.id" @tap="clickBanner(item.url)">
         <image class="banner-image" :src="item.pic" mode="widthFix"></image>
       </swiper-item>
     </swiper>
@@ -23,10 +23,10 @@ export default class Banner extends Vue {
   private autoplay: boolean = true;
 
   @Prop(Array)
-  private bannerImageList!: { id: number; pic: string }[];
+  private bannerImageList!: { id: number; pic: string; url: string }[];
 
-  clickBanner(id: number) {
-    this.$emit('clickBanner', id);
+  clickBanner(url: string) {
+    this.$emit('clickBanner', url);
   }
 }
 </script>

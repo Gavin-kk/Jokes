@@ -72,6 +72,7 @@ import { searchTopicRequest } from '@services/moment.request';
 import { AxiosResponse } from 'axios';
 import { IResponse } from '@services/interface/response.interface';
 import Empty from '@components/empty/empty.vue';
+import { getBannerRequest } from '@services/common.request';
 
 const MomentModule = namespace('momentModule');
 @Component({
@@ -96,10 +97,10 @@ export default class Topic extends Vue {
   // private popularTopicList: ITopic[] = [];
 
   // 轮播图数据
-  private bannerList: { id: number; pic: string }[] = [
-    { id: 1, pic: '/static/demo/datapic/1.jpg' },
-    { id: 2, pic: '/static/demo/datapic/2.jpg' },
-    { id: 3, pic: '/static/demo/datapic/3.jpg' },
+  private bannerList: { id: number; pic: string; url: string }[] = [
+    { id: 1, pic: '/static/demo/datapic/1.jpg', url: 'https://newin.top:8088' },
+    { id: 2, pic: '/static/demo/datapic/2.jpg', url: 'https://newin.top:8088' },
+    { id: 3, pic: '/static/demo/datapic/3.jpg', url: 'https://newin.top:8088' },
   ];
 
   get isShowSearch(): boolean {
@@ -110,6 +111,12 @@ export default class Topic extends Vue {
     this.getTopIcClassifyList();
     //   获取热门话题
     this.getHotTopic();
+    this.getBanner();
+  }
+
+  async getBanner() {
+    const result: AxiosResponse<IResponse<{ id: number; pic: string; url: string }[]>> = await getBannerRequest();
+    this.bannerList = result.data.data;
   }
 
   // 点击搜索到的话题 触发
@@ -154,15 +161,22 @@ export default class Topic extends Vue {
   }
 
   // 点击轮播图事件
-  clickBanner(id: number) {
-    uni.showToast({ title: `跳转到id为${id}` });
+  clickBanner(url: string) {
+    //  #ifdef APP-PLUS
+    plus.runtime.openURL(url);
+    //  #endif
+    //  #ifdef H5
+    window.location.href = url;
+    //  #endif
   }
+
   //   点击热门分类 tag 事件
   classifyTagClick(index: number) {
     uni.navigateTo({
       url: `/pages/topic-classify/topic-classify?index=${index}`,
     });
   }
+
   //   点击跳转更多热门分类
   clickMoreCategories() {
     uni.navigateTo({

@@ -17,10 +17,32 @@
     {
       "path": "pages/news/news",
       "style": {
-        //  #ifdef MP-WEIXIN
-        "navigationStyle": "custom",
-        //   #endif
+        "navigationStyle":"default",
         "app-plus": {
+          "titleNView": {
+            "backgroundColor": "#FFFFFF",
+            "titleText": "消息",
+            "buttons": [
+              {
+                "color": "#000000",
+                "colorPressed": "#bbbbbb",
+                "float": "left",
+                "fontSize": "22px",
+                "fontSrc": "./static/icon/icon.ttf",
+                "text": "\ue845"
+              },
+              {
+                "color": "#000000",
+                "colorPressed": "#bbbbbb",
+                "float": "right",
+                "fontSize": "22px",
+                "fontSrc": "./static/icon/icon.ttf",
+                "text": "\ue684"
+              }
+            ]
+          }
+        },
+        "h5": {
           "titleNView": {
             "backgroundColor": "#FFFFFF",
             "titleText": "消息",
@@ -52,7 +74,6 @@
         //  #ifdef MP-WEIXIN
         "navigationBarTitleText": "我"
         //   #endif
-        //        "navigationStyle": "custom"
       }
     },
     {
@@ -202,19 +223,19 @@
     }
   ],
   "globalStyle": {
-    "navigationStyle":"custom",
 
     //    "navigationBarTextStyle": "black",
 //    "navigationBarTitleText": "嘻嘻哈哈",
 //    "navigationBarBackgroundColor": "#F8F8F8",
 //    "backgroundColor": "#ccc",
     "app-plus": {
+      "navigationStyle":"custom",
       "scrollIndicator": "none",
       "bounce": "none" // 关闭反弹效果
     },
     "h5": {
-      "bounce": "none", // 关闭反弹效果
-      "titleNView": false
+      "navigationStyle":"custom",
+      "bounce": "none"// 关闭反弹效果
     }
   },
   "tabBar": {

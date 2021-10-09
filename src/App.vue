@@ -15,7 +15,6 @@ import { INews } from '@pages/news/news.vue';
 import { namespace } from 'vuex-class';
 import { IUser } from '@store/module/user';
 import { ContentType } from '@pages/news/components/chat-list/chat-list.vue';
-import { IFollowEventPayload } from '@components/dynamic/dynamic.vue';
 
 const UserModule = namespace('userModule');
 

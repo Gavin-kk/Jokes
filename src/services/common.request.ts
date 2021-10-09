@@ -31,3 +31,9 @@ export const feedbackRequest = (content: string) => request.post('/feedback', { 
 export const addGuestRequest = (visitorUserId: number) => request.post('/user/visitor', { visitorUserId });
 // 获取轮播图
 export const getBannerRequest = () => request.get('/carousel');
+// 获取省市区级联api
+export const getProvincesAndCitiesRequest = (id:number) => request.get('/geography/city', {
+  params: {
+    id,
+  },
+});

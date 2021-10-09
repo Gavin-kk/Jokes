@@ -1,45 +1,45 @@
 <template>
   <view>
-    <view :class="['box', 'animate__animated', startAndEndAnimation]" style="animation-duration: 200ms" v-show="isShow">
-      <view class="title">
-        <view @tap="close">取消</view>
-        <view class="title-right" @tap="complete">完成</view>
+    <view :class="['box', 'animate__animated', startAndEndAnimation]" style='animation-duration: 200ms' v-show='isShow'>
+      <view class='title'>
+        <view @tap='close'>取消</view>
+        <view class='title-right' @tap='complete'>完成</view>
       </view>
-      <view class="content">
-        <view class="m-list">
-          <block v-for="(item, index) in list" :key="index">
-            <view class="swiper-box-m animate__animated">
+      <view class='content'>
+        <view class='m-list'>
+          <block v-for='(item, index) in list' :key='index'>
+            <view class='swiper-box-m animate__animated'>
               <swiper
                 :class="['swiper-m', 'animate__animated', animationClassName]"
-                style="animation-duration: 200ms"
-                :display-multiple-items="3"
+                style='animation-duration: 200ms'
+                :display-multiple-items='3'
                 vertical
-                @change="swiperChange(index, $event)"
-                :current="list[index].currentSelectedIndex"
+                @change='swiperChange(index, $event)'
+                :current='list[index].currentSelectedIndex'
               >
                 <swiper-item>
-                  <view class="item"></view>
+                  <view class='item'></view>
                 </swiper-item>
-                <block v-for="(itemx, indey) in item.list" :key="itemx.value">
+                <block v-for='(itemx, indey) in item.list' :key='itemx.placeName'>
                   <swiper-item>
                     <view
-                      @tap="changeCurrentSelected(indey, index)"
+                      @tap='changeCurrentSelected(indey, index)'
                       :class="['item', { active: item.currentSelectedIndex === indey }]"
                     >
-                      {{ itemx.text }}
-                      <view class="loading-box" v-if="itemx.loading">
+                      {{ itemx.placeName }}
+                      <view class='loading-box' v-if='itemx.loading'>
                         <image
-                          class="loading"
-                          src="/static/loading.png"
-                          mode="aspectFit"
-                          :style="{ transform: `rotate(${loadingRotationDegree}deg)` }"
+                          class='loading'
+                          src='/static/loading.png'
+                          mode='aspectFit'
+                          :style='{ transform: `rotate(${loadingRotationDegree}deg)` }'
                         ></image>
                       </view>
                     </view>
                   </swiper-item>
                 </block>
                 <swiper-item>
-                  <view class="item"></view>
+                  <view class='item'></view>
                 </swiper-item>
               </swiper>
             </view>
@@ -49,21 +49,21 @@
     </view>
     <view
       :class="['mask', 'animate__animated', maskAnimation]"
-      @tap="close"
-      v-show="isShow"
-      style="animation-duration: 200ms"
+      @tap='close'
+      v-show='isShow'
+      style='animation-duration: 200ms'
     ></view>
   </view>
 </template>
 
-<script lang="ts">
-import { Vue, Component, Prop, Watch } from 'vue-property-decorator';
+<script lang='ts'>
+import { Component, Prop, Vue, Watch } from 'vue-property-decorator';
+import { getProvincesAndCitiesRequest } from '@services/common.request';
 
 export interface ICityList {
-  text: string;
-  value: string;
+  id: number;
+  placeName: string;
   loading: boolean;
-  child?: ICityList;
 }
 
 export interface IWrapper {
@@ -72,7 +72,7 @@ export interface IWrapper {
 }
 
 // loading 旋转的定时器
-let loadingTimer: number | null = null;
+let loadingTimer: number | undefined;
 @Component({})
 export default class CascadeSelection extends Vue {
   // 整个组件是否显示
@@ -99,64 +99,32 @@ export default class CascadeSelection extends Vue {
   // 是否启动动画 通过开关此属性来达到开启动画的效果
   private whetherToStartAnimation: boolean = false;
 
-  // @Prop({ type: Array, default: [] })
-  private firstLevelList: ICityList[] = [
-    { text: '内蒙古', value: '内蒙古', loading: false },
-    { text: '西藏', value: '西藏', loading: false },
-    { text: '广州', value: '广州', loading: false },
-    { text: '北京', value: '北京', loading: false },
-    { text: '西安', value: '西安', loading: false },
-  ];
-  private secondaryList: ICityList[] = [
-    { text: '呼和浩特', value: '呼和浩特', loading: false },
-    { text: '呼和浩特', value: '呼和浩特', loading: false },
-    { text: '呼和浩特', value: '呼和浩特', loading: false },
-    { text: '呼和浩特', value: '呼和浩特', loading: false },
-    { text: '呼和浩特', value: '呼和浩特', loading: false },
-  ];
-  private threeLevelList: ICityList[] = [
-    { text: '赛罕区', value: '赛罕区', loading: false },
-    { text: '赛罕区', value: '赛罕区', loading: false },
-    { text: '赛罕区', value: '赛罕区', loading: false },
-    { text: '赛罕区', value: '赛罕区', loading: false },
-    { text: '赛罕区', value: '赛罕区', loading: false },
-    { text: '赛罕区', value: '赛罕区', loading: false },
-    { text: '赛罕区', value: '赛罕区', loading: false },
-    { text: '赛罕区', value: '赛罕区', loading: false },
-    { text: '赛罕区', value: '赛罕区', loading: false },
-    { text: '赛罕区', value: '赛罕区', loading: false },
-    { text: '赛罕区', value: '赛罕区', loading: false },
-    { text: '赛罕区', value: '赛罕区', loading: false },
-    { text: '赛罕区', value: '赛罕区', loading: false },
-    { text: '赛罕区', value: '赛罕区', loading: false },
-    { text: '赛罕区', value: '赛罕区', loading: false },
-    { text: '赛罕区', value: '赛罕区', loading: false },
-    { text: '赛罕区', value: '赛罕区', loading: false },
-    { text: '赛罕区', value: '赛罕区', loading: false },
-    { text: '赛罕区', value: '赛罕区', loading: false },
-    { text: '赛罕区', value: '赛罕区', loading: false },
-    { text: '赛罕区', value: '赛罕区', loading: false },
-    { text: '赛罕区', value: '赛罕区', loading: false },
-    { text: '赛罕区', value: '赛罕区', loading: false },
-    { text: '赛罕区', value: '赛罕区', loading: false },
-    { text: '赛罕区', value: '赛罕区', loading: false },
-    { text: '赛罕区', value: '赛罕区', loading: false },
-    { text: '赛罕区', value: '赛罕区', loading: false },
-    { text: '赛罕区', value: '赛罕区', loading: false },
-  ];
+  private list: IWrapper[] = [];
 
-  private list: IWrapper[] = [
-    // 省的当前选择项
-    { currentSelectedIndex: 0, list: this.firstLevelList },
-    // 市的当前选择项
-    // { currentSelectedIndex: 0, list: this.secondaryList },
-    // 区或县当前选择项
-    // { currentSelectedIndex: 0, list: this.threeLevelList },
-  ];
+  async created() {
+   await this.getData();
+   await this.getData(this.list[0].list[0].id);
+  }
+
+  async getData(id: number = 1, index?: number): Promise<boolean> {
+    const result = await getProvincesAndCitiesRequest(id);
+    if (typeof index === 'number') {
+      // 如果点击的是省 去除后边的市
+      this.list.splice(index + 1);
+      if (this.list[index + 1]?.list.length > 0 && result.data.data[0].id === this.list[index + 1]?.list[0]?.id) {
+        return false;
+      }
+    }
+    if (result.data.data.length === 0) return false;
+    const list:ICityList[] = result.data.data.map((item) => ({ ...item, loading: false }));
+    this.list.push({ currentSelectedIndex: 0, list });
+    return true;
+  }
 
   // swiper change 事件
   swiperChange(index: number, e: { detail: { current: number } }) {
     this.list[index].currentSelectedIndex = e.detail.current;
+    this.getData(this.list[index].list[e.detail.current].id, index);
   }
 
   // 点击切换当前选择
@@ -166,29 +134,25 @@ export default class CascadeSelection extends Vue {
     // 切换当前选择
     this.list[pIndex].currentSelectedIndex = index;
     this.rotatingLoading();
-
+    // 开启动画
+    this.whetherToStartAnimation = true;
     // 获取数据
-    setTimeout(() => {
-      // 开启动画
-      this.whetherToStartAnimation = true;
-      if (pIndex === 0) {
-        this.list.splice(1);
-      }
-      this.list[pIndex + 1] = { currentSelectedIndex: 0, list: this.secondaryList };
-
-      // 取到数据 loading 停止
-      this.list[pIndex].list[index].loading = false;
-      // 停止定时器
-      clearInterval(loadingTimer || undefined);
+    const whetherToShowAnimation: boolean = await this.getData(this.list[pIndex].list[index].id, pIndex);
+    if (whetherToShowAnimation && this.list.length < 3) {
       // 等动画完毕 关闭动画
       setTimeout(() => {
         this.whetherToStartAnimation = false;
       }, 200);
-    }, 1000);
+    }
+    // 取到数据 loading 停止
+    this.list[pIndex].list[index].loading = false;
+    // 停止定时器
+    clearInterval(loadingTimer);
   }
 
   // 动loading旋转
   rotatingLoading() {
+    this.loadingRotationDegree += 360;
     loadingTimer = setInterval(() => {
       this.loadingRotationDegree += 360;
     }, 500);
@@ -198,7 +162,7 @@ export default class CascadeSelection extends Vue {
   complete() {
     let str: string = '';
     this.list.forEach((item) => {
-      str += `-${item.list[item.currentSelectedIndex].value}`;
+      str += `-${item.list[item.currentSelectedIndex].placeName}`;
     });
     str = str.replace('-', '');
     this.$emit('complete', str);
@@ -212,10 +176,12 @@ export default class CascadeSelection extends Vue {
   get animationClassName(): string {
     return this.whetherToStartAnimation ? 'animate__fadeInRight' : '';
   }
+
   // 控制开始动画和结束动画的计算属性
   get startAndEndAnimation(): string {
     return this.componentIsShow ? 'animate__fadeInUp' : 'animate__fadeOutDown';
   }
+
   //  蒙版的动画
   get maskAnimation(): string {
     return this.componentIsShow ? 'animate__fadeIn' : 'animate__fadeOut';
@@ -223,7 +189,7 @@ export default class CascadeSelection extends Vue {
 }
 </script>
 
-<style lang="scss" scoped>
+<style lang='scss' scoped>
 .box {
   position: fixed;
   bottom: 0;
@@ -316,6 +282,7 @@ export default class CascadeSelection extends Vue {
     }
   }
 }
+
 .mask {
   position: fixed;
   left: 0;

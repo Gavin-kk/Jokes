@@ -77,15 +77,15 @@
             }
         },
         "devServer" : {
-//             "https" : true
-//            "proxy":{
-//                "/api": {
-//                    "target":"https://127.0.0.1/api",
-//                    "changeOrigin": true,//是否跨域
-//                    "secure": true,// 设置支持https协议的代理
-//                    "pathRewrite":{"^/api":""}
-//                }
-//            }
+             "https" : true,
+            "proxy":{
+                "/api": {
+                    "target":"https://127.0.0.1/api",
+                    "changeOrigin": true,//是否跨域
+                    "secure": true,// 设置支持https协议的代理
+                    "pathRewrite":{"^/api":""}
+                }
+            }
         }
     }
 }

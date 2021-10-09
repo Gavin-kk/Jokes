@@ -42,7 +42,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Mixins, Vue, Watch } from 'vue-property-decorator';
+import { Component, Vue, Watch } from 'vue-property-decorator';
 import HomeTopBar from '@components/home-topbar/home-topbar.vue';
 import slidingList from '@components/sliding-list/sliding-list.vue';
 import { namespace } from 'vuex-class';
